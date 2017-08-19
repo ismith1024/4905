@@ -8,3 +8,6 @@ Controller::Controller(){
 void Controller::handleTokenizeRequest(){
     qDebug() << "Tokenize button pressed";
 }
+
+
+//New text
