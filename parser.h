@@ -5,14 +5,23 @@
 #include <QStringRef>
 #include <QVector>
 #include <QList>
+#include <string>
+#include <iostream>
+#include <QDebug>
+#include <QFileDialog>
+#include <QStandardPaths>
 
-using namespace std;
+
 
 class Parser{
 
 public:
     Parser();
-    QStringList& parse(QString&, QString&); //breaks a text stream into tokens
+    QStringList& parse(QString&, QString&, QString&); //breaks a text stream into tokens
+    void test();
+
+private:
+    QString workingPath;
 
 };
 

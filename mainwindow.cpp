@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <iostream>
 #include <QDebug>
+#include "parser.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow){
 
@@ -9,6 +10,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     qDebug() << "Window is open";
 
     control = Controller();
+
+    ////This section is for testing
+    Parser* parser = new Parser();
+    parser->test();
+
+
 }
 
 MainWindow::~MainWindow(){
