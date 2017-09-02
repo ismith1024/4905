@@ -36,7 +36,8 @@ SOURCES += \
     trie.cpp \
     controller.cpp \
     repository.cpp \
-    sqlcontroller.cpp
+    sqlcontroller.cpp \
+    tokenizer.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -45,7 +46,8 @@ HEADERS += \
     trie.h \
     controller.h \
     repository.h \
-    sqlcontroller.h
+    sqlcontroller.h \
+    tokenizer.h
 
 FORMS += \
         mainwindow.ui
