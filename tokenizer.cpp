@@ -9,19 +9,69 @@
 using namespace std;
 
 int main(int argc, char* argv[]){
-
     if(argc < 2){
         //qDebug() << "File name required";
         cout << "File name required";
         return 1;
     }
 
+    Tokenizer* tok = new Tokenizer(argv[1]);
+    tok->tokenize();
+    tok->writeToSQL();
+
+    delete tok;
+}
+
+
+
+Tokenizer::Tokenizer(string f){
+    records = new vector<SQLrecord>();
+    workingFile = f;
+}
+
+Tokenizer::~Tokenizer(){
+    for(vector<SQLRecord*>::iterator it = records->begin(); it != records->end(); ++it) {
+        delete *it;
+    }
+
+    delete records;
+}
+
+void Tokenizer::writeToSQL(){
+    // load the SQLite driver
+    database = QSqlDatabase::addDatabase("QSQLITE");
+
+    //Define and open the db file
+    QDir curr = QDir::current();
+    //curr.cdUp();
+    QString dbLocation = curr.path() + "4905.db";
+    database.setDatabaseName(dbLocation);
+
+    //open the database and execute the query
+    database.open();
+    QSqlQuery query;
+    query.prepare("INSERT INTO records(fileName, tokens)"
+                  "VALUES (:ifile, :itok)");
+
+    for(vector<SQLRecord*>::iterator it = records->begin(); it != records->end(); ++it) {
+
+        query.bindValue(":file", it->fileName);
+        query.bindValue(":data", it->record);
+
+        bool res = query.exec();
+        if(!res)    qDebug() << query.lastError();
+    }
+    //return res;
+
+}
+
+void Tokenizer::tokenize(){
     string line;
-    ifstream infile(argv[1]);
+    ifstream infile(workingFile);
     string parsed = "";
 
     if (infile.is_open()) {
-      cout << "Parsing file " << argv[1];
+      cout << "Parsing file " << workingFile;
       while ( getline (infile,line) ){
           cout << ".";
           replace(line.begin(), line.end(), '\n', '|');
@@ -63,16 +113,19 @@ int main(int argc, char* argv[]){
 
           parsed.append(line);
           parsed.append("|");
+          records->push_back(new SQLrecord(workingFile, parsed));
 
       }
       infile.close();
     } else{
-        cout << "Unable to open file " << argv[1] << endl;
+        cout << "Unable to open file " << workingFile << endl;
         return 1;
     }
 
-    cout << endl << argv[1] << " : " << parsed << endl;
+    cout << endl << workingFile << " : " << parsed << endl;
 
     return 0;
 
 }
+
+

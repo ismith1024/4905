@@ -37,7 +37,8 @@ SOURCES += \
     controller.cpp \
     repository.cpp \
     sqlcontroller.cpp \
-    tokenizer.cpp
+    tokenizer.cpp \
+    sqlrecord.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -47,7 +48,8 @@ HEADERS += \
     controller.h \
     repository.h \
     sqlcontroller.h \
-    tokenizer.h
+    tokenizer.h \
+    sqlrecord.h
 
 FORMS += \
         mainwindow.ui
