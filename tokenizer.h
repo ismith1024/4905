@@ -3,7 +3,8 @@
 
 #endif // TOKENIZER_H
 
-#include"sqlrecord.h";
+#include "sqlrecord.h"
+#include<vector>
 
 using namespace std;
 
@@ -20,4 +21,4 @@ public:
     void tokenize();
     void writeToSQL();
 
-}
+};

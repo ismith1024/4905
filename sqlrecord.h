@@ -13,4 +13,4 @@ public:
     string record;
     SQLrecord(string, string);
 
-}
+};

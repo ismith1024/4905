@@ -5,6 +5,11 @@
 #include <fstream>
 #include <algorithm>
 #include<stdio.h>
+#include<QSqlDatabase>
+#include<QString>
+#include<QDir>
+#include<QSqlQuery>
+#include<QSqlError>
 
 using namespace std;
 
@@ -25,12 +30,12 @@ int main(int argc, char* argv[]){
 
 
 Tokenizer::Tokenizer(string f){
-    records = new vector<SQLrecord>();
+    records = new vector<SQLrecord*>();
     workingFile = f;
 }
 
 Tokenizer::~Tokenizer(){
-    for(vector<SQLRecord*>::iterator it = records->begin(); it != records->end(); ++it) {
+    for(vector<SQLrecord*>::iterator it = records->begin(); it != records->end(); ++it) {
         delete *it;
     }
 
@@ -39,29 +44,44 @@ Tokenizer::~Tokenizer(){
 
 void Tokenizer::writeToSQL(){
     // load the SQLite driver
-    database = QSqlDatabase::addDatabase("QSQLITE");
+    QSqlDatabase database = QSqlDatabase::addDatabase("QSQLITE");
 
     //Define and open the db file
     QDir curr = QDir::current();
     //curr.cdUp();
-    QString dbLocation = curr.path() + "4905.db";
+    QString dbLocation = curr.path() + "/4905.db";
+    qDebug() << dbLocation << endl;
     database.setDatabaseName(dbLocation);
 
     //open the database and execute the query
     database.open();
-    QSqlQuery query;
-    query.prepare("INSERT INTO records(fileName, tokens)"
-                  "VALUES (:ifile, :itok)");
+    QSqlQuery query(database);
 
-    for(vector<SQLRecord*>::iterator it = records->begin(); it != records->end(); ++it) {
 
-        query.bindValue(":file", it->fileName);
-        query.bindValue(":data", it->record);
+    for(vector<SQLrecord*>::iterator it = records->begin(); it != records->end(); ++it) {
+
+        QString s1 = QString::fromStdString((*it)->fileName);
+        QString s2 = QString::fromStdString((*it)->record); //.replace('\'', ' ');
+        QString s3 = "test";
+
+        //cout << "Binding" << s1.toStdString() << "  " << s2.toStdString();
+
+        query.prepare("INSERT INTO records(fileName, tokens) VALUES(:FILE, :DATA);");
+        query.bindValue(":FILE", s1); //, QSql::In);
+        query.bindValue(":DATA", s2); //, QSql::In);
+
+
+        //qDebug() << s1 << "," << s2 << endl;
+        //query.prepare("INSERT INTO records(fileName, tokens) VALUES(?, ?);");
+        //query.addBindValue(s1);
+        //query.addBindValue(s2);
+
+
+        qDebug() << query.lastQuery();
 
         bool res = query.exec();
         if(!res)    qDebug() << query.lastError();
     }
-    //return res;
 
 }
 
@@ -71,9 +91,9 @@ void Tokenizer::tokenize(){
     string parsed = "";
 
     if (infile.is_open()) {
-      cout << "Parsing file " << workingFile;
+      //cout << "Parsing file " << workingFile;
       while ( getline (infile,line) ){
-          cout << ".";
+          //cout << ".";
           replace(line.begin(), line.end(), '\n', '|');
           replace(line.begin(), line.end(), ' ', '|');
           replace(line.begin(), line.end(), '\r', '|');
@@ -113,18 +133,17 @@ void Tokenizer::tokenize(){
 
           parsed.append(line);
           parsed.append("|");
-          records->push_back(new SQLrecord(workingFile, parsed));
-
       }
       infile.close();
+      records->push_back(new SQLrecord(workingFile, parsed));
     } else{
         cout << "Unable to open file " << workingFile << endl;
-        return 1;
+        return;// 1;
     }
 
-    cout << endl << workingFile << " : " << parsed << endl;
+    //cout << endl << workingFile << " : " << parsed << endl;
 
-    return 0;
+    return; // 0;
 
 }
 
