@@ -39,7 +39,8 @@ SOURCES += \
     sqlcontroller.cpp \
     tokenizer.cpp \
     sqlrecord.cpp \
-    utilityalgorithms.cpp
+    utilityalgorithms.cpp \
+    hcluster.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -51,7 +52,8 @@ HEADERS += \
     sqlcontroller.h \
     tokenizer.h \
     sqlrecord.h \
-    utilityalgorithms.h
+    utilityalgorithms.h \
+    hcluster.h
 
 FORMS += \
         mainwindow.ui
