@@ -13,22 +13,6 @@
 
 using namespace std;
 
-int main(int argc, char* argv[]){
-    if(argc < 2){
-        //qDebug() << "File name required";
-        cout << "File name required";
-        return 1;
-    }
-
-    Tokenizer* tok = new Tokenizer(argv[1]);
-    tok->tokenize();
-    tok->writeToSQL();
-
-    delete tok;
-}
-
-
-
 Tokenizer::Tokenizer(string f){
     records = new vector<SQLrecord*>();
     workingFile = f;

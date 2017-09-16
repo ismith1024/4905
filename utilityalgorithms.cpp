@@ -25,34 +25,34 @@ function LCSubstr(S[1..m], T[1..n])
                 L[i,j] := 0
     return ret
 */
-int UtilityAlgorithms::longestCommonSS(String s1, String s2){
+int UtilityAlgorithms::longestCommonSS(string s1, string s2){
 
-    int m = s1.length;
-    int n = s2.length;
+    int m = s1.length();
+    int n = s2.length();
     int len[m][n];
 
     int z = 0;
-    Srtring ret = "";
+    string ret = "";
 
     for(int i = 0; i < m; ++i){
         for(int j = 0; j < n; ++j){
             if(s1[i] == s2[j]){
-                if(i == 1 || j == 1){
-                    len[i,j] = 1;
+                if(i == 0 || j == 0){
+                    len[i][j] = 1;
                 }
                 else{
-                    len[i,j] = len[i-1,j-1] + 1;
+                    len[i][j] = len[i-1][j-1] + 1;
                 }
 
-                if(len[i,j] > z){
-                     z = len[i,j];
-                     ret = s1.substring(i-z+1,i);
+                if(len[i][j] > z){
+                     z = len[i][j];
+                     ret = s1.substr(i-z+1,i);
                 }
-                else if (len[i,j] == z){
-                    ret = ret + s1.substring(i-z+1,i);
+                else if (len[i][j] == z){
+                    ret = ret + s1.substr(i-z+1,i);
                 }
             } // if
-            else len[i,j] = 0;
+            else len[i][j] = 0;
         } //for
     } //for
     return z;
@@ -90,29 +90,29 @@ int EditDistance(char s[1..m], char t[1..n])
 
    return d[m,n]
 */
-int UtilityAlgorithms::levDist(String s1, String s2){
+int UtilityAlgorithms::levDist(string s1, string s2){
 
-    int m = s1.length;
-    int n = s2.length;
+    int m = s1.length();
+    int n = s2.length();
     int dist[m+1][n+1];
 
     for(int i = 0; i <= m; ++i){
-         dist[i, 0] = i;
+         dist[i][0] = i;
     }
 
     for(int j = 0; j <= n; ++j){
-         dist[0, j] = j;
+         dist[0][j] = j;
     }
 
-    for(int j = 1; j <= n; ++j){
-        for(int i = 1; i <= m; ++i){
+    for(int j = 0; j <= n; ++j){
+        for(int i = 0; i <= m; ++i){
             if(s1[i] == s2[j]){
-                dist[i, j] = dist[i-1, j-1];
+                dist[i][j] = dist[i-1][j-1];
             } else{
-                dist[i, j] = min( dist[i-1, j] + 1, min( dist[i, j-1] + 1, dist[i-1, j-1] + 1));
+                dist[i][j] = min( dist[i-1][j] + 1, min( dist[i][j-1] + 1, dist[i-1][j-1] + 1));
             }
         }
     }
 
-    return dist[m,n];
+    return dist[m][n];
 }

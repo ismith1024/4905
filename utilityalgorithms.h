@@ -3,12 +3,14 @@
 
 #endif // UTILITYALGORITHMS_H
 
+#include <string>
+
 using namespace std;
 
 class UtilityAlgorithms{
 public:
-    int longestCommonSS(String, String);
-    int levDist(String, String);
+    static int longestCommonSS(string, string);
+    static int levDist(string, string);
 
 
 
