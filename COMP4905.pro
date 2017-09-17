@@ -53,7 +53,8 @@ HEADERS += \
     tokenizer.h \
     sqlrecord.h \
     utilityalgorithms.h \
-    hcluster.h
+    hcluster.h \
+    component.h
 
 FORMS += \
         mainwindow.ui

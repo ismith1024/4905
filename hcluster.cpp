@@ -17,7 +17,7 @@ bool HCLuster::checkForMerge(HCluster* hc){
         for(string s2: hc->data){
             int dist = levdist(s1, s2);
             if(dist > HCluster::MAX_VARIANCE) return false;
-            if(dist < HCluster::INCLUSION_CRITERION) ret = true;
+            if(dist <= HCluster::INCLUSION_CRITERION) ret = true;
         }
     }
     return ret;
