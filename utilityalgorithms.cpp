@@ -116,3 +116,12 @@ int UtilityAlgorithms::levDist(string s1, string s2){
 
     return dist[m][n];
 }
+
+//Function overloads to compare objects
+int UtilityAlgorithms::longestCommonSS(Component& c1, Component& c2){
+    return UtilityAlgorithms::longestCommonSS(c1.mpn, c2.mpn);
+}
+
+int UtilityAlgorithms::levDist(Component& c1, Component& c2){
+    return UtilityAlgorithms::levDist(c1.mpn, c2.mpn);
+}
