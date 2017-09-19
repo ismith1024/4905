@@ -40,7 +40,8 @@ SOURCES += \
     tokenizer.cpp \
     sqlrecord.cpp \
     utilityalgorithms.cpp \
-    hcluster.cpp
+    hcluster.cpp \
+    component.cpp
 
 HEADERS += \
         mainwindow.h \

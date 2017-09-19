@@ -4,7 +4,7 @@
 #include <iostream>
 #include "utilityalgorithms.h"
 
-/*
+/* code for the GUI app
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -19,7 +19,11 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-    string s1 = "Kittens";
+
+
+
+    /* Code for testing out the strign distance
+     * string s1 = "Kittens";
     string s2 = "Mittens";
     string s3 = "Mitts";
 
@@ -38,7 +42,7 @@ int main(int argc, char* argv[]){
     test = UtilityAlgorithms::levDist(s2, s3);
 
     cout << "Levenshtein -- " << s2 << ", " << s3 << " " << test << endl;
-
+*/
 
 
     /* TOKENIZER

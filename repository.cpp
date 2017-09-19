@@ -27,4 +27,21 @@ Repository::~Repository(){
     database.close();
 }
 
+void Repository::getComponents(vector<Component>& coll){
+    query.exec("SELECT * FROM comps;");
+
+    Component* newComp;
+
+    while(query.next()){
+        string mfr = query.value(0).toString();
+        string mpn = query.value(1).toString();
+        string desc = query.value(2).toString();
+        string type = query.value(3).toString();
+
+        newComp = new Component(mfr, mpn, desc, type);
+
+        coll.push_back(newProj);
+    }
+}
+
 

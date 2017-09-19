@@ -8,8 +8,11 @@
 using namespace std;
 
 class Component{
+
 public:
+    Component(string, string, string, string);
     string mfr;
     string mpn;
     string description;
+    string type;
 };
