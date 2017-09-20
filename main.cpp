@@ -25,8 +25,10 @@ int main(int argc, char* argv[]){
     vector<Component> collection = vector<Component>();
     repo.getComponents(collection);
 
+    int i = 0;
+
     for(Component c: collection){
-        cout << "MFR: " << c.mfr << "   MPN: " << c.mpn << " -- " << c.description << endl;
+        cout << i++ << ". MFR: " << c.mfr << "   MPN: " << c.mpn << " -- " << c.description << endl;
     }
 
 

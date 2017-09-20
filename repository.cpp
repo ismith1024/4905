@@ -11,12 +11,9 @@ Repository::Repository(){
 
     //Define and open the SQLite database file
     QDir curr = QDir::current();
-    //curr.cdUp();
-        qDebug() << curr.path();
-    QString dbLocation =  curr.path() + "tf2.db"; //"/home/git/COMP4905/tf2.db"; /*curr.path()*/
+    QString dbLocation =  curr.path() + "/tf2.db";
     database.setDatabaseName(dbLocation);
     database.open();
-    //sf->setDB(database);
     qDebug() << "Open the database";
 
 }
@@ -32,12 +29,11 @@ Repository::~Repository(){
 void Repository::getComponents(vector<Component>& coll){
     QSqlQuery query;
 
-    QString q = "SELECT * FROM comps;";
-    qDebug() << q;
-
-    query.exec(q);
-
-    qDebug() << query.first();
+    if (!query.exec("SELECT * FROM comps;")){
+         qDebug() << "SQL error: "<< query.lastError().text() << endl;
+         exit(-1);
+    }
+    else qDebug() << query.first();
 
     Component* newComp;
 
@@ -49,8 +45,6 @@ void Repository::getComponents(vector<Component>& coll){
         string type = query.value(3).toString().toStdString();
 
         newComp = new Component(mfr, mpn, desc, type);
-
-        cout << "New component: " << newComp->mfr << " .. " << newComp->mpn << endl;
 
         coll.push_back(*newComp);
     }
