@@ -1,15 +1,16 @@
-#include "hcluster.h"dat
+#include "hcluster.h"
 #include "utilityalgorithms.h"
 
 
-HCLuster::HCluster(){
+HCluster::HCluster(){
     data = new vector<Component*>();
 }
 
-~HCluster(){
+HCluster::~HCluster(){
     delete data;
 }
 
+/*
 //can two clusters be merged?
 bool HCLuster::checkForMerge(HCluster* hc){
     bool ret = false;
@@ -50,3 +51,4 @@ bool HCLuster::checkForAdd(Component* st){
 void HCLuster::add(Component* st){
     data.push_back(st);
 }
+*/

@@ -1,6 +1,7 @@
 #include "repository.h"
 #include <iostream>
 #include <QDebug>
+#include <qstring.h>
 
 Repository::Repository(){
     //facade = sf;
@@ -10,10 +11,11 @@ Repository::Repository(){
 
     //Define and open the SQLite database file
     QDir curr = QDir::current();
-    curr.cdUp();
-    QString dbLocation = curr.path() + "TF2.db";
+    //curr.cdUp();
+        qDebug() << curr.path();
+    QString dbLocation =  curr.path() + "tf2.db"; //"/home/git/COMP4905/tf2.db"; /*curr.path()*/
     database.setDatabaseName(dbLocation);
-    //database.open();
+    database.open();
     //sf->setDB(database);
     qDebug() << "Open the database";
 
@@ -28,19 +30,29 @@ Repository::~Repository(){
 }
 
 void Repository::getComponents(vector<Component>& coll){
-    query.exec("SELECT * FROM comps;");
+    QSqlQuery query;
+
+    QString q = "SELECT * FROM comps;";
+    qDebug() << q;
+
+    query.exec(q);
+
+    qDebug() << query.first();
 
     Component* newComp;
 
     while(query.next()){
-        string mfr = query.value(0).toString();
-        string mpn = query.value(1).toString();
-        string desc = query.value(2).toString();
-        string type = query.value(3).toString();
+        cout << query.value(0).toString().toStdString();
+        string mfr = query.value(0).toString().toStdString();
+        string mpn = query.value(1).toString().toStdString();
+        string desc = query.value(2).toString().toStdString();
+        string type = query.value(3).toString().toStdString();
 
         newComp = new Component(mfr, mpn, desc, type);
 
-        coll.push_back(newProj);
+        cout << "New component: " << newComp->mfr << " .. " << newComp->mpn << endl;
+
+        coll.push_back(*newComp);
     }
 }
 

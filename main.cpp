@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 #include "utilityalgorithms.h"
+#include "repository.h"
+//#include "component.h"
 
 /* code for the GUI app
 int main(int argc, char *argv[])
@@ -19,7 +21,13 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
+    Repository repo = Repository();
+    vector<Component> collection = vector<Component>();
+    repo.getComponents(collection);
 
+    for(Component c: collection){
+        cout << "MFR: " << c.mfr << "   MPN: " << c.mpn << " -- " << c.description << endl;
+    }
 
 
     /* Code for testing out the strign distance
