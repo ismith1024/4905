@@ -16,6 +16,8 @@ public:
     static const int INCLUSION_CRITERION = 4;
     static const int MAX_VARIANCE = 6;
 
+    static const int MIN_SS = 3;
+
     HCluster();
     ~HCluster();
 

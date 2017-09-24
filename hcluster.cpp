@@ -41,19 +41,29 @@ bool HCluster::checkForAdd(Component* st){
     int dist = 0;
 
     for(Component* s: *data){
-        //cout << "Compare: " << (*st).mpn << " -- " << (*s).mpn << endl;
+
+        //use this to include on basis of substring
+        int subs = UtilityAlgorithms::longestCommonSS(*st, *s);
+
+        //use this to include on basis of Levenshtein distance
         int dist2 = UtilityAlgorithms::levDist(*st, *s); //also try this with dist - LCSS
         if(dist2 > dist) dist = dist2;
+
+        //use this to reject on excessive Levenshtein distance
         if(dist2 > HCluster::MAX_VARIANCE){
             //cout << "REJECTED (dist: " << dist2 << ") -- " << st->mpn << " -- " << s->mpn << endl;
             return false;
         }
-        if(dist2 <= HCluster::INCLUSION_CRITERION) {
+
+        //include on substring
+        if(subs >= HCluster::MIN_SS) ret = true;
+
+        //include on distance
+        /*if(dist2 <= HCluster::INCLUSION_CRITERION) {
             ret = true;
-        }
+        }*/
     }
 
-    //cout << "ADDED (dist = " << dist << ") -- " << st->mfr << " : " << st->mpn << endl;
     return ret;
 }
 
