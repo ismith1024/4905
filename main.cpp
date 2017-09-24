@@ -30,7 +30,7 @@ int main(int argc, char* argv[]){
     int i = 0;
     for(Component* c: collection){
         ++i;
-        if(i == 100) break;
+        //if(i == 100) break;
         bool added = false;
         if(c->mfr.compare("ANY SUPPLIER") == 0) continue;
 
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]){
             if(clust->checkForAdd(c)){
                 clust->add(c);
                 added = true;
-                //cout << "Found cluster for " << c->mfr << " : " << c->mpn << endl;
+                cout << "Found cluster for " << c->mfr << " : " << c->mpn << endl;
             }
             if(added) break;
         }
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]){
             HCluster* newClust = new HCluster();
             newClust->add(c);
             clusters.push_back(newClust);
-            //cout << "Create new cluster " << c->mfr << " : " << c->mpn << endl;
+            cout << "Create new cluster " << c->mfr << " : " << c->mpn << endl;
         }
     }
 
@@ -63,8 +63,8 @@ int main(int argc, char* argv[]){
         }
     }
 
-    cout<< "TEST" << endl << "593D476X9020D2TE3" << " " << "BLM18PG181SH1D" << endl;
-    cout << UtilityAlgorithms::levDist("593D476X9020D2TE3", "BLM18PG181SH1D");
+    //cout<< "TEST" << endl << "593D476X9020D2TE3" << " " << "BLM18PG181SH1D" << endl;
+    //cout << UtilityAlgorithms::levDist("593D476X9020D2TE3", "BLM18PG181SH1D");
 
 
 

@@ -41,10 +41,11 @@ bool HCluster::checkForAdd(Component* st){
     int dist = 0;
 
     for(Component* s: *data){
+        //cout << "Compare: " << (*st).mpn << " -- " << (*s).mpn << endl;
         int dist2 = UtilityAlgorithms::levDist(*st, *s); //also try this with dist - LCSS
-        if(dist2 < dist) dist = dist2;
+        if(dist2 > dist) dist = dist2;
         if(dist2 > HCluster::MAX_VARIANCE){
-            cout << "REJECTED -- " << st->mpn << " -- " << s->mpn << endl;
+            //cout << "REJECTED (dist: " << dist2 << ") -- " << st->mpn << " -- " << s->mpn << endl;
             return false;
         }
         if(dist2 <= HCluster::INCLUSION_CRITERION) {
@@ -52,7 +53,7 @@ bool HCluster::checkForAdd(Component* st){
         }
     }
 
-    cout << "ADDED (dist = " << dist << ") -- " << st->mfr << " : " << st->mpn << endl;
+    //cout << "ADDED (dist = " << dist << ") -- " << st->mfr << " : " << st->mpn << endl;
     return ret;
 }
 

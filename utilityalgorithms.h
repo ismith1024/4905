@@ -5,6 +5,7 @@
 
 #include <string>
 #include "component.h"
+#include<iostream>
 
 using namespace std;
 

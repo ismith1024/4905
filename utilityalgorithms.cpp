@@ -123,5 +123,6 @@ int UtilityAlgorithms::longestCommonSS(Component& c1, Component& c2){
 }
 
 int UtilityAlgorithms::levDist(Component& c1, Component& c2){
+    //cout << "Compare: " <<  c1.mpn << " , " << c2.mpn << " dist: " << levDist(c1.mpn, c2.mpn) << endl;
     return UtilityAlgorithms::levDist(c1.mpn, c2.mpn);
 }
