@@ -38,13 +38,21 @@ void HCluster::merge(HCluster* hc){
 //check if a string goes in the cluster
 bool HCluster::checkForAdd(Component* st){
     bool ret = false;
+    int dist = 0;
 
     for(Component* s: *data){
-        int dist = UtilityAlgorithms::levDist(*st, *s); //also try this with dist - LCSS
-        if(dist > HCluster::MAX_VARIANCE) return false;
-        if(dist <= HCluster::INCLUSION_CRITERION) ret = true;
+        int dist2 = UtilityAlgorithms::levDist(*st, *s); //also try this with dist - LCSS
+        if(dist2 < dist) dist = dist2;
+        if(dist2 > HCluster::MAX_VARIANCE){
+            cout << "REJECTED -- " << st->mpn << " -- " << s->mpn << endl;
+            return false;
+        }
+        if(dist2 <= HCluster::INCLUSION_CRITERION) {
+            ret = true;
+        }
     }
 
+    cout << "ADDED (dist = " << dist << ") -- " << st->mfr << " : " << st->mpn << endl;
     return ret;
 }
 

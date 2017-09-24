@@ -30,7 +30,7 @@ int main(int argc, char* argv[]){
     int i = 0;
     for(Component* c: collection){
         ++i;
-        if(i == 1000) break;
+        if(i == 100) break;
         bool added = false;
         if(c->mfr.compare("ANY SUPPLIER") == 0) continue;
 
