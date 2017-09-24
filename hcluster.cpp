@@ -3,7 +3,7 @@
 #include<map>
 #include<iostream>
 
-const float HCluster::INCLUSION_RATIO = 0.3333333;
+const float HCluster::INCLUSION_RATIO = 0.25;
 
 HCluster::HCluster(){
     data = new vector<Component*>();

@@ -5,6 +5,7 @@
 #include "utilityalgorithms.h"
 #include "repository.h"
 #include "hcluster.h"
+#include<map>;
 //#include "component.h"
 
 /* code for the GUI app
@@ -38,7 +39,7 @@ int main(int argc, char* argv[]){
             if(clust->checkForAdd(c)){
                 clust->add(c);
                 added = true;
-                cout << "Found cluster for " << c->mfr << " : " << c->mpn << endl;
+                //cout << "Found cluster for " << c->mfr << " : " << c->mpn << endl;
             }
             if(added) break;
         }
@@ -47,29 +48,57 @@ int main(int argc, char* argv[]){
             HCluster* newClust = new HCluster();
             newClust->add(c);
             clusters.push_back(newClust);
-            cout << "Create new cluster " << c->mfr << " : " << c->mpn << endl;
+            //cout << "Create new cluster " << c->mfr << " : " << c->mpn << endl;
         }
     }
 
-    cout << "Opened " << collection.size() << " components." << endl;
-    cout << "Found " << clusters.size() << " clusters." << endl;
+    int totalComps = 0;
+    int minorityComps = 0;
+    int singletonComps = 0;
 
-    for(HCluster* c: clusters){
-        int sz = c->numCategories();
-        cout << "Cluster -- size: " << c->numEntries() << "   Number of categories: " << sz << endl;
+    for(HCluster* clus: clusters){
+
+        int sz = clus->numCategories();
+        cout << "Cluster -- size: " << clus->numEntries() << "   Number of categories: " << sz << endl;
         if(sz >= 10){
             cout << "Large category:" << endl;
-            c->dumpComponents();
+            clus->dumpComponents();
         }
+
+        totalComps += clus->data->size();
+
+        if(clus->data->size() == 1){
+            singletonComps++;
+        } else{
+            map<string, int> counts;
+
+            for(Component* comp: *(clus->data)){
+                counts[comp->type]++;
+            }
+
+            int max = 0;
+            for(auto& item: counts){
+                if(item.second > max) max = item.second;
+            }
+
+            minorityComps += clus->data->size() - max;
+        }
+
+
     }
 
+    cout << "---------------------" << endl << "Opened " << collection.size() << " components." << endl;
+    cout << "Found " << clusters.size() << " clusters." << endl;
+
+    cout << "Total components: " << totalComps << endl << "Singleton components: " << singletonComps << endl << "Minority Components: " << minorityComps << endl;
+    cout << "---------------------" << endl << endl;
     //cout<< "TEST" << endl << "593D476X9020D2TE3" << " " << "BLM18PG181SH1D" << endl;
     //cout << UtilityAlgorithms::levDist("593D476X9020D2TE3", "BLM18PG181SH1D");
 
 
 
     /* Code for testing out the strign distance
-     * string s1 = "Kittens";
+     * string s1 = "Kittens"; << endl
     string s2 = "Mittens";
     string s3 = "Mitts";
 
