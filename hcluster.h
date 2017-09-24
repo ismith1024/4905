@@ -18,6 +18,8 @@ public:
 
     static const int MIN_SS = 3;
 
+    static const float INCLUSION_RATIO;
+
     HCluster();
     ~HCluster();
 

@@ -3,9 +3,11 @@
 #include<map>
 #include<iostream>
 
+const float HCluster::INCLUSION_RATIO = 0.3333333;
 
 HCluster::HCluster(){
     data = new vector<Component*>();
+
 }
 
 HCluster::~HCluster(){
@@ -20,7 +22,11 @@ bool HCluster::checkForMerge(HCluster* hc){
         for(Component* s2: *hc->data){
             int dist = UtilityAlgorithms::levDist(*s1, *s2);
             if(dist > HCluster::MAX_VARIANCE) return false;
-            if(dist <= HCluster::INCLUSION_CRITERION) ret = true;
+
+            float ratio = float(dist) / float(max(s1->mpn.length(), s2->mpn.length()));
+            if(ratio <= HCluster::INCLUSION_RATIO) ret = true;
+
+            //if(dist <= HCluster::INCLUSION_CRITERION) ret = true;
         }
     }
     return ret;
