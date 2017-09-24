@@ -26,7 +26,7 @@ Repository::~Repository(){
     database.close();
 }
 
-void Repository::getComponents(vector<Component>& coll){
+void Repository::getComponents(vector<Component*>& coll){
     QSqlQuery query;
 
     if (!query.exec("SELECT * FROM comps;")){
@@ -38,7 +38,7 @@ void Repository::getComponents(vector<Component>& coll){
     Component* newComp;
 
     while(query.next()){
-        cout << query.value(0).toString().toStdString();
+        //cout << query.value(0).toString().toStdString();
         string mfr = query.value(0).toString().toStdString();
         string mpn = query.value(1).toString().toStdString();
         string desc = query.value(2).toString().toStdString();
@@ -46,7 +46,7 @@ void Repository::getComponents(vector<Component>& coll){
 
         newComp = new Component(mfr, mpn, desc, type);
 
-        coll.push_back(*newComp);
+        coll.push_back(newComp);
     }
 }
 

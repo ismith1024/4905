@@ -4,6 +4,7 @@
 #include <iostream>
 #include "utilityalgorithms.h"
 #include "repository.h"
+#include "hcluster.h"
 //#include "component.h"
 
 /* code for the GUI app
@@ -22,14 +23,46 @@ using namespace std;
 int main(int argc, char* argv[]){
 
     Repository repo = Repository();
-    vector<Component> collection = vector<Component>();
+    vector<Component*> collection = vector<Component*>();
+    vector<HCluster*> clusters = vector<HCluster*>();
     repo.getComponents(collection);
 
     int i = 0;
+    for(Component* c: collection){
+        ++i;
+        if(i == 1000) break;
+        bool added = false;
+        if(c->mfr.compare("ANY SUPPLIER") == 0) continue;
 
-    for(Component c: collection){
-        cout << i++ << ". MFR: " << c.mfr << "   MPN: " << c.mpn << " -- " << c.description << endl;
+        for(HCluster* clust: clusters){
+            if(clust->checkForAdd(c)){
+                clust->add(c);
+                added = true;
+                //cout << "Found cluster for " << c->mfr << " : " << c->mpn << endl;
+            }
+            if(added) break;
+        }
+
+        if(!added){
+            HCluster* newClust = new HCluster();
+            newClust->add(c);
+            clusters.push_back(newClust);
+            //cout << "Create new cluster " << c->mfr << " : " << c->mpn << endl;
+        }
     }
+
+    cout << "Opened " << collection.size() << " components." << endl;
+    cout << "Found " << clusters.size() << " clusters." << endl;
+
+    for(HCluster* c: clusters){
+        int sz = c->numCategories();
+        cout << "Cluster -- size: " << c->numEntries() << "   Number of categories: " << sz << endl;
+        if(sz >= 10){
+            cout << "Large category:" << endl;
+            c->dumpComponents();
+        }
+    }
+
 
 
     /* Code for testing out the strign distance

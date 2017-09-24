@@ -19,7 +19,7 @@ public:
     QSqlDatabase& getDatabase();
     ~Repository();
 
-    void getComponents(vector<Component>&);
+    void getComponents(vector<Component*>&);
 
 
 private:

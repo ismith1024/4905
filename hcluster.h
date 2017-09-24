@@ -13,8 +13,8 @@ using namespace std;
 class HCluster{
 public:
     vector<Component*>* data;
-    static const int INCLUSION_CRITERION = 1;
-    static const int MAX_VARIANCE = 4;
+    static const int INCLUSION_CRITERION = 3;
+    static const int MAX_VARIANCE = 6;
 
     HCluster();
     ~HCluster();
@@ -24,4 +24,8 @@ public:
     bool checkForAdd(Component*); //check if a string goes in the cluster
     void add(Component*); //add a string to the cluster
 
+    int numEntries();
+    int numCategories();
+
+    void dumpComponents();
 };
