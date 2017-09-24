@@ -63,6 +63,9 @@ int main(int argc, char* argv[]){
         }
     }
 
+    cout<< "TEST" << endl << "593D476X9020D2TE3" << " " << "BLM18PG181SH1D" << endl;
+    cout << UtilityAlgorithms::levDist("593D476X9020D2TE3", "BLM18PG181SH1D");
+
 
 
     /* Code for testing out the strign distance

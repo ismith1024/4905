@@ -1,6 +1,7 @@
 #include "hcluster.h"
 #include "utilityalgorithms.h"
 #include<map>
+#include<iostream>
 
 
 HCluster::HCluster(){
@@ -67,8 +68,8 @@ int HCluster::numCategories(){
 }
 
 void HCluster::dumpComponents(){
-    for(Component* c: *data){
-        cout << c->mfr << " : " c->mpn << " : " << c->type << endl;
+    for(Component* comp: *data){
+        std::cout << comp->mfr << " : " << comp->mpn << " : " << comp->type << endl;
     }
 }
 
