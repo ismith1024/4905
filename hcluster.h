@@ -13,7 +13,7 @@ using namespace std;
 class HCluster{
 public:
     vector<Component*>* data;
-    static const int INCLUSION_CRITERION = 4;
+    static const int INCLUSION_CRITERION = 3;
     static const int MAX_VARIANCE = 6;
 
     static const int MIN_SS = 3;

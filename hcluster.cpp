@@ -43,7 +43,7 @@ bool HCluster::checkForAdd(Component* st){
     for(Component* s: *data){
 
         //use this to include on basis of substring
-        int subs = UtilityAlgorithms::longestCommonSS(*st, *s);
+        //int subs = UtilityAlgorithms::longestCommonSS(*st, *s);
 
         //use this to include on basis of Levenshtein distance
         int dist2 = UtilityAlgorithms::levDist(*st, *s); //also try this with dist - LCSS
@@ -56,12 +56,12 @@ bool HCluster::checkForAdd(Component* st){
         }
 
         //include on substring
-        if(subs >= HCluster::MIN_SS) ret = true;
+        //if(subs >= HCluster::MIN_SS) ret = true;
 
         //include on distance
-        /*if(dist2 <= HCluster::INCLUSION_CRITERION) {
+        if(dist2 <= HCluster::INCLUSION_CRITERION) {
             ret = true;
-        }*/
+        }
     }
 
     return ret;
