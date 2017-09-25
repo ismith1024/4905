@@ -55,6 +55,7 @@ int main(int argc, char* argv[]){
     int totalComps = 0;
     int minorityComps = 0;
     int singletonComps = 0;
+    int majoritycomps = 0;
 
     for(HCluster* clus: clusters){
 
@@ -82,6 +83,7 @@ int main(int argc, char* argv[]){
             }
 
             minorityComps += clus->data->size() - max;
+            majoritycomps += max;
         }
 
 
@@ -90,7 +92,7 @@ int main(int argc, char* argv[]){
     cout << "---------------------" << endl << "Opened " << collection.size() << " components." << endl;
     cout << "Found " << clusters.size() << " clusters." << endl;
 
-    cout << "Total components: " << totalComps << endl << "Singleton components: " << singletonComps << endl << "Minority Components: " << minorityComps << endl;
+    cout << "Total components: " << totalComps << endl << "Singleton components: " << singletonComps << endl << "Minority Components: " << minorityComps << endl << "Majority components: " << majoritycomps << endl;
     cout << "---------------------" << endl << endl;
     //cout<< "TEST" << endl << "593D476X9020D2TE3" << " " << "BLM18PG181SH1D" << endl;
     //cout << UtilityAlgorithms::levDist("593D476X9020D2TE3", "BLM18PG181SH1D");
