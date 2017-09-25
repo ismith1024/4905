@@ -14,33 +14,6 @@ HCluster::~HCluster(){
     delete data;
 }
 
-
-//can two clusters be merged?
-bool HCluster::checkForMerge(HCluster* hc){
-    bool ret = false;
-    for(Component* s1: *data){
-        for(Component* s2: *hc->data){
-            int dist = UtilityAlgorithms::levDist(*s1, *s2);
-            if(dist > HCluster::MAX_VARIANCE) return false;
-
-            float ratio = float(dist) / float(max(s1->mpn.length(), s2->mpn.length()));
-            if(ratio <= HCluster::INCLUSION_RATIO) ret = true;
-
-            //if(dist <= HCluster::INCLUSION_CRITERION) ret = true;
-        }
-    }
-    return ret;
-}
-
-//merge two clusters -- if true, deletes the second cluster
-void HCluster::merge(HCluster* hc){
-    for(Component* s: *hc->data){
-        data->push_back(s);
-    }
-
-    delete hc;
-}
-
 //check if a string goes in the cluster
 bool HCluster::checkForAdd(Component* st){
     bool ret = false;
@@ -68,10 +41,40 @@ bool HCluster::checkForAdd(Component* st){
         if(dist2 <= HCluster::INCLUSION_CRITERION) {
             ret = true;
         }
+        //float ratio = float(dist) / float(max(st->mpn.length(), s->mpn.length()));
+        //if(ratio <= HCluster::INCLUSION_RATIO) ret = true;
     }
 
     return ret;
 }
+
+//can two clusters be merged?
+bool HCluster::checkForMerge(HCluster* hc){
+    bool ret = false;
+    for(Component* s1: *data){
+        for(Component* s2: *hc->data){
+            int dist = UtilityAlgorithms::levDist(*s1, *s2);
+            if(dist > HCluster::MAX_VARIANCE) return false;
+
+            //float ratio = float(dist) / float(max(s1->mpn.length(), s2->mpn.length()));
+            //if(ratio <= HCluster::INCLUSION_RATIO) ret = true;
+
+            if(dist <= HCluster::INCLUSION_CRITERION) ret = true;
+        }
+    }
+    return ret;
+}
+
+//merge two clusters -- if true, deletes the second cluster
+void HCluster::merge(HCluster* hc){
+    for(Component* s: *hc->data){
+        data->push_back(s);
+    }
+
+    delete hc;
+}
+
+
 
 
 //add a string to the cluster
