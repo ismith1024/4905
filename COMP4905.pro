@@ -41,7 +41,8 @@ SOURCES += \
     sqlrecord.cpp \
     utilityalgorithms.cpp \
     hcluster.cpp \
-    component.cpp
+    component.cpp \
+    bayesianstringclassifier.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -55,7 +56,8 @@ HEADERS += \
     sqlrecord.h \
     utilityalgorithms.h \
     hcluster.h \
-    component.h
+    component.h \
+    bayesianstringclassifier.h
 
 FORMS += \
         mainwindow.ui
