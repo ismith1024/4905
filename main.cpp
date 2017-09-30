@@ -23,6 +23,17 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
+    //////////////////
+
+    int INCLUSION_CRITERION = 4;
+    int MAX_VARIANCE = 6;
+
+    int MIN_SS = 3;
+
+    float INCLUSION_RATIO = 0.33333;
+
+    ////////////////
+
     Repository repo = Repository();
     vector<Component*> collection = vector<Component*>();
     vector<HCluster*> clusters = vector<HCluster*>();
@@ -36,7 +47,7 @@ int main(int argc, char* argv[]){
         if(c->mfr.compare("ANY SUPPLIER") == 0) continue;
 
         for(HCluster* clust: clusters){
-            if(clust->checkForAdd(c)){
+            if(clust->checkForAdd(c, MAX_VARIANCE, INCLUSION_CRITERION)){
                 clust->add(c);
                 added = true;
                 //cout << "Found cluster for " << c->mfr << " : " << c->mpn << endl;

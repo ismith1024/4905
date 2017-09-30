@@ -8,20 +8,32 @@
 #include<map>
 #include "component.h"
 
+using namespace std;
+
+class StringRecord{
+
+public:
+    int count;
+    map<string, int>* entries;
+
+    StringRecord();
+    ~StringRecord();
+};
 
 class BayesianStringClassifier{
 
 private:
     static const int MIN_SUPPORT = 10;
     static const int MNI_CONF = 5;
-    map<string, map<string, int>>* frequencies;
+    map<string, StringRecord>* frequencies;
 
 public:
-    static void learn(vector<Component>);
-    static string classify(Component);
+    void learn(vector<Component*>*);
+    string classify(Component);
 
     BayesianStringClassifier();
     ~BayesianStringClassifier();
 
 };
+
 

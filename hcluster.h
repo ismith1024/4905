@@ -13,19 +13,19 @@ using namespace std;
 class HCluster{
 public:
     vector<Component*>* data;
-    static const int INCLUSION_CRITERION = 5;
-    static const int MAX_VARIANCE = 7;
+    //static const int INCLUSION_CRITERION = 5;
+    //static const int MAX_VARIANCE = 7;
 
-    static const int MIN_SS = 3;
+    //static const int MIN_SS = 3;
 
-    static const float INCLUSION_RATIO;
+    //static const float INCLUSION_RATIO;
 
     HCluster();
     ~HCluster();
 
-    bool checkForMerge(HCluster*);
+    bool checkForMerge(HCluster*, int, int);
     void merge(HCluster*);
-    bool checkForAdd(Component*); //check if a string goes in the cluster
+    bool checkForAdd(Component*, int, int); //check if a string goes in the cluster
     void add(Component*); //add a string to the cluster
 
     int numEntries();
