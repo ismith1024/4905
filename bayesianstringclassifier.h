@@ -28,8 +28,8 @@ private:
     map<string, StringRecord>* frequencies;
 
 public:
-    void learn(vector<Component*>*);
-    map<string, float>*  classify(Component);
+    void learn(vector<Component*>&);
+    map<string, float>*  classify(Component, vector<Component*>&);
 
     BayesianStringClassifier();
     ~BayesianStringClassifier();

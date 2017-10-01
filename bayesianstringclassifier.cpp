@@ -22,11 +22,11 @@ This learning will:
         - <C1C2C3: <classification: count++> >
 
 */
-void BayesianStringClassifier::learn(vector<Component*>* comps){
+void BayesianStringClassifier::learn(vector<Component*>& comps){
 
     //map<string, StringRecord>& freq = *frequencies;
     //counts the frequency of substrings given component type, and the frequency of each substring
-    for(Component* c: *comps){
+    for(Component* c: comps){
         for(int i = 0; i < c->mpn.size() -2; ++i){
             string s = c->mpn.substr(i, i+2);
             (*frequencies)[s].count++;
@@ -46,7 +46,7 @@ void BayesianStringClassifier::learn(vector<Component*>* comps){
     For all substrings:
 
 */
-map<string, float>* BayesianStringClassifier::classify(Component* comp){
+map<string, float>* BayesianStringClassifier::classify(Component* comp, vector<Component*>& components){
 
     //get the substrings in the component
         vector<string> substrings = vector<string>();
@@ -57,7 +57,7 @@ map<string, float>* BayesianStringClassifier::classify(Component* comp){
     //Probability of type
         map<string, float> probType = map<string, float>();
 
-        for(Component* c: compoents){
+        for(Component* c: components){
             probType[c->type]++;
         }
 
