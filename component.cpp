@@ -4,6 +4,9 @@
 Component::Component(string mf, string mp, string de, string ty){
     mfr = mf;
     mp.erase(remove(mp.begin(), mp.end(), ' '), mp.end());
+    mp.erase(remove(mp.begin(), mp.end(), '('), mp.end());
+    mp.erase(remove(mp.begin(), mp.end(), ')'), mp.end());
+    mp.erase(remove(mp.begin(), mp.end(), '-'), mp.end());
     mpn = mp;
     //mpn = replace(mp.begin(), mp.end(), ' ');
 
