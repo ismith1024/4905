@@ -4,6 +4,7 @@
 
 
 #include<string>
+#include<iostream>
 
 using namespace std;
 
@@ -15,6 +16,12 @@ public:
     string mpn;
     string description;
     string type;
+
+    friend std::ostream& operator<< (std::ostream& os, const Component& obj){
+        os << "MFR: " << obj.mfr << " .. MPN: " << obj.mpn << " .. " << obj.description;
+        return os;
+    }
+
 };
 
 #endif // COMPONENT_H

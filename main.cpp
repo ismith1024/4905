@@ -6,6 +6,7 @@
 #include "repository.h"
 #include "hcluster.h"
 #include<map>;
+#include "bayesianstringclassifier.h"
 //#include "component.h"
 
 /* code for the GUI app
@@ -34,11 +35,33 @@ int main(int argc, char* argv[]){
 
     ////////////////
 
+
     Repository repo = Repository();
     vector<Component*> collection = vector<Component*>();
     vector<HCluster*> clusters = vector<HCluster*>();
     repo.getComponents(collection);
 
+    for(Component* comp: collection){
+        cout << *comp << endl;
+    }
+
+    BayesianStringClassifier bayes = BayesianStringClassifier();
+
+    bayes.learn(collection);
+
+    Component* testComp = new Component("Bob's bolts", "RC0805JR070RL", "Some widget", "");
+
+    map<string, float>* results = bayes.classify(testComp, collection);
+
+    for(auto& entry: *results){
+        cout << entry.first << " .. " << entry.second << endl;
+    }
+
+
+    ///////////////
+    /// CLUSTERING
+    ///
+    /*
     int i = 0;
     for(Component* c: collection){
         ++i;
@@ -107,7 +130,7 @@ int main(int argc, char* argv[]){
     cout << "---------------------" << endl << endl;
     //cout<< "TEST" << endl << "593D476X9020D2TE3" << " " << "BLM18PG181SH1D" << endl;
     //cout << UtilityAlgorithms::levDist("593D476X9020D2TE3", "BLM18PG181SH1D");
-
+*/
 
 
     /* Code for testing out the strign distance

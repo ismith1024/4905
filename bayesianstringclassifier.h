@@ -29,7 +29,7 @@ private:
 
 public:
     void learn(vector<Component*>&);
-    map<string, float>*  classify(Component, vector<Component*>&);
+    map<string, float>*  classify(Component*, vector<Component*>&);
 
     BayesianStringClassifier();
     ~BayesianStringClassifier();

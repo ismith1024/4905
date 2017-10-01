@@ -27,12 +27,15 @@ void BayesianStringClassifier::learn(vector<Component*>& comps){
     //map<string, StringRecord>& freq = *frequencies;
     //counts the frequency of substrings given component type, and the frequency of each substring
     for(Component* c: comps){
+        if(c->mpn.size() < 3) continue;
         for(int i = 0; i < c->mpn.size() -2; ++i){
             string s = c->mpn.substr(i, i+2);
             (*frequencies)[s].count++;
             (*(*frequencies)[s].entries)[c->mpn]++;
         }
     }
+
+    cout << "Learning complete" << endl;
 }
 
 
@@ -61,8 +64,8 @@ map<string, float>* BayesianStringClassifier::classify(Component* comp, vector<C
             probType[c->type]++;
         }
 
-        for(auto& entry: probType){
-            probType[entry] /= probType.size();
+        for(const auto& entry: probType){
+            probType[entry.first] = entry.second / probType.size();
         }
 
 
@@ -71,12 +74,12 @@ map<string, float>* BayesianStringClassifier::classify(Component* comp, vector<C
         map<string, float> probSubs = map<string, float>();
         for(Component* c: components){
             for(string str: substrings){
-                if(c->mpn.find(substring) != string::npos) probSubs[str]++;
+                if(c->mpn.find(str) != string::npos) probSubs[str]++;
             }
         }
 
         for(auto& entry: probSubs){
-            probSubs[entry] /= probSubs(size);
+            probSubs[entry.first] = entry.second / probSubs.size();
         }
 
 
@@ -85,13 +88,13 @@ map<string, float>* BayesianStringClassifier::classify(Component* comp, vector<C
 
         for(Component* c: components){
             for(auto& entry: probSubs){
-                probSubsGivenType[make_pair(c->type, entry)]++;
+                probSubsGivenType[make_pair(c->type, entry.first)]++;
             }
         }
 
         //divide by the number of components with this type
-        for(pair<string, string>& entry: probSubsGivenType){
-            probSubsGivenType[entry] /= (probType[entry.first] * probType.size());
+        for(auto& entry: probSubsGivenType){
+            //probSubsGivenType[entry.first.first] = probType[entry.first.first] * probType.size(); // probSubsGivenType[entry] /= (probType[entry.first] * probType.size());
         }
 
      //return value:
@@ -99,13 +102,13 @@ map<string, float>* BayesianStringClassifier::classify(Component* comp, vector<C
         Pr(component is a type) = ~(Pr(component is not a type)) = 1 - Product_k=0_n_(Pr(component is not a type given substring_k)) for n substrings
         */
 
-        map<string, float>* ret = new map<string,float>*();
+        map<string, float>* ret = new map<string,float>();
 
         //apply Bayes' theorem: probability of type given substring
-        for(string type: probType){
-            (*ret)[type] = 1.0;
+        for(auto& typeentry: probType){
+            (*ret)[typeentry.first] = 1.0;
             for(string subs: substrings){
-                (*ret)[type] *= probSubsGivenType[make_pair(type, subs)]  * probType[type] / probSubs[subs];
+                (*ret)[typeentry.first] *= probSubsGivenType[make_pair(typeentry.first, subs)]  * probType[typeentry.first] / probSubs[subs];
             }
         }
 
