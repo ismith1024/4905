@@ -48,54 +48,66 @@ void BayesianStringClassifier::learn(vector<Component*>* comps){
 */
 map<string, float>* BayesianStringClassifier::classify(Component* comp){
 
-    //get the substrings
-    vector<string> substrings = vector<string>();
-    for(int i = 0; i < comp->mpn.size() -2; ++i){
-        substrings.push_back(comp->mpn.substr(i, i+2));
-    }
+    //get the substrings in the component
+        vector<string> substrings = vector<string>();
+        for(int i = 0; i < comp->mpn.size() -2; ++i){
+            substrings.push_back(comp->mpn.substr(i, i+2));
+        }
+
+    //Probability of type
+        map<string, float> probType = map<string, float>();
+
+        for(Component* c: compoents){
+            probType[c->type]++;
+        }
+
+        for(auto& entry: probType){
+            probType[entry] /= probType.size();
+        }
+
+
+   //probability of substring
+
+        map<string, float> probSubs = map<string, float>();
+        for(Component* c: components){
+            for(string str: substrings){
+                if(c->mpn.find(substring) != string::npos) probSubs[str]++;
+            }
+        }
+
+        for(auto& entry: probSubs){
+            probSubs[entry] /= probSubs(size);
+        }
+
 
     //Probability of the substring given type
-        map<string, float> subsGivenType = map<string, float>();
+        map<pair<string, string>, float> probSubsGivenType = map<pair<string, string>, float>(); //first is type and second is substring
 
-        //////probability of substring and probability of type
-        float prSubs = 0.0;
-        float prType = 0.0;
-        float subscount = 0.0;
-        float typeCount = 0.0;
         for(Component* c: components){
-            if(c->mpn.find(substring) != string::npos) subscount++;
-            if(c->type == type) typeCount++;
-        }
-        prSubs = count / components.size();
-        prType = count / components.size();
-
-
-    //Probability of type given substring
-        map<string, float> typeGivenSubs = map<string, float>();
-        for(Component* c: components){
-            if(c->mpn.find(subs)) typeGivenSubs[c->type]++;
+            for(auto& entry: probSubs){
+                probSubsGivenType[make_pair(c->type, entry)]++;
+            }
         }
 
-        int totalCompsWithSubstring = 0;
-        for(auto& entry: typeGivenSubs){
-            totalCompsWithSubstring += typeGivenSubs[entry];
+        //divide by the number of components with this type
+        for(pair<string, string>& entry: probSubsGivenType){
+            probSubsGivenType[entry] /= (probType[entry.first] * probType.size());
         }
 
-        //normalize probability to number of components
-        for(auto& entry: typeGivenSubs){
-            typeGivenSubs[entry] /= totalCompsWithSubstring;
-        }
-
-    //return value:
+     //return value:
         /*
         Pr(component is a type) = ~(Pr(component is not a type)) = 1 - Product_k=0_n_(Pr(component is not a type given substring_k)) for n substrings
         */
 
         map<string, float>* ret = new map<string,float>*();
 
-        //apply Bayes' theorem
-        for()
-
+        //apply Bayes' theorem: probability of type given substring
+        for(string type: probType){
+            (*ret)[type] = 1.0;
+            for(string subs: substrings){
+                (*ret)[type] *= probSubsGivenType[make_pair(type, subs)]  * probType[type] / probSubs[subs];
+            }
+        }
 
      return ret;
 
