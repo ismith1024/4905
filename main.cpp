@@ -49,7 +49,7 @@ int main(int argc, char* argv[]){
 
     bayes.learn(collection);
 
-    Component* testComp = new Component("Bob's bolts", "RC0805JR070RL", "Some widget", "");
+    Component* testComp = new Component("Bob's bolts", "RC0805FR074K99LX", "Some widget", "");
 
     map<string, float>* results = bayes.classify(testComp, collection);
 

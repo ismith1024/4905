@@ -94,7 +94,7 @@ map<string, float>* BayesianStringClassifier::classify(Component* comp, vector<C
 
         //divide by the number of components with this type
         for(auto& entry: probSubsGivenType){
-            //probSubsGivenType[entry.first.first] = probType[entry.first.first] * probType.size(); // probSubsGivenType[entry] /= (probType[entry.first] * probType.size());
+            probSubsGivenType[entry.first] = probType[entry.first.first] * probType.size(); // probSubsGivenType[entry] /= (probType[entry.first] * probType.size());
         }
 
      //return value:
@@ -108,7 +108,15 @@ map<string, float>* BayesianStringClassifier::classify(Component* comp, vector<C
         for(auto& typeentry: probType){
             (*ret)[typeentry.first] = 1.0;
             for(string subs: substrings){
-                (*ret)[typeentry.first] *= probSubsGivenType[make_pair(typeentry.first, subs)]  * probType[typeentry.first] / probSubs[subs];
+                //remove any substring that is not found anywhere
+                bool stringunknown = true;
+                for(auto& entry: probSubs){
+                    if(probSubs[entry.first] > 0.0) stringunknown = false;
+                }
+
+                if(stringunknown) continue;
+                else
+                    (*ret)[typeentry.first] *= probSubsGivenType[make_pair(typeentry.first, subs)] * probType[typeentry.first] / probSubs[subs];
             }
         }
 
