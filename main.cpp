@@ -5,7 +5,8 @@
 #include "utilityalgorithms.h"
 #include "repository.h"
 #include "hcluster.h"
-#include<map>;
+#include<map>
+#include<list>
 #include "bayesianstringclassifier.h"
 //#include "component.h"
 
@@ -38,24 +39,60 @@ int main(int argc, char* argv[]){
 
     Repository repo = Repository();
     vector<Component*> collection = vector<Component*>();
-    vector<HCluster*> clusters = vector<HCluster*>();
+    vector<Component*> testing = vector<Component*>();
+    vector<Component*>::iterator it;
+    int i = 0;
+    //vector<HCluster*> clusters = vector<HCluster*>();
     repo.getComponents(collection);
 
-    for(Component* comp: collection){
+    /*for(Component* comp: collection){
         cout << *comp << endl;
-    }
+    }*/
 
     BayesianStringClassifier bayes = BayesianStringClassifier();
 
-    bayes.learn(collection);
+    list<Component*> training = list<Component*>();
 
-    Component* testComp = new Component("Bob's bolts", "RC0805FR074K99LX", "Some widget", "");
-
-    map<string, float>* results = bayes.classify(testComp, collection);
-
-    for(auto& entry: *results){
-        cout << entry.first << " .. " << entry.second << endl;
+    for(it = collection.begin(); it != collection.end(); ++i ,++it){
+        if(i % 4 == 0){
+            testing.push_back(*it);
+        } else training.push_back(*it);
     }
+
+    vector<Component*> training2;
+    training2.reserve(training.size());
+    copy(begin(training), end(training), back_inserter(training2));
+
+    cout << "Size of training: " << collection.size() << "  Testing: " << testing.size() << endl;
+
+    bayes.learn(training2);
+    //bayes.learn(collection);
+    cout << "Learning" << endl;
+
+    //Component* testComp = new Component("Bob's bolts", "1215", "Some widget", "");
+
+    int right = 0;
+    int wrong = 0;
+
+    for(Component* c: testing){
+        map<string, float>* results = bayes.classify(c, collection);
+        auto choice = std::max_element(results->begin(), results->end(),
+            [](const pair<string, float>& p1, const pair<string, float>& p2) {
+                return p1.second < p2.second; });
+        if((*choice).first.compare(c->type) == 0) right++; else wrong++;
+            cout << "Right: " << right << " Wrong: " << wrong << endl;
+        delete results;
+    }
+
+
+
+
+
+    //map<string, float>* results = bayes.classify(testComp, collection);
+
+    /*for(auto& entry: *results){
+        cout << entry.first << " .. " << entry.second << endl;
+    }*/
 
 
     ///////////////

@@ -7,6 +7,10 @@ Component::Component(string mf, string mp, string de, string ty){
     mp.erase(remove(mp.begin(), mp.end(), '('), mp.end());
     mp.erase(remove(mp.begin(), mp.end(), ')'), mp.end());
     mp.erase(remove(mp.begin(), mp.end(), '-'), mp.end());
+
+    if(mp.size() < 3)
+        mp.insert(0, 3 - mp.size(), '-');
+
     mpn = mp;
     //mpn = replace(mp.begin(), mp.end(), ' ');
 
