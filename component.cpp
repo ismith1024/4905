@@ -21,7 +21,3 @@ Component::Component(string mf, string mp, string de, string ty){
     type = ty;
 }
 
-/*
-std::ostream& operator<< (std::ostream& os, const Component& obj){
-
-}*/
