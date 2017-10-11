@@ -42,7 +42,8 @@ SOURCES += \
     utilityalgorithms.cpp \
     hcluster.cpp \
     component.cpp \
-    bayesianstringclassifier.cpp
+    bayesianstringclassifier.cpp \
+    postagger.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -57,7 +58,8 @@ HEADERS += \
     utilityalgorithms.h \
     hcluster.h \
     component.h \
-    bayesianstringclassifier.h
+    bayesianstringclassifier.h \
+    postagger.h
 
 FORMS += \
         mainwindow.ui
