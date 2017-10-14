@@ -86,33 +86,14 @@ int Controller::classifyAlpha(string val){
 
     Repository repo = Repository();
     vector<Component*> collection = vector<Component*>();
-    vector<Component*> testing = vector<Component*>();
-    vector<Component*>::iterator it;
+
     int i = 0;
     //vector<HCluster*> clusters = vector<HCluster*>();
     repo.getComponents(collection);
 
     BayesianStringClassifier bayes = BayesianStringClassifier();
 
-    list<Component*> training = list<Component*>();
-
-    for(it = collection.begin(); it != collection.end(); ++i ,++it){
-        if(i % 4 == 0){
-            testing.push_back(*it);
-        } else training.push_back(*it);
-    }
-
-    vector<Component*> training2;
-    training2.reserve(training.size());
-    copy(begin(training), end(training), back_inserter(training2));
-
-    cout << "Size of training: " << collection.size() << "  Testing: " << testing.size() << endl;
-
-    bayes.learn(training2);
-    //bayes.learn(collection);
-    cout << "Learning" << endl;
-
-    crossValidate(testing, bayes, collection);
+    crossValidate(bayes, collection);
 
     //map<string, float>* results = bayes.classify(testComp, collection);
 
@@ -165,11 +146,32 @@ int Controller::tokenize(string fileName){
     return 0;
 }
 
-void Controller::crossValidate(vector<Component*>& testing, BayesianStringClassifier& bayes, vector<Component*>& collection){
+void Controller::crossValidate(BayesianStringClassifier& bayes, vector<Component*>& collection){
     Component* testComp = new Component("Bob's bolts", "CRCW040222R0FKED", "Some widget", "");
-
+    vector<Component*> testing = vector<Component*>();
+    vector<Component*>::iterator it;
     int right = 0;
     int wrong = 0;
+    int i = 0;
+
+    list<Component*> training = list<Component*>();
+
+    for(it = collection.begin(); it != collection.end(); ++i ,++it){
+        if(i % 4 == 0){
+            testing.push_back(*it);
+        } else training.push_back(*it);
+    }
+
+    vector<Component*> training2;
+    training2.reserve(training.size());
+    copy(begin(training), end(training), back_inserter(training2));
+
+    cout << "Size of training: " << collection.size() << "  Testing: " << testing.size() << endl;
+
+    bayes.learn(training2);
+    //bayes.learn(collection);
+    cout << "Learning" << endl;
+
 
     for(Component* c: testing){
         map<string, float>* results = bayes.classify(c, collection);

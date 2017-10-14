@@ -19,7 +19,7 @@ public:
     Controller();
     void handleTokenizeRequest();
     int getTextFromFile(vector<string>&);
-    void crossValidate(vector<Component*>&, BayesianStringClassifier&, vector<Component*>&);
+    void crossValidate(BayesianStringClassifier&, vector<Component*>&);
 
     int tokenize(string);
 
