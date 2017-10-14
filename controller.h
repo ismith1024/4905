@@ -8,6 +8,8 @@ public:
     Controller();
     void handleTokenizeRequest();
 
+    void run();
+
 };
 
 #endif // CONTROLLER_H
