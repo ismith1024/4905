@@ -82,10 +82,10 @@ public:
     int tokenize(string, vector<string>&);
 
     int buildDict();
-    int tag(vector<string>&, vector<pair<string, POS>>&);
+//    int tag(vector<string>&, vector<pair<string, POS>>&);
 
 private:
-    vector<pair<string, POS>>* results;
+//    vector<pair<string, POS>> results;
 
 
 };

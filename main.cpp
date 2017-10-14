@@ -8,6 +8,7 @@
 #include<map>
 #include<list>
 #include "bayesianstringclassifier.h"
+#include"languageprocessor.h"
 //#include "component.h"
 
 /* code for the GUI app
@@ -25,8 +26,23 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-    //////////////////
+    LanguageProcessor processor = LanguageProcessor();
 
+    processor.getXML();
+
+    vector<pair<string,string>> dict = processor.getDict();
+
+    for(auto& entry: dict){
+        cout << entry.first << " : " << entry.second << endl;
+    }
+
+
+
+
+    //////////////////////////////////
+    /// \brief This code gets the compoents and uses Baysian learning to classify them
+    ///
+    /*
     int INCLUSION_CRITERION = 4;
     int MAX_VARIANCE = 6;
 
@@ -34,7 +50,6 @@ int main(int argc, char* argv[]){
 
     float INCLUSION_RATIO = 0.33333;
 
-    ////////////////
 
 
     Repository repo = Repository();
@@ -44,10 +59,6 @@ int main(int argc, char* argv[]){
     int i = 0;
     //vector<HCluster*> clusters = vector<HCluster*>();
     repo.getComponents(collection);
-
-    /*for(Component* comp: collection){
-        cout << *comp << endl;
-    }*/
 
     BayesianStringClassifier bayes = BayesianStringClassifier();
 
@@ -85,7 +96,7 @@ int main(int argc, char* argv[]){
     }
 
 
-
+*/
 
 
     //map<string, float>* results = bayes.classify(testComp, collection);
