@@ -19,10 +19,10 @@ vector<pair<string,string>>& LanguageProcessor::getDict(){
 
 int LanguageProcessor::getXML(){
     //open the XML file -- static location for now
-    //string loc = "/home/ian/Corpus/Corpus.xml";
+    //string loc = "/home/ian/Data/Corpus.xml";
 
     //int count = 0;
-    ifstream xmlfile("/home/ian/Corpus/Corpus.xml");
+    ifstream xmlfile("/home/ian/Data/Corpus.xml");
     string line = "";
     if (xmlfile.is_open()) {
       while ( getline (xmlfile,line) ) {
@@ -54,7 +54,7 @@ int LanguageProcessor::getXML(){
     }
 
     else {
-        cout << "Unable to open file " << "/home/ian/Corpus/Corpus.xml" << endl;
+        cout << "Unable to open file " << "/home/ian/Data/Corpus.xml" << endl;
         return -1;
     }
 

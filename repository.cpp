@@ -4,14 +4,13 @@
 #include <qstring.h>
 
 Repository::Repository(){
-    //facade = sf;
 
     // load the SQLite driver
     database = QSqlDatabase::addDatabase("QSQLITE");
 
     //Define and open the SQLite database file
     QDir curr = QDir::current();
-    QString dbLocation =  curr.path() + "/tf2.db";
+    QString dbLocation =  "/home/ian/Data/tf2.db";
     database.setDatabaseName(dbLocation);
     database.open();
     qDebug() << "Open the database";

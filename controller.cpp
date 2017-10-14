@@ -31,7 +31,7 @@ void Controller::run(){
     }
 
 
-    ////tokenize the text
+    //tokenize the text
 
 
     ////tag the text
@@ -41,9 +41,12 @@ void Controller::run(){
 
     vector<pair<string,string>> dict = processor.getDict();
 
-    for(auto& entry: dict){
+    /*for(auto& entry: dict){
         cout << entry.first << " : " << entry.second << endl;
-    }
+    }*/
+
+
+
 
     //topic analysis
 
@@ -53,6 +56,7 @@ void Controller::run(){
 
     //classify the unidentified alphanumeric strings
 
+    classifyAlpha("hi");
 
     //classify word collocations
 
@@ -118,7 +122,7 @@ int Controller::classifyAlpha(string val){
     //bayes.learn(collection);
     cout << "Learning" << endl;
 
-    //Component* testComp = new Component("Bob's bolts", "1215", "Some widget", "");
+    Component* testComp = new Component("Bob's bolts", "CRCW040222R0FKED", "Some widget", "");
 
     int right = 0;
     int wrong = 0;
@@ -133,6 +137,7 @@ int Controller::classifyAlpha(string val){
         delete results;
     }
 
+    delete testComp;
 
     //map<string, float>* results = bayes.classify(testComp, collection);
 
