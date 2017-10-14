@@ -31,7 +31,7 @@ void Controller::run(){
     }
 
 
-    //tokenize the text
+    ////TODO:tokenize the text
 
 
     ////tag the text
@@ -48,29 +48,28 @@ void Controller::run(){
 
 
 
-    //topic analysis
+    ////TODO: topic analysis
 
 
-    //run the text through the technical dictionary
+    ////TODO: run the text through the technical dictionary
 
 
-    //classify the unidentified alphanumeric strings
-
+    //////classify the unidentified alphanumeric strings
     classifyAlpha("hi");
 
-    //classify word collocations
+    ////TODO: classify word collocations
 
 
-    //classify the noun and verb phrases
+    ////TODO: classify the noun and verb phrases
 
 
-    //consolidate duplicate material-article types
+    ////TODO: consolidate duplicate material-article types
 
 
-    //establish parent-child relationships
+    ////TODO: establish parent-child relationships
 
 
-    //write the findings
+    ////TODO: write the findings
 
 }
 
@@ -84,15 +83,6 @@ void Controller::run(){
 /// This code gets the compoents and uses Baysian learning to classify them
 ///
 int Controller::classifyAlpha(string val){
-
-    /*int INCLUSION_CRITERION = 4;
-    int MAX_VARIANCE = 6;
-
-    int MIN_SS = 3;
-
-    float INCLUSION_RATIO = 0.33333;
-    */
-
 
     Repository repo = Repository();
     vector<Component*> collection = vector<Component*>();
@@ -122,22 +112,7 @@ int Controller::classifyAlpha(string val){
     //bayes.learn(collection);
     cout << "Learning" << endl;
 
-    Component* testComp = new Component("Bob's bolts", "CRCW040222R0FKED", "Some widget", "");
-
-    int right = 0;
-    int wrong = 0;
-
-    for(Component* c: testing){
-        map<string, float>* results = bayes.classify(c, collection);
-        auto choice = std::max_element(results->begin(), results->end(),
-            [](const pair<string, float>& p1, const pair<string, float>& p2) {
-                return p1.second < p2.second; });
-        if((*choice).first.compare(c->type) == 0) right++; else wrong++;
-            cout << "Right: " << right << " Wrong: " << wrong << endl;
-        delete results;
-    }
-
-    delete testComp;
+    crossValidate(testing, bayes, collection);
 
     //map<string, float>* results = bayes.classify(testComp, collection);
 
@@ -181,13 +156,6 @@ int Controller::getTextFromFile(vector<string>& text){
 ///
 int Controller::tokenize(string fileName){
 
-    /*
-    if(argc < 2){
-        //qDebug() << "File name required";
-        cout << "File name required";
-        return 1;
-    }*/
-
     Tokenizer* tok = new Tokenizer(fileName);
     tok->tokenize();
     tok->writeToSQL();
@@ -195,6 +163,25 @@ int Controller::tokenize(string fileName){
     delete tok;
 
     return 0;
+}
+
+void Controller::crossValidate(vector<Component*>& testing, BayesianStringClassifier& bayes, vector<Component*>& collection){
+    Component* testComp = new Component("Bob's bolts", "CRCW040222R0FKED", "Some widget", "");
+
+    int right = 0;
+    int wrong = 0;
+
+    for(Component* c: testing){
+        map<string, float>* results = bayes.classify(c, collection);
+        auto choice = std::max_element(results->begin(), results->end(),
+            [](const pair<string, float>& p1, const pair<string, float>& p2) {
+                return p1.second < p2.second; });
+        if((*choice).first.compare(c->type) == 0) right++; else wrong++;
+            cout << "Right: " << right << " Wrong: " << wrong << endl;
+        delete results;
+    }
+
+    delete testComp;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -205,6 +192,16 @@ int Controller::tokenize(string fileName){
 /// CLUSTERING
 /// Legacy code for now
 /*
+ *
+ *     /*int INCLUSION_CRITERION = 4;
+    int MAX_VARIANCE = 6;
+
+    int MIN_SS = 3;
+
+    float INCLUSION_RATIO = 0.33333;
+    * /
+ *
+ *
 int i = 0;
 for(Component* c: collection){
     ++i;

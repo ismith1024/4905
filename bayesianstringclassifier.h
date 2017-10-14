@@ -1,7 +1,7 @@
 #ifndef BAYESIANSTRINGCLASSIFIER_H
 #define BAYESIANSTRINGCLASSIFIER_H
 
-#endif // BAYESIANSTRINGCLASSIFIER_H
+
 
 #include<string>
 #include<vector>
@@ -37,3 +37,4 @@ public:
 };
 
 
+#endif // BAYESIANSTRINGCLASSIFIER_H
