@@ -8,6 +8,10 @@ public:
     Controller();
     void handleTokenizeRequest();
 
+    int tokenize(string);
+
+    int classifyAlpha(string);
+
     void run();
 
 };
