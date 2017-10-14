@@ -6,7 +6,7 @@
 #include<string>
 #include<iostream>
 #include<fstream>
-
+#include<map>
 
 
 
@@ -16,15 +16,17 @@ class LanguageProcessor{
 
 private:
     vector<pair<string, string>>* dict;
+    map<string, map<string, int>>* tagCounts;
+    string getTag(string);
 
 public:
 
     LanguageProcessor();
     ~LanguageProcessor();
-    vector<pair<string,string>>& getDict();
 
     int getXML();
-
+    vector<pair<string,string>>& getDict();
+    void tag(vector<string>&, vector<pair<string, string>>&);
 
 };
 

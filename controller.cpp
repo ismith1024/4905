@@ -30,23 +30,38 @@ void Controller::run(){
         cout << entry << endl;
     }
 
+    vector<string> placeholder = vector<string>();
+    placeholder.push_back("Placeholder");
+    placeholder.push_back("text");
+    placeholder.push_back("is");
+    placeholder.push_back("good");
+    placeholder.push_back("for");
+    placeholder.push_back("now");
 
     ////TODO:tokenize the text
 
 
     ////tag the text
     LanguageProcessor processor = LanguageProcessor();
-
     processor.getXML();
+    vector<pair<string,string>> tagResults = vector<pair<string,string>>();
+    processor.tag(placeholder, tagResults);
+
+
+
+    for(auto& entry: tagResults){
+        cout << entry.first << " : " << entry.second << endl;
+    }
+
+
+
+
 
     vector<pair<string,string>> dict = processor.getDict();
 
     /*for(auto& entry: dict){
         cout << entry.first << " : " << entry.second << endl;
     }*/
-
-
-
 
     ////TODO: topic analysis
 
@@ -93,7 +108,8 @@ int Controller::classifyAlpha(string val){
 
     BayesianStringClassifier bayes = BayesianStringClassifier();
 
-    crossValidate(bayes, collection);
+    /////// For testing
+    //crossValidate(bayes, collection);
 
     //map<string, float>* results = bayes.classify(testComp, collection);
 
