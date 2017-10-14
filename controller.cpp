@@ -1,5 +1,10 @@
 #include "controller.h"
 #include "QDebug"
+#include "languageprocessor.h"
+#include "repository.h"
+#include "component.h"
+#include "bayesianstringclassifier.h"
+#include "tokenizer.h"
 
 Controller::Controller(){
 
@@ -10,12 +15,20 @@ void Controller::handleTokenizeRequest(){
 }
 
 //////////////////////
-/// \brief Controller::run
+/// Controller::run
 /// Manages high-level control flow
 ///
 void Controller::run(){
 
-    //obtain the text
+    /////obtain the text
+    //this is the text we will be working on
+    vector<string> text = vector<string>();
+
+    if(getTextFromFile(text) != 0) exit(-1);
+
+    for(auto& entry: text){
+        cout << entry << endl;
+    }
 
 
     ////tokenize the text
@@ -64,7 +77,7 @@ void Controller::run(){
 
 
 //////////////////////////////////
-/// \brief This code gets the compoents and uses Baysian learning to classify them
+/// This code gets the compoents and uses Baysian learning to classify them
 ///
 int Controller::classifyAlpha(string val){
 
@@ -130,6 +143,58 @@ int Controller::classifyAlpha(string val){
     return 0;
 
 }
+
+
+/////////////
+/// getTextFromFile()
+/// gets teh text from a file
+///
+int Controller::getTextFromFile(vector<string>& text){
+
+    //open the file -- static location for now
+
+    ifstream thefile("/home/ian/text/test.txt");
+    string line = "";
+    if (thefile.is_open()) {
+      while ( getline (thefile,line) ) {
+        text.push_back(line);
+      }
+
+      thefile.close();
+      return 0;
+    }
+    return -1;
+}
+
+
+
+
+///////////////
+/// TOKENIZE
+/// Tokenizes a text file given by fileName
+///
+///
+int Controller::tokenize(string fileName){
+
+    /*
+    if(argc < 2){
+        //qDebug() << "File name required";
+        cout << "File name required";
+        return 1;
+    }*/
+
+    Tokenizer* tok = new Tokenizer(fileName);
+    tok->tokenize();
+    tok->writeToSQL();
+
+    delete tok;
+
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////
+///SCRAP CODE BELOW HERE
+
 
 ///////////////
 /// CLUSTERING
@@ -227,30 +292,3 @@ test = UtilityAlgorithms::levDist(s2, s3);
 
 cout << "Levenshtein -- " << s2 << ", " << s3 << " " << test << endl;
 */
-
-
-///////////////
-/// TOKENIZE
-/// Tokenizes a text file given by fileName
-///
-///
-int Controller::tokenize(string fileName){
-
-    /*
-    if(argc < 2){
-        //qDebug() << "File name required";
-        cout << "File name required";
-        return 1;
-    }*/
-
-    Tokenizer* tok = new Tokenizer(fileName);
-    tok->tokenize();
-    tok->writeToSQL();
-
-    delete tok;
-
-    return 0;
-}
-
-
-
