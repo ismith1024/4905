@@ -1,6 +1,5 @@
 #include "languageprocessor.h"
-#include"QString"
-#include"QStringList"
+
 
 
 LanguageProcessor::LanguageProcessor(){
@@ -13,11 +12,29 @@ LanguageProcessor::~LanguageProcessor(){
     delete tagCounts;
 }
 
+//////
+/// Dictionary getter method
 vector<pair<string,string>>& LanguageProcessor::getDict(){
     return *dict;
 }
 
+///////
+/// \brief LanguageProcessor::countTags
+/// \param tagcounts - the counts of the tags in the dictionary
+void LanguageProcessor::countTags(){
+    for(auto& entry: (*dict)){
+        (*tagCounts)[entry.first][entry.second]++;
+    }
+}
 
+///////
+/// \brief LanguageProcessor::getTag
+/// \param a string to check the tag
+/// \return the tag
+///
+/// NOTE:   This returns the most frequently occurring tag from the corpus.
+/// TODO:   Investigate a better approach (if time permits).
+///
 string LanguageProcessor::getTag(string s){
     map<string, int> vals = tagCounts->operator[](s);
     if(vals.size() == 0) return "???";
@@ -29,7 +46,11 @@ string LanguageProcessor::getTag(string s){
     return (*largest).first;
 }
 
-//////TODO: search the corpus and build the tag counts
+////////
+/// \brief LanguageProcessor::tag
+/// \param collection of text - the phrase being tagged
+/// \param collection of tagged text in <string, tag> pairs
+///
 void LanguageProcessor::tag(vector<string>& inputText, vector<pair<string, string>>& outText){
     for(auto& word: inputText){
         string str = getTag(word);
@@ -37,6 +58,11 @@ void LanguageProcessor::tag(vector<string>& inputText, vector<pair<string, strin
     }
 }
 
+///////
+/// \brief LanguageProcessor::getXML
+/// \return Error code
+/// Opens the Brown Corpus XML file, parses the XML, and populates the dict collection
+///
 int LanguageProcessor::getXML(){
     //open the XML file -- static location for now
     //string loc = "/home/ian/Data/Corpus.xml";
@@ -59,7 +85,7 @@ int LanguageProcessor::getXML(){
                       string s1 = s.replace("w type=\"", "").replace("\"","").toStdString();
                       string s2 = pieces2.at(1).toStdString();
                       //count++;
-                      cout << s2 << " : " << s1 << endl;
+                      //cout << s2 << " : " << s1 << endl;
                       dict->push_back(make_pair(s2, s1));
                   }
               }

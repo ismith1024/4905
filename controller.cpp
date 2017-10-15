@@ -44,6 +44,7 @@ void Controller::run(){
     ////tag the text
     LanguageProcessor processor = LanguageProcessor();
     processor.getXML();
+    processor.countTags();
     vector<pair<string,string>> tagResults = vector<pair<string,string>>();
     processor.tag(placeholder, tagResults);
 
