@@ -30,19 +30,22 @@ void Controller::run(){
         cout << entry << endl;
     }
 
+    LanguageProcessor processor = LanguageProcessor();
     vector<string> placeholder = vector<string>();
-    placeholder.push_back("Placeholder");
-    placeholder.push_back("text");
-    placeholder.push_back("is");
-    placeholder.push_back("good");
-    placeholder.push_back("for");
-    placeholder.push_back("now");
+    //placeholder.push_back("Placeholder");
+    //placeholder.push_back("text");
+    //placeholder.push_back("is");
+    //placeholder.push_back("good");
+    //placeholder.push_back("for");
+    //placeholder.push_back("now");
 
     ////TODO:tokenize the text
+    if(processor.getTestCase(placeholder) != 0){
+        exit(-1);
+    }
 
 
     ////tag the text
-    LanguageProcessor processor = LanguageProcessor();
     processor.getXML();
     processor.countTags();
     vector<pair<string,string>> tagResults = vector<pair<string,string>>();

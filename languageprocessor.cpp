@@ -105,3 +105,23 @@ int LanguageProcessor::getXML(){
     }
 
 }
+
+////////
+/// \brief LanguageProcessor::getTestCase
+/// gets the test case file from \home\ian\Data\testcase.txt
+/// \return error code or 0
+///
+int LanguageProcessor::getTestCase(vector<string>& coll){
+
+    ifstream infile("/home/ian/Data/testcase.txt");
+    string line = "";
+    if(infile.is_open()){
+        while(getline(infile, line)){
+            coll.push_back(line);
+        }
+        return 0;
+    }
+
+    cout << "Unable to open \home\ian\Data\testcase.txt" << endl;
+    return -1;
+}

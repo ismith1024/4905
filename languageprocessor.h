@@ -33,6 +33,7 @@ public:
     vector<pair<string,string>>& getDict();
     void tag(vector<string>&, vector<pair<string, string>>&);
     void countTags();
+    int getTestCase(vector<string>&);
 
 };
 
