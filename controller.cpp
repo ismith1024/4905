@@ -5,6 +5,8 @@
 #include "component.h"
 #include "bayesianstringclassifier.h"
 #include "tokenizer.h"
+#include "QStringList"
+#include "QString"
 
 Controller::Controller(){
 
@@ -53,9 +55,10 @@ void Controller::run(){
 
 
 
-    for(auto& entry: tagResults){
+
+    /*for(auto& entry: tagResults){
         cout << entry.first << " : " << entry.second << endl;
-    }
+    }*/
 
 
 
@@ -134,11 +137,16 @@ int Controller::getTextFromFile(vector<string>& text){
 
     //open the file -- static location for now
 
-    ifstream thefile("/home/ian/text/test.txt");
+    ifstream thefile("/home/ian/Data/testcase.txt");
     string line = "";
     if (thefile.is_open()) {
       while ( getline (thefile,line) ) {
-        text.push_back(line);
+          QString theLine = QString::fromStdString(line);
+          QStringList pieces = theLine.split(' ');
+          for(auto& entry: pieces){
+              text.push_back(entry.toStdString());//QString::toStdString(entry));
+          }
+        //text.push_back(line);
       }
 
       thefile.close();
