@@ -22,24 +22,21 @@ void Controller::handleTokenizeRequest(){
 ///
 void Controller::run(){
 
+    LanguageProcessor processor = LanguageProcessor();
+    //vector<string> placeholder = vector<string>();
+    Tokenizer tok = Tokenizer();
+
     /////obtain the text
     //this is the text we will be working on
     vector<string> text = vector<string>();
 
-    if(getTextFromFile(text) != 0) exit(-1);
+    if(getTextFromFile(text, tok) != 0) exit(-1);
 
     for(auto& entry: text){
         cout << entry << endl;
     }
 
-    LanguageProcessor processor = LanguageProcessor();
-    vector<string> placeholder = vector<string>();
-    //placeholder.push_back("Placeholder");
-    //placeholder.push_back("text");
-    //placeholder.push_back("is");
-    //placeholder.push_back("good");
-    //placeholder.push_back("for");
-    //placeholder.push_back("now");
+
 
     ////TODO:tokenize the text
     /*if(processor.getTestCase(placeholder) != 0){
@@ -58,8 +55,7 @@ void Controller::run(){
         cout << entry.first << " : " << entry.second << endl;
     }
 
-    vector<pair<string,string>> dict = processor.getDict();
-
+    //vector<pair<string,string>> dict = processor.getDict();
     /*for(auto& entry: dict){
         cout << entry.first << " : " << entry.second << endl;
     }*/
@@ -133,7 +129,7 @@ int Controller::classifyAlpha(string val){
 /// TODO: Remove punctuation and garbage characters
 ///
 ///
-int Controller::getTextFromFile(vector<string>& text){
+int Controller::getTextFromFile(vector<string>& text, Tokenizer& tok){
 
     //open the file -- static location for now
 
@@ -144,7 +140,9 @@ int Controller::getTextFromFile(vector<string>& text){
           QString theLine = QString::fromStdString(line);
           QStringList pieces = theLine.split(' ');
           for(auto& entry: pieces){
-              text.push_back(entry.toStdString());//QString::toStdString(entry));
+              tok.removeStopCharacters(entry);
+              string s = entry.toStdString();
+              text.push_back(s);//QString::toStdString(entry));
           }
         //text.push_back(line);
       }

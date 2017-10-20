@@ -10,6 +10,7 @@
 #include<fstream>
 #include "component.h"
 #include "bayesianstringclassifier.h"
+#include "tokenizer.h"
 
 using namespace std;
 
@@ -18,7 +19,7 @@ class Controller
 public:
     Controller();
     void handleTokenizeRequest();
-    int getTextFromFile(vector<string>&);
+    int getTextFromFile(vector<string>&, Tokenizer&);
     void crossValidate(BayesianStringClassifier&, vector<Component*>&);
 
     int tokenize(string);

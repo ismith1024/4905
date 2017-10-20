@@ -36,7 +36,10 @@ void LanguageProcessor::countTags(){
 /// TODO:   Investigate a better approach (if time permits).
 ///
 string LanguageProcessor::getTag(string s){
-    map<string, int> vals = tagCounts->operator[](s);
+
+    //string st = toupper(s);
+
+    map<string, int> vals = tagCounts->operator[](s); //st
     if(vals.size() == 0) return "???";
 
     auto largest = std::max_element(vals.begin(), vals.end(),
@@ -53,7 +56,7 @@ string LanguageProcessor::getTag(string s){
 ///
 void LanguageProcessor::tag(vector<string>& inputText, vector<pair<string, string>>& outText){
     for(auto& word: inputText){
-        string str = getTag(word);
+        string str = getTag(word); //toupper(word)
         outText.push_back(make_pair(word, str));
     }
 }
@@ -83,6 +86,7 @@ int LanguageProcessor::getXML(){
                   if(pieces2.size() > 1 ){
                       QString s = pieces2.at(0);
                       string s1 = s.replace("w type=\"", "").replace("\"","").toStdString();
+                      s1 = toupper(s1);
                       string s2 = pieces2.at(1).toStdString();
                       //count++;
                       //cout << s2 << " : " << s1 << endl;
@@ -124,4 +128,10 @@ int LanguageProcessor::getTestCase(vector<string>& coll){
 
     cout << "Unable to open \home\ian\Data\testcase.txt" << endl;
     return -1;
+}
+
+string LanguageProcessor::toupper(string& s){
+    string ret = "";
+    for(auto& ch: s) ret += std::toupper(ch);
+    return ret;
 }

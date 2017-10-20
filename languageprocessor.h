@@ -35,6 +35,8 @@ public:
     void countTags();
     int getTestCase(vector<string>&);
 
+    string toupper(string&);
+
 };
 
 

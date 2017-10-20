@@ -1,7 +1,7 @@
 #ifndef SQLRECORD_H
 #define SQLRECORD_H
 
-#endif // SQLRECORD_H
+
 
 #include<string>
 
@@ -14,3 +14,5 @@ public:
     SQLrecord(string, string);
 
 };
+
+#endif // SQLRECORD_H

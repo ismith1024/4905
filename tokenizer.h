@@ -1,10 +1,11 @@
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 
-#endif // TOKENIZER_H
+
 
 #include "sqlrecord.h"
 #include<vector>
+#include "QString"
 
 using namespace std;
 
@@ -17,8 +18,13 @@ private:
 
 public:
     Tokenizer(string);
+    Tokenizer();
     ~Tokenizer();
     void tokenize();
     void writeToSQL();
+    void replaceStopCharacters(string&);
+    void removeStopCharacters(QString&);
 
 };
+
+#endif // TOKENIZER_H

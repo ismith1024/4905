@@ -18,6 +18,11 @@ Tokenizer::Tokenizer(string f){
     workingFile = f;
 }
 
+Tokenizer::Tokenizer(){
+    records = new vector<SQLrecord*>();
+    workingFile = "/home/ian/Data/testcase.txt";
+}
+
 Tokenizer::~Tokenizer(){
     for(vector<SQLrecord*>::iterator it = records->begin(); it != records->end(); ++it) {
         delete *it;
@@ -78,42 +83,7 @@ void Tokenizer::tokenize(){
       //cout << "Parsing file " << workingFile;
       while ( getline (infile,line) ){
           //cout << ".";
-          replace(line.begin(), line.end(), '\n', '|');
-          replace(line.begin(), line.end(), ' ', '|');
-          replace(line.begin(), line.end(), '\r', '|');
-          replace(line.begin(), line.end(), '\xA0', '|');
-          replace(line.begin(), line.end(), '\t', '|');
-          replace(line.begin(), line.end(), '\x1680', '|');
-          replace(line.begin(), line.end(), '\x180E', '|');
-          replace(line.begin(), line.end(), '\x2000', '|');
-          replace(line.begin(), line.end(), '\x2001', '|');
-          replace(line.begin(), line.end(), '\x2002', '|');
-          replace(line.begin(), line.end(), '\x2003', '|');
-          replace(line.begin(), line.end(), '\x2004', '|');
-          replace(line.begin(), line.end(), '\x2005', '|');
-          replace(line.begin(), line.end(), '\x2006', '|');
-          replace(line.begin(), line.end(), '\x2007', '|');
-          replace(line.begin(), line.end(), '\x2008', '|');
-          replace(line.begin(), line.end(), '\x2009', '|');
-          replace(line.begin(), line.end(), '\x200A', '|');
-          replace(line.begin(), line.end(), '\x200B', '|');
-          replace(line.begin(), line.end(), '\x202F', '|');
-          replace(line.begin(), line.end(), '\x205F', '|');
-          replace(line.begin(), line.end(), '\x3000', '|');
-          replace(line.begin(), line.end(), '\xFEFF', '|');
-          replace(line.begin(), line.end(), '\xC2', '|');
-
-          //unknown garbage characters that were found in files
-          replace(line.begin(), line.end(), (char) -79, '|');
-          replace(line.begin(), line.end(), (char) -83, '|');
-          replace(line.begin(), line.end(), (char) -108, '|');
-          replace(line.begin(), line.end(), (char) -109, '|');
-          replace(line.begin(), line.end(), (char) -87, '|');
-          replace(line.begin(), line.end(), (char) -30, '|');
-          replace(line.begin(), line.end(), (char) -51, '|');
-          replace(line.begin(), line.end(), (char) -66, '|');
-          replace(line.begin(), line.end(), (char) -30, '|');
-          replace(line.begin(), line.end(), (char) -80, '|');
+          replaceStopCharacters(line);
 
           parsed.append(line);
           parsed.append("|");
@@ -129,6 +99,51 @@ void Tokenizer::tokenize(){
 
     return; // 0;
 
+}
+
+
+
+void Tokenizer::removeStopCharacters(QString& line){
+    line.remove(QChar('!'));
+}
+
+void Tokenizer::replaceStopCharacters(string& line){
+    replace(line.begin(), line.end(), '\n', '|');
+    replace(line.begin(), line.end(), ' ', '|');
+    replace(line.begin(), line.end(), '\r', '|');
+    replace(line.begin(), line.end(), '\xA0', '|');
+    replace(line.begin(), line.end(), '\t', '|');
+    replace(line.begin(), line.end(), '\x1680', '|');
+    replace(line.begin(), line.end(), '\x180E', '|');
+    replace(line.begin(), line.end(), '\x2000', '|');
+    replace(line.begin(), line.end(), '\x2001', '|');
+    replace(line.begin(), line.end(), '\x2002', '|');
+    replace(line.begin(), line.end(), '\x2003', '|');
+    replace(line.begin(), line.end(), '\x2004', '|');
+    replace(line.begin(), line.end(), '\x2005', '|');
+    replace(line.begin(), line.end(), '\x2006', '|');
+    replace(line.begin(), line.end(), '\x2007', '|');
+    replace(line.begin(), line.end(), '\x2008', '|');
+    replace(line.begin(), line.end(), '\x2009', '|');
+    replace(line.begin(), line.end(), '\x200A', '|');
+    replace(line.begin(), line.end(), '\x200B', '|');
+    replace(line.begin(), line.end(), '\x202F', '|');
+    replace(line.begin(), line.end(), '\x205F', '|');
+    replace(line.begin(), line.end(), '\x3000', '|');
+    replace(line.begin(), line.end(), '\xFEFF', '|');
+    replace(line.begin(), line.end(), '\xC2', '|');
+
+    //unknown garbage characters that were found in files
+    replace(line.begin(), line.end(), (char) -79, '|');
+    replace(line.begin(), line.end(), (char) -83, '|');
+    replace(line.begin(), line.end(), (char) -108, '|');
+    replace(line.begin(), line.end(), (char) -109, '|');
+    replace(line.begin(), line.end(), (char) -87, '|');
+    replace(line.begin(), line.end(), (char) -30, '|');
+    replace(line.begin(), line.end(), (char) -51, '|');
+    replace(line.begin(), line.end(), (char) -66, '|');
+    replace(line.begin(), line.end(), (char) -30, '|');
+    replace(line.begin(), line.end(), (char) -80, '|');
 }
 
 
