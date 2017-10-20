@@ -42,27 +42,21 @@ void Controller::run(){
     //placeholder.push_back("now");
 
     ////TODO:tokenize the text
-    if(processor.getTestCase(placeholder) != 0){
+    /*if(processor.getTestCase(placeholder) != 0){
         exit(-1);
-    }
+    }*/
 
 
     ////tag the text
     processor.getXML();
     processor.countTags();
     vector<pair<string,string>> tagResults = vector<pair<string,string>>();
-    processor.tag(placeholder, tagResults);
+    processor.tag(text, tagResults);
 
-
-
-
-    /*for(auto& entry: tagResults){
+    //print text for debug
+    for(auto& entry: tagResults){
         cout << entry.first << " : " << entry.second << endl;
-    }*/
-
-
-
-
+    }
 
     vector<pair<string,string>> dict = processor.getDict();
 
@@ -74,6 +68,8 @@ void Controller::run(){
 
 
     ////TODO: run the text through the technical dictionary
+    ///     This will idenify numbers, etc. that weare interested in.
+    ///     Needs to run after the tagging from corpus -- will include special tags
 
 
     //////classify the unidentified alphanumeric strings
@@ -132,6 +128,10 @@ int Controller::classifyAlpha(string val){
 /////////////
 /// getTextFromFile()
 /// gets teh text from a file
+///
+///
+/// TODO: Remove punctuation and garbage characters
+///
 ///
 int Controller::getTextFromFile(vector<string>& text){
 
