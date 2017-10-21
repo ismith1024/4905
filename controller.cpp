@@ -81,13 +81,18 @@ void Controller::run(){
     vector<vector<pair<string, string>>*> phrases = vector<vector<pair<string, string>>*>();
 
     cout << "....Test the noun phrases................................................................" << endl;
-    for(auto& entry: demo){
-        cout << entry.first << " : " << entry.second << endl;
-    }
 
     cout << "................." << endl;
 
     processor.getNounPhrases(demo, phrases);
+
+    for(auto& entry: phrases){
+        cout << "PHRASE : ";
+        for(auto& e2: (*entry)){
+            cout << e2.first;
+        }
+        cout << endl;
+    }
 
 
     ////TODO: consolidate duplicate material-article types ............
@@ -99,9 +104,9 @@ void Controller::run(){
     ////TODO: write the findings ......................................
     //for now, just print the final collection.
     //print text for debug
-    for(auto& entry: tagResults){
+    /*for(auto& entry: tagResults){
         cout << entry.first << " : " << entry.second << endl;
-    }
+    }*/
 
 }
 

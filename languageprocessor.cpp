@@ -163,37 +163,52 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
 
     vector<pair<string,string>>* currPhrase = new vector<pair<string,string>>();
 
-    vector<pair<string,string>>::iterator it = text.end();
-    vector<pair<string,string>>::iterator it2;
-    while (it != text.begin()){
-         --it;
+    vector<pair<string,string>>::reverse_iterator it = text.rbegin();
+    vector<pair<string,string>>::reverse_iterator it2;
+
+    cout << "Iterator test" << endl;
+    for(it = text.rbegin(); it != text.rend(); ++it){
+        cout << (*it).first << endl;
+    }
+
+    it = text.rbegin();
+
+    while (it != text.rend()){
+         ++it;
          //find the terminal noun
         if(isNoun(*it)){
-            currPhrase->push_back(*it);
+            cout << "try to push " << (*it).first << endl;
+            ///// TODO: this does not work
+            currPhrase->push_back((*it));
+            cout << "push_back : " << (*it).first << " : " << (*it).second;
 
             //search backwards from the terminal noun
-            it2-- = it;
-            if(it2 != text.begin()){
+            it2++ = it;
+            if(it2 != text.rend()){
 
                 //search backwards for adjectives or nouns
                 while(isAdjective(*it2) || isNoun(*it2)){
                     currPhrase->push_back(*it2);
-                    --it2;
+                    cout << "push_back : " << (*it2).first << " : " << (*it2).second;
+                    ++it2;
                 }
 
                 //option group of noun and preposition
-                if(it2 != text.begin()){
-                    if(isPreposition(*it2) && isNoun(*(it2-1))){
+                if(it2 != text.rend()){
+                    if(isPreposition(*it2) && isNoun(*(it2+1))){
                         currPhrase->push_back(*it2);
-                        currPhrase->push_back(*(it2-1));
-                        it2 -= 2;
+                        cout << "push_back : " << (*it2).first << " : " << (*it2).second;
+                        currPhrase->push_back(*(it2+1));
+                        cout << "push_back : " << (*(it2+1)).first << " : " << (*(it2-1)).second;
+                        it2 += 2;
                     }
                 }
 
                 //all remaining adjectives or nouns
-                while( it2 != text.begin() && (isNoun(*it) || isAdjective(*it2) ) ){
+                while( it2 != text.rend() && (isNoun(*it) || isAdjective(*it2) ) ){
                     currPhrase->push_back(*it2);
-                    --it2;
+                    cout << "push_back : " << (*it2).first << " : " << (*it2).second;
+                    ++it2;
                 }
 
             }
@@ -202,8 +217,8 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
             phrases.push_back(currPhrase);
             currPhrase = new vector<pair<string,string>>();
             it = it2;
-            if(it == text.begin()) return 0;
-            it--;
+            if(it == text.rend()) return 0;
+            it++;
         }
     }
 
@@ -218,13 +233,23 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
 ///
 bool LanguageProcessor::isNoun(pair<string,string>& word){
 
+    if (word.second == "NN" ||
+            word.second == "NNS" ||               //   Noun, plural: bicycles, earthquake, zippers
+            word.second == "NN_U" ||              //  Nouns that are always uncountable		#new tag - deviation from Penn, examples: admiration, Afrikaans
+            word.second == "NN_UN"||              // Nouns that might be used in the plural form and with an indefinite article, depending on their meaning	#new tag - deviation from Penn, examples: establishment, wax, afternoon
+            word.second == "NNP"  ||              //   Proper noun, singular: Denver, DORAN, Alexandra
+            word.second == "NNPS"                 //Proper noun, plural: Buddhists, Englishmen
+            ) return true;
+    return false;
+
+/*
     return (word.second == "NN" ||
             word.second == "NNS" ||               //   Noun, plural: bicycles, earthquake, zippers
             word.second == "NN_U" ||              //  Nouns that are always uncountable		#new tag - deviation from Penn, examples: admiration, Afrikaans
             word.second == "NN_UN"||              // Nouns that might be used in the plural form and with an indefinite article, depending on their meaning	#new tag - deviation from Penn, examples: establishment, wax, afternoon
             word.second == "NNP"  ||              //   Proper noun, singular: Denver, DORAN, Alexandra
             word.second == "NNPS"                 //Proper noun, plural: Buddhists, Englishmen
-            );
+            );*/
 }
 
 /////
