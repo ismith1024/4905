@@ -9,6 +9,7 @@
 #include<map>
 #include"QString"
 #include"QStringList"
+#include"repository.h"
 
 using namespace std;
 
@@ -21,6 +22,7 @@ class LanguageProcessor{
 
 private:
     vector<pair<string, string>>* dict;
+    map<string,string>* techdict;
     map<string, map<string, int>>* tagCounts;
     string getTag(string);
 
@@ -33,9 +35,16 @@ public:
     vector<pair<string,string>>& getDict();
     void tag(vector<string>&, vector<pair<string, string>>&);
     void countTags();
-    int getTestCase(vector<string>&);
+    //int getTestCase(vector<string>&);
+    int openTechDictionary(Repository&);
+    int applyTechDictionary(vector<pair<string,string>>&);
 
     string toupper(string&);
+
+    int getNounPhrases(vector<pair<string,string>>&, vector<vector<pair<string, string>>>&);
+    bool isNoun(pair<string,string>&);
+    bool isAdjective(pair<string,string>&);
+    bool isPreposition(pair<string,string>&);
 
 };
 

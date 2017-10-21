@@ -20,6 +20,7 @@ public:
     ~Repository();
 
     void getComponents(vector<Component*>&);
+    int getTechDictionary(map<string,string>*);
 
 
 private:

@@ -4,11 +4,13 @@
 
 LanguageProcessor::LanguageProcessor(){
     dict = new vector<pair<string, string>>();
+    techdict = new map<string, string>();
     tagCounts = new map<string, map<string, int>>();
 }
 
 LanguageProcessor::~LanguageProcessor(){
     delete dict;
+    delete techdict;
     delete tagCounts;
 }
 
@@ -68,9 +70,6 @@ void LanguageProcessor::tag(vector<string>& inputText, vector<pair<string, strin
 ///
 int LanguageProcessor::getXML(){
     //open the XML file -- static location for now
-    //string loc = "/home/ian/Data/Corpus.xml";
-
-    //int count = 0;
     ifstream xmlfile("/home/ian/Data/Corpus.xml");
     string line = "";
     if (xmlfile.is_open()) {
@@ -110,7 +109,122 @@ int LanguageProcessor::getXML(){
 
 }
 
-////////
+
+
+string LanguageProcessor::toupper(string& s){
+    string ret = "";
+    for(auto& ch: s) ret += std::toupper(ch);
+    return ret;
+}
+
+int LanguageProcessor::openTechDictionary(Repository& repo){
+    repo.getTechDictionary(techdict);
+    return -1;
+}
+
+int LanguageProcessor::applyTechDictionary(vector<pair<string,string>>& coll){
+    for(auto& st: coll){
+        cout << "Look for " << st.first << " in technical dictionary" << endl;
+
+        map<string, string>::iterator it = techdict->find(st.first);
+
+        if(it != techdict->end()) {
+            cout << "found ... " << techdict->operator[](st.first) << endl;
+            ////TODO: this does not work.  ned to make a new pair.
+            st = make_pair(st.first, ("NN SUBTYPE=ID:" + techdict->operator[](st.first)));
+         }
+    }
+
+    return 0;
+
+}
+
+/////////
+/// \brief LanguageProcessor::getNounPhrases
+/// \param text : the collections of <word, tag>
+/// \param phrases : the colections of [<word, tag> ... <word, tag>]
+/// \return error code
+///
+/// implements the following:
+/// Note that this approach certainly works for more than just noun phrases, however, this is traditionally the focus of phrase detection: namely, the detection and tagging of noun phrases. For noun phrases, this pattern or regular expression is the following:
+/// (Adjective | Noun)* (Noun Preposition)? (Adjective | Noun)* Noun
+/// This regular expression is read in the following manner: Zero or more adjectives or nouns, followed by an option group of a noun and a preposition, followed again by zero or more adjectives or nouns, followed by a single noun. A sequence of tags matching this pattern ensures that the corresponding words make up a noun phrase.
+/// In addition to simply pulling out the phrases, it is common to do some simple post processing to link variants together (For example, unpluralizing plural variants).
+/// reference: https://files.ifi.uzh.ch/cl/hess/classes/ecl1/termerCIE.html
+///
+int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<vector<pair<string, string>>*>& phrases){
+
+    /*
+    Zero or more adjectives or nouns
+    followed by an option group of a noun and a preposition
+    followed again by zero or more adjectives or nouns
+    followed by a single noun.
+    */
+
+    vector<pair<string,string>>* currPhrase = new vector<pair<string,string>>();
+
+    vector<pair<string,string>>::iterator it = text.end();
+    vector<pair<string,string>>::iterator it2;
+    while (it != text.begin()){
+         --it;
+         //find the terminal noun
+        if(isNoun(*it)){
+
+
+
+
+        }
+    }
+
+
+    return 0;
+}
+
+/////
+/// \brief LanguageProcessor::isNoun
+/// \param the <text,tag> pair we are checking
+/// \return true if the tag matches a noun tag
+///
+bool LanguageProcessor::isNoun(pair<string,string>& word){
+
+    return (word.second == "NN" ||
+            word.second == "NNS" ||               //   Noun, plural: bicycles, earthquake, zippers
+            word.second == "NN_U" ||              //  Nouns that are always uncountable		#new tag - deviation from Penn, examples: admiration, Afrikaans
+            word.second == "NN_UN"||              // Nouns that might be used in the plural form and with an indefinite article, depending on their meaning	#new tag - deviation from Penn, examples: establishment, wax, afternoon
+            word.second == "NNP"  ||              //   Proper noun, singular: Denver, DORAN, Alexandra
+            word.second == "NNPS"                 //Proper noun, plural: Buddhists, Englishmen
+            );
+}
+
+/////
+/// \brief LanguageProcessor::isAdjective
+/// \param the <text,tag> pair we are checking
+/// \return true if the tag matches a adjective tag
+///
+bool LanguageProcessor::isAdjective(pair<string,string>& word){
+    return(word.second == "JJ" ||       //    Adjective: beautiful, large, inspectable
+           word.second == "JJR" ||      //   Adjective, comparative: larger, quicker
+           word.second == "JJS"         //   Adjective, superlative: largest, quickes
+           );
+}
+
+
+/////
+/// \brief LanguageProcessor::isPreposition
+/// \param the <text,tag> pair we are checking"
+/// \return true if the tag matches a preposition tag
+///
+bool LanguageProcessor::isPreposition(pair<string,string>& word){
+    return(word.second == ""
+                );
+}
+
+
+
+
+///////// SCRAP BELOW HERE
+
+/*///////
 /// \brief LanguageProcessor::getTestCase
 /// gets the test case file from \home\ian\Data\testcase.txt
 /// \return error code or 0
@@ -128,10 +242,4 @@ int LanguageProcessor::getTestCase(vector<string>& coll){
 
     cout << "Unable to open \home\ian\Data\testcase.txt" << endl;
     return -1;
-}
-
-string LanguageProcessor::toupper(string& s){
-    string ret = "";
-    for(auto& ch: s) ret += std::toupper(ch);
-    return ret;
-}
+}*/

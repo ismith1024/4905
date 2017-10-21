@@ -32,28 +32,22 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     parser.cpp \
-    trienode.cpp \
-    trie.cpp \
-    controller.cpp \
+     controller.cpp \
     repository.cpp \
-    sqlcontroller.cpp \
     tokenizer.cpp \
-    sqlrecord.cpp \
     utilityalgorithms.cpp \
     hcluster.cpp \
     component.cpp \
     bayesianstringclassifier.cpp \
     postagger.cpp \
-    languageprocessor.cpp
+    languageprocessor.cpp \
+    sqlrecord.cpp
 
 HEADERS += \
         mainwindow.h \
     parser.h \
-    trienode.h \
-    trie.h \
     controller.h \
     repository.h \
-    sqlcontroller.h \
     tokenizer.h \
     sqlrecord.h \
     utilityalgorithms.h \

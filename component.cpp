@@ -19,5 +19,12 @@ Component::Component(string mf, string mp, string de, string ty){
 
     description = de;
     type = ty;
+    parent = 0;
+
 }
+
+void Component::setParent(Component* par){
+    parent = par;
+}
+
 

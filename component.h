@@ -16,11 +16,15 @@ public:
     string mpn;
     string description;
     string type;
+    Component* parent;
+
 
     friend std::ostream& operator<< (std::ostream& os, const Component& obj){
         os << "MFR: " << obj.mfr << " .. MPN: " << obj.mpn << " .. " << obj.description;
         return os;
     }
+
+    void setParent(Component*);
 
 };
 

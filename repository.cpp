@@ -47,6 +47,28 @@ void Repository::getComponents(vector<Component*>& coll){
 
         coll.push_back(newComp);
     }
+
+
 }
 
+int Repository::getTechDictionary(map<string,string>* techdict){
+    QSqlQuery query;
+
+    if (!query.exec("SELECT * FROM materialDictionary;")){
+         qDebug() << "SQL error: "<< query.lastError().text() << endl;
+         return -1;
+    }
+
+    while(query.next()){
+        //cout << query.value(0).toString().toStdString();
+        string st1 = query.value(0).toString().toStdString();
+        string st2 = query.value(1).toString().toStdString();
+
+        //cout << st1 << " : " << st2 << endl;
+
+        techdict->operator[](st1) = st2; //push_back(make_pair(st1, st2));
+    }
+
+    return 0;
+}
 
