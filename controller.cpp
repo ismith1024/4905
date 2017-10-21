@@ -77,6 +77,7 @@ void Controller::run(){
     demo.push_back(make_pair("nice","JJ"));
     demo.push_back(make_pair("noun","NN"));
     demo.push_back(make_pair("phrase","NN"));
+    demo.push_back(make_pair("climbing","VB"));
 
     vector<vector<pair<string, string>>*> phrases = vector<vector<pair<string, string>>*>();
 

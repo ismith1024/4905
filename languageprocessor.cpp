@@ -161,8 +161,6 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
     followed by a single noun.
     */
 
-    vector<pair<string,string>>* currPhrase = new vector<pair<string,string>>();
-
     vector<pair<string,string>>::reverse_iterator it = text.rbegin();
     vector<pair<string,string>>::reverse_iterator it2;
 
@@ -174,52 +172,60 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
     it = text.rbegin();
 
     while (it != text.rend()){
-         ++it;
          //find the terminal noun
+
+        vector<pair<string,string>>* currPhrase = new vector<pair<string,string>>();
+        vector<pair<string,string>> cp2 = vector<pair<string,string>>();
+
+        //starts with the terminal noun
         if(isNoun(*it)){
-            cout << "try to push " << (*it).first << endl;
-            ///// TODO: this does not work
-            currPhrase->push_back((*it));
-            cout << "push_back : " << (*it).first << " : " << (*it).second;
+            cp2.push_back(*it);
 
             //search backwards from the terminal noun
-            it2++ = it;
+            it2 = it;
+            it2++;
             if(it2 != text.rend()){
 
                 //search backwards for adjectives or nouns
                 while(isAdjective(*it2) || isNoun(*it2)){
-                    currPhrase->push_back(*it2);
-                    cout << "push_back : " << (*it2).first << " : " << (*it2).second;
+                    cp2.push_back(*it2);
                     ++it2;
                 }
 
                 //option group of noun and preposition
                 if(it2 != text.rend()){
                     if(isPreposition(*it2) && isNoun(*(it2+1))){
-                        currPhrase->push_back(*it2);
-                        cout << "push_back : " << (*it2).first << " : " << (*it2).second;
-                        currPhrase->push_back(*(it2+1));
-                        cout << "push_back : " << (*(it2+1)).first << " : " << (*(it2-1)).second;
-                        it2 += 2;
+                        cp2.push_back(*it2);
+                         cp2.push_back(*(it2+1));
+                        ++it2;
+                        ++it2;
                     }
                 }
 
                 //all remaining adjectives or nouns
-                while( it2 != text.rend() && (isNoun(*it) || isAdjective(*it2) ) ){
-                    currPhrase->push_back(*it2);
-                    cout << "push_back : " << (*it2).first << " : " << (*it2).second;
+                while( it2 != text.rend() && (isNoun(*it2) || isAdjective(*it2) ) ){
+                    cp2.push_back(*it2);
                     ++it2;
                 }
 
+                ++it2;
+
             }
+
+            cout << "GOT A PHRASE..." << endl;
+            for(auto& entry2: cp2){
+                cout << entry2.first << " : " << entry2.second << endl;            }
+
+            cout << "......" << endl;
+
 
             //this is the end of the phrase.  Move the outer iterator backwards.
             phrases.push_back(currPhrase);
             currPhrase = new vector<pair<string,string>>();
             it = it2;
             if(it == text.rend()) return 0;
-            it++;
         }
+        it++;
     }
 
 
@@ -242,14 +248,6 @@ bool LanguageProcessor::isNoun(pair<string,string>& word){
             ) return true;
     return false;
 
-/*
-    return (word.second == "NN" ||
-            word.second == "NNS" ||               //   Noun, plural: bicycles, earthquake, zippers
-            word.second == "NN_U" ||              //  Nouns that are always uncountable		#new tag - deviation from Penn, examples: admiration, Afrikaans
-            word.second == "NN_UN"||              // Nouns that might be used in the plural form and with an indefinite article, depending on their meaning	#new tag - deviation from Penn, examples: establishment, wax, afternoon
-            word.second == "NNP"  ||              //   Proper noun, singular: Denver, DORAN, Alexandra
-            word.second == "NNPS"                 //Proper noun, plural: Buddhists, Englishmen
-            );*/
 }
 
 /////
@@ -258,10 +256,13 @@ bool LanguageProcessor::isNoun(pair<string,string>& word){
 /// \return true if the tag matches a adjective tag
 ///
 bool LanguageProcessor::isAdjective(pair<string,string>& word){
-    return(word.second == "JJ" ||       //    Adjective: beautiful, large, inspectable
+
+    if(word.second == "JJ" ||       //    Adjective: beautiful, large, inspectable
            word.second == "JJR" ||      //   Adjective, comparative: larger, quicker
            word.second == "JJS"         //   Adjective, superlative: largest, quickes
-           );
+           ) return true;
+
+    return false;
 }
 
 
@@ -271,8 +272,9 @@ bool LanguageProcessor::isAdjective(pair<string,string>& word){
 /// \return true if the tag matches a preposition tag
 ///
 bool LanguageProcessor::isPreposition(pair<string,string>& word){
-    return(word.second == "IN" //    Preposition/subordinate conjunction: except, inside, across, on, through, beyond, with, without
-           );
+    if (word.second == "IN" //    Preposition/subordinate conjunction: except, inside, across, on, through, beyond, with, without
+           ) return true;
+    return false;
 }
 
 
