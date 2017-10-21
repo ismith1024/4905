@@ -41,7 +41,7 @@ public:
 
     string toupper(string&);
 
-    int getNounPhrases(vector<pair<string,string>>&, vector<vector<pair<string, string>>>&);
+    int getNounPhrases(vector<pair<string,string>>&, vector<vector<pair<string, string>>*>&);
     bool isNoun(pair<string,string>&);
     bool isAdjective(pair<string,string>&);
     bool isPreposition(pair<string,string>&);

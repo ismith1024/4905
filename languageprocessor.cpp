@@ -169,10 +169,41 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
          --it;
          //find the terminal noun
         if(isNoun(*it)){
+            currPhrase->push_back(*it);
 
+            //search backwards from the terminal noun
+            it2-- = it;
+            if(it2 != text.begin()){
 
+                //search backwards for adjectives or nouns
+                while(isAdjective(*it2) || isNoun(*it2)){
+                    currPhrase->push_back(*it2);
+                    --it2;
+                }
 
+                //option group of noun and preposition
+                if(it2 != text.begin()){
+                    if(isPreposition(*it2) && isNoun(*(it2-1))){
+                        currPhrase->push_back(*it2);
+                        currPhrase->push_back(*(it2-1));
+                        it2 -= 2;
+                    }
+                }
 
+                //all remaining adjectives or nouns
+                while( it2 != text.begin() && (isNoun(*it) || isAdjective(*it2) ) ){
+                    currPhrase->push_back(*it2);
+                    --it2;
+                }
+
+            }
+
+            //this is the end of the phrase.  Move the outer iterator backwards.
+            phrases.push_back(currPhrase);
+            currPhrase = new vector<pair<string,string>>();
+            it = it2;
+            if(it == text.begin()) return 0;
+            it--;
         }
     }
 
@@ -215,8 +246,8 @@ bool LanguageProcessor::isAdjective(pair<string,string>& word){
 /// \return true if the tag matches a preposition tag
 ///
 bool LanguageProcessor::isPreposition(pair<string,string>& word){
-    return(word.second == ""
-                );
+    return(word.second == "IN" //    Preposition/subordinate conjunction: except, inside, across, on, through, beyond, with, without
+           );
 }
 
 

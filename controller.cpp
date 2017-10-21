@@ -64,6 +64,30 @@ void Controller::run(){
 
 
     ////TODO: classify the noun and verb phrases ......................
+    // Test vector
+    //int getNounPhrases(vector<pair<string,string>>&, vector<vector<pair<string, string>>*>&);
+    vector<pair<string,string>> demo = vector<pair<string,string>>();
+    demo.push_back(make_pair("awesome","JJ"));
+    demo.push_back(make_pair("far","NN"));
+    demo.push_back(make_pair("out","IN"));
+    demo.push_back(make_pair("group","NN"));
+    demo.push_back(make_pair("is","VV"));
+    demo.push_back(make_pair("a","???"));
+    demo.push_back(make_pair("super","JJ"));
+    demo.push_back(make_pair("nice","JJ"));
+    demo.push_back(make_pair("noun","NN"));
+    demo.push_back(make_pair("phrase","NN"));
+
+    vector<vector<pair<string, string>>*> phrases = vector<vector<pair<string, string>>*>();
+
+    cout << "....Test the noun phrases................................................................" << endl;
+    for(auto& entry: demo){
+        cout << entry.first << " : " << entry.second << endl;
+    }
+
+    cout << "................." << endl;
+
+    processor.getNounPhrases(demo, phrases);
 
 
     ////TODO: consolidate duplicate material-article types ............
