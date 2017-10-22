@@ -232,6 +232,54 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
     return 0;
 }
 
+
+//////////
+/// \brief LanguageProcessor::getVerbPhrases
+/// \param text : the collection of <word, tag> we are checking
+/// \param phrases : the collection of (collection of <word, tag>) verb phrases that were found
+/// \return error code
+///
+
+/// Verb-Preposition
+/// Preposition-Verb-Preposition
+/// Preposition-Verb-Prepositional Phrase
+/// Auxiliary Verb(s)-Verb
+/// Auxiliary Verb(s)-Adverb-Verb
+/// Auxiliary Verb(s)-Verb-Adverb Phrase
+/// Auxiliary Verb(s)-Adverb Phrase-Verb-Preposition
+/// Auxiliary Verb(s)-Adverb Phrase-Verb-Prepositional Phrase
+/// Adverb Phrase-Verb-Preposition
+/// Determiner-Verb-Preposition
+///
+int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<vector<pair<string,string>>*>& phrases){
+
+    vector<pair<string,string>>::iterator it = text.begin();
+    vector<pair<string,string>>::iterator it2;
+
+    while(it != text.end()){
+
+        if(isVerb(*it)){
+
+        } else if (isPreposition(*it)){
+
+        } else if(isAuxVerb(*it)){
+
+        } else if(isAdverb(*it)){
+
+        } else if (isDeterminer(*it)){
+
+
+        }
+
+
+
+        ++it;
+    }
+
+
+
+}
+
 /////
 /// \brief LanguageProcessor::isNoun
 /// \param the <text,tag> pair we are checking
@@ -277,6 +325,67 @@ bool LanguageProcessor::isPreposition(pair<string,string>& word){
     return false;
 }
 
+//////
+/// \brief LanguageProcessor::isVerb
+/// \param word : the <text,tag> pair we are checking
+/// \return true if it matches one of the tags
+///
+bool LanguageProcessor::isVerb(pair<string,string>& word){
+    if (word.second == "TO" || // "To" is in here for now for infinitives
+        word.second == "MD" || //    Modal: should, can, need, must, will, would
+        word.second == "VB" || //    Verb, base form: eat, jump, believe, be, have
+        word.second == "VBD" || //   Verb, past tense: ate, jumped, believed
+        word.second == "VBG" || //   Verb, gerund/present participle: eating, jumping, believing
+        word.second == "VBN" || //   Verb, past participle: eaten, jumped, believed
+        word.second == "VBP" || //   Verb, non-3rd ps. sing. present: eat, jump, believe, am (as in 'I am'), are
+        word.second == "VBZ"    //   Verb, 3rd ps. sing. present: eats, jumps, believes, is, has
+
+        ) return true;
+
+    return false;
+}
+
+//////
+/// \brief LanguageProcessor::isAuxVerb
+/// \param word : the <text,tag> pair we are checking
+/// \return true if it matches one of the tags
+///
+/// Note: Corpus does not appear to distinguish modal vs other verbs.
+///
+bool LanguageProcessor::isAuxVerb(pair<string,string>& word){
+    /*if (
+
+        ) return true;
+*/
+    return false;
+}
+
+//////
+/// \brief LanguageProcessor::isAdverb
+/// \param word : the <text,tag> pair we are checking
+/// \return true if it matches one of the tags
+///
+bool LanguageProcessor::isAdverb(pair<string,string>& word){
+    if (word.second == "RB" || //    Adverb and negation: easily, sunnily, suddenly, specifically, not
+        word.second == "RBR" || //   Adverb, comparative: better, faster, quicker
+        word.second == "RBS" || //   Adverb, superlative: best, fastest, quickest
+        word.second == "WRB" //   wh-adverb: however, how, wherever, where, when, why
+        ) return true;
+
+    return false;
+}
+
+//////
+/// \brief LanguageProcessor::isDeterminer
+/// \param word : the <text,tag> pair we are checking
+/// \return true if it matches one of the tags
+///
+bool LanguageProcessor::isDeterminer(pair<string,string>& word){
+    if (word.second == "DT" //    Determiner: an, an, all, many, much, any, some, this
+       ) return true;
+
+    return false;
+}
 
 
 
