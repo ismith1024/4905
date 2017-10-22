@@ -39,7 +39,6 @@ SOURCES += \
     hcluster.cpp \
     component.cpp \
     bayesianstringclassifier.cpp \
-    postagger.cpp \
     languageprocessor.cpp \
     sqlrecord.cpp
 
@@ -54,7 +53,6 @@ HEADERS += \
     hcluster.h \
     component.h \
     bayesianstringclassifier.h \
-    postagger.h \
     languageprocessor.h
 
 FORMS += \

@@ -60,10 +60,7 @@ void Controller::run(){
     //////classify the unidentified alphanumeric strings ..............
     classifyAlpha("hi");
 
-    ////TODO: classify word collocations ..............................
-
-
-    ////TODO: classify the noun and verb phrases ......................
+    ////Parse the noun and verb phrases ......................
     // Test vector
 
     vector<pair<string,string>> demo = vector<pair<string,string>>();
@@ -72,7 +69,7 @@ void Controller::run(){
     demo.push_back(make_pair("out","IN"));
     demo.push_back(make_pair("group","NN"));
     demo.push_back(make_pair("is","VV"));
-    demo.push_back(make_pair("a","DT"));
+    demo.push_back(make_pair("a","DT???"));
     demo.push_back(make_pair("super","JJ"));
     demo.push_back(make_pair("nice","JJ"));
     demo.push_back(make_pair("noun","NN"));
@@ -87,10 +84,6 @@ void Controller::run(){
 
     vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
     vector<vector<pair<string, string>>*> vPhrases = vector<vector<pair<string, string>>*>();
-
-    //cout << "....Test the noun phrases................................................................" << endl;
-
-    //cout << "................." << endl;
 
     processor.getNounPhrases(demo, nPhrases);
     processor.getVerbPhrases(demo, vPhrases);
@@ -111,6 +104,8 @@ void Controller::run(){
         cout << endl;
     }
 
+    ////TODO: scan noun and verb phrases forword collocations .........
+
 
     ////TODO: consolidate duplicate material-article types ............
 
@@ -130,9 +125,6 @@ void Controller::run(){
 
 
 
-
-
-
 //////////////////////////////////
 /// This code gets the compoents and uses Baysian learning to classify them
 ///
@@ -142,7 +134,6 @@ int Controller::classifyAlpha(string val){
     vector<Component*> collection = vector<Component*>();
 
     int i = 0;
-    //vector<HCluster*> clusters = vector<HCluster*>();
     repo.getComponents(collection);
 
     BayesianStringClassifier bayes = BayesianStringClassifier();
@@ -163,7 +154,7 @@ int Controller::classifyAlpha(string val){
 
 /////////////
 /// getTextFromFile()
-/// gets teh text from a file
+/// gets the text from a file
 ///
 ///
 ///
@@ -233,7 +224,7 @@ void Controller::crossValidate(BayesianStringClassifier& bayes, vector<Component
     cout << "Size of training: " << collection.size() << "  Testing: " << testing.size() << endl;
 
     bayes.learn(training2);
-    //bayes.learn(collection);
+
     cout << "Learning" << endl;
 
 
