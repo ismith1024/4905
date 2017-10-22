@@ -124,13 +124,12 @@ int LanguageProcessor::openTechDictionary(Repository& repo){
 
 int LanguageProcessor::applyTechDictionary(vector<pair<string,string>>& coll){
     for(auto& st: coll){
-        cout << "Look for " << st.first << " in technical dictionary" << endl;
+        //cout << "Look for " << st.first << " in technical dictionary" << endl;
 
         map<string, string>::iterator it = techdict->find(st.first);
 
         if(it != techdict->end()) {
-            cout << "found ... " << techdict->operator[](st.first) << endl;
-            ////TODO: this does not work.  ned to make a new pair.
+            //cout << "found ... " << techdict->operator[](st.first) << endl;
             st = make_pair(st.first, ("NN SUBTYPE=ID:" + techdict->operator[](st.first)));
          }
     }
@@ -164,18 +163,10 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
     vector<pair<string,string>>::reverse_iterator it = text.rbegin();
     vector<pair<string,string>>::reverse_iterator it2;
 
-    cout << "Iterator test" << endl;
-    for(it = text.rbegin(); it != text.rend(); ++it){
-        cout << (*it).first << endl;
-    }
+    vector<vector<pair<string, string>>*> workingPhrases = vector<vector<pair<string, string>>*>();
+    vector<pair<string,string>> cp2  = vector<pair<string,string>>();
 
-    it = text.rbegin();
-
-    while (it != text.rend()){
-         //find the terminal noun
-
-        vector<pair<string,string>>* currPhrase = new vector<pair<string,string>>();
-        vector<pair<string,string>> cp2 = vector<pair<string,string>>();
+    while (it < text.rend()){
 
         //starts with the terminal noun
         if(isNoun(*it)){
@@ -208,29 +199,58 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
                     ++it2;
                 }
 
-                ++it2;
-
             }
 
-            cout << "GOT A PHRASE..." << endl;
+            /*cout << "GOT A PHRASE..." << endl;
             for(auto& entry2: cp2){
                 cout << entry2.first << " : " << entry2.second << endl;            }
 
-            cout << "......" << endl;
+            cout << "......" << endl;*/
 
 
             //this is the end of the phrase.  Move the outer iterator backwards.
-            phrases.push_back(currPhrase);
-            currPhrase = new vector<pair<string,string>>();
+
+            workingPhrases.push_back(new vector<pair<string,string>>());
+
+            vector<pair<string,string>>* curr = workingPhrases.back();
+            for(auto& entry: cp2){
+                curr->insert(curr->begin(), entry);
+            }
+
+            cp2 = vector<pair<string,string>>();
             it = it2;
-            if(it == text.rend()) return 0;
         }
+
         it++;
+
+        if(it >= text.rend()) {
+            for(auto& e2: workingPhrases){
+                phrases.push_back(e2);
+            }
+
+            return 0;
+        }
+
     }
 
 
     return 0;
 }
+
+
+/*
+awesome","JJ"
+far","NN"
+out","IN"
+group","NN"
+is","VV"
+a","???"
+super","JJ"
+nice","JJ"
+noun","NN"
+phrase","NN"
+climbing","VB"
+*/
 
 
 //////////
@@ -251,28 +271,68 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
 /// Adverb Phrase-Verb-Preposition
 /// Determiner-Verb-Preposition
 ///
+/// NOTE: For this applciation, we do not want to parse nouns as part of adverb phrases
+///         These need to be parsed as noun phrases.
+///
+///
 int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<vector<pair<string,string>>*>& phrases){
 
     vector<pair<string,string>>::iterator it = text.begin();
     vector<pair<string,string>>::iterator it2;
 
+    vector<pair<string,string>>* currPhrase = new vector<pair<string,string>>();
+
     while(it != text.end()){
 
         if(isVerb(*it)){
+            do{
+                currPhrase->push_back(*it);
+                it++;
+            } while(isVerb(*it) || isPreposition(*it));
 
         } else if (isPreposition(*it)){
+            it2 = it;
+            it2++;
+            if(isVerb(*it2)){
+                it2++;
+                if(isPreposition(*it2)){
+                    do{
+                        currPhrase->push_back(*it);
+                        it++;
+                    } while(it != it2);
+                }
+            }
 
         } else if(isAuxVerb(*it)){
 
         } else if(isAdverb(*it)){
+            it2 = it;
+            it2++;
+            if(isVerb(*it2)){
+                it2++;
+                if(isPreposition(*it2)){
+                    do{
+                        currPhrase->push_back(*it);
+                        it++;
+                    } while(it != it2);
+                }
+            }
+
 
         } else if (isDeterminer(*it)){
-
+            it2 = it;
+            it2++;
+            if(isVerb(*it2)){
+                it2++;
+                if(isPreposition(*it2)){
+                    do{
+                        currPhrase->push_back(*it);
+                        it++;
+                    } while(it != it2);
+                }
+            }
 
         }
-
-
-
         ++it;
     }
 

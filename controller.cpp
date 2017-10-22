@@ -81,16 +81,18 @@ void Controller::run(){
 
     vector<vector<pair<string, string>>*> phrases = vector<vector<pair<string, string>>*>();
 
-    cout << "....Test the noun phrases................................................................" << endl;
+    //cout << "....Test the noun phrases................................................................" << endl;
 
-    cout << "................." << endl;
+    //cout << "................." << endl;
 
     processor.getNounPhrases(demo, phrases);
 
+    cout << "return from getNounPhrases" << endl;
+
     for(auto& entry: phrases){
-        cout << "PHRASE : ";
+        cout << "PHRASE : " << endl;
         for(auto& e2: (*entry)){
-            cout << e2.first;
+            cout << e2.first << endl;
         }
         cout << endl;
     }
