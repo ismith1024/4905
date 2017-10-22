@@ -65,32 +65,46 @@ void Controller::run(){
 
     ////TODO: classify the noun and verb phrases ......................
     // Test vector
-    //int getNounPhrases(vector<pair<string,string>>&, vector<vector<pair<string, string>>*>&);
+
     vector<pair<string,string>> demo = vector<pair<string,string>>();
     demo.push_back(make_pair("awesome","JJ"));
     demo.push_back(make_pair("far","NN"));
     demo.push_back(make_pair("out","IN"));
     demo.push_back(make_pair("group","NN"));
     demo.push_back(make_pair("is","VV"));
-    demo.push_back(make_pair("a","???"));
+    demo.push_back(make_pair("a","DT"));
     demo.push_back(make_pair("super","JJ"));
     demo.push_back(make_pair("nice","JJ"));
     demo.push_back(make_pair("noun","NN"));
     demo.push_back(make_pair("phrase","NN"));
-    demo.push_back(make_pair("climbing","VB"));
+    demo.push_back(make_pair("also","CC"));
+    demo.push_back(make_pair("I","PRP"));
+    demo.push_back(make_pair("like","VB"));
+    demo.push_back(make_pair("climbing","VBG"));
+    demo.push_back(make_pair("on","IN"));
+    demo.push_back(make_pair("red","JJ"));
+    demo.push_back(make_pair("stairs","NN"));
 
-    vector<vector<pair<string, string>>*> phrases = vector<vector<pair<string, string>>*>();
+    vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
+    vector<vector<pair<string, string>>*> vPhrases = vector<vector<pair<string, string>>*>();
 
     //cout << "....Test the noun phrases................................................................" << endl;
 
     //cout << "................." << endl;
 
-    processor.getNounPhrases(demo, phrases);
+    processor.getNounPhrases(demo, nPhrases);
+    processor.getVerbPhrases(demo, vPhrases);
 
-    cout << "return from getNounPhrases" << endl;
+    for(auto& entry: nPhrases){
+        cout << "NOUN PHRASE : " << endl;
+        for(auto& e2: (*entry)){
+            cout << e2.first << endl;
+        }
+        cout << endl;
+    }
 
-    for(auto& entry: phrases){
-        cout << "PHRASE : " << endl;
+    for(auto& entry: vPhrases){
+        cout << "VERB PHRASE : " << endl;
         for(auto& e2: (*entry)){
             cout << e2.first << endl;
         }

@@ -147,7 +147,13 @@ int LanguageProcessor::applyTechDictionary(vector<pair<string,string>>& coll){
 /// implements the following:
 /// Note that this approach certainly works for more than just noun phrases, however, this is traditionally the focus of phrase detection: namely, the detection and tagging of noun phrases. For noun phrases, this pattern or regular expression is the following:
 /// (Adjective | Noun)* (Noun Preposition)? (Adjective | Noun)* Noun
-/// This regular expression is read in the following manner: Zero or more adjectives or nouns, followed by an option group of a noun and a preposition, followed again by zero or more adjectives or nouns, followed by a single noun. A sequence of tags matching this pattern ensures that the corresponding words make up a noun phrase.
+/// This regular expression is read in the following manner:
+///     Zero or more adjectives or nouns
+///     followed by an option group of a noun and a preposition
+///     followed again by zero or more adjectives or nouns
+///     followed by a single noun.
+///
+/// A sequence of tags matching this pattern ensures that the corresponding words make up a noun phrase.
 /// In addition to simply pulling out the phrases, it is common to do some simple post processing to link variants together (For example, unpluralizing plural variants).
 /// reference: https://files.ifi.uzh.ch/cl/hess/classes/ecl1/termerCIE.html
 ///
@@ -201,13 +207,6 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
 
             }
 
-            /*cout << "GOT A PHRASE..." << endl;
-            for(auto& entry2: cp2){
-                cout << entry2.first << " : " << entry2.second << endl;            }
-
-            cout << "......" << endl;*/
-
-
             //this is the end of the phrase.  Move the outer iterator backwards.
 
             workingPhrases.push_back(new vector<pair<string,string>>());
@@ -227,30 +226,13 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
             for(auto& e2: workingPhrases){
                 phrases.push_back(e2);
             }
-
             return 0;
         }
 
     }
 
-
     return 0;
 }
-
-
-/*
-awesome","JJ"
-far","NN"
-out","IN"
-group","NN"
-is","VV"
-a","???"
-super","JJ"
-nice","JJ"
-noun","NN"
-phrase","NN"
-climbing","VB"
-*/
 
 
 //////////
@@ -274,19 +256,23 @@ climbing","VB"
 /// NOTE: For this applciation, we do not want to parse nouns as part of adverb phrases
 ///         These need to be parsed as noun phrases.
 ///
+/// Reference: http://www.brighthubeducation.com/esl-lesson-plans/49623-structure-of-a-verb-phrase/
 ///
 int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<vector<pair<string,string>>*>& phrases){
 
     vector<pair<string,string>>::iterator it = text.begin();
     vector<pair<string,string>>::iterator it2;
 
-    vector<pair<string,string>>* currPhrase = new vector<pair<string,string>>();
+    vector<vector<pair<string, string>>*> workingPhrases = vector<vector<pair<string, string>>*>();
+    vector<pair<string,string>> cp2  = vector<pair<string,string>>();
+
+
 
     while(it != text.end()){
 
         if(isVerb(*it)){
             do{
-                currPhrase->push_back(*it);
+                cp2.push_back(*it);
                 it++;
             } while(isVerb(*it) || isPreposition(*it));
 
@@ -297,11 +283,13 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
                 it2++;
                 if(isPreposition(*it2)){
                     do{
-                        currPhrase->push_back(*it);
+                        cp2.push_back(*it);
                         it++;
                     } while(it != it2);
                 }
             }
+
+            it = it2;
 
         } else if(isAuxVerb(*it)){
 
@@ -312,12 +300,13 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
                 it2++;
                 if(isPreposition(*it2)){
                     do{
-                        currPhrase->push_back(*it);
+                        cp2.push_back(*it);
                         it++;
                     } while(it != it2);
                 }
             }
 
+            it = it2;
 
         } else if (isDeterminer(*it)){
             it2 = it;
@@ -326,12 +315,43 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
                 it2++;
                 if(isPreposition(*it2)){
                     do{
-                        currPhrase->push_back(*it);
+                        cp2.push_back(*it);
                         it++;
                     } while(it != it2);
                 }
             }
 
+            it = it2;
+
+        } else {
+            ++it;
+
+            if(it >= text.end()) {
+                for(auto& e2: workingPhrases){
+                    phrases.push_back(e2);
+                }
+
+                return 0;
+            } else continue;
+        }
+
+        workingPhrases.push_back(new vector<pair<string,string>>());
+
+        vector<pair<string,string>>* curr = workingPhrases.back();
+        for(auto& entry: cp2){
+            curr->push_back(entry);
+        }
+
+        if(curr->size() == 0) workingPhrases.pop_back();
+
+        cp2 = vector<pair<string,string>>();
+
+        if(it >= text.end()) {
+            for(auto& e2: workingPhrases){
+                if(e2->size() > 0) phrases.push_back(e2);
+            }
+
+            return 0;
         }
         ++it;
     }
