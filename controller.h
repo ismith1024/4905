@@ -20,6 +20,7 @@ public:
     Controller();
     void handleTokenizeRequest();
     int getTextFromFile(vector<string>&, Tokenizer&);
+    int getTestCase2(vector<string>&, Tokenizer&);
     void crossValidate(BayesianStringClassifier&, vector<Component*>&);
 
     int tokenize(string);

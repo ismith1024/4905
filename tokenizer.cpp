@@ -59,12 +59,10 @@ void Tokenizer::writeToSQL(){
         query.bindValue(":FILE", s1); //, QSql::In);
         query.bindValue(":DATA", s2); //, QSql::In);
 
-
         //qDebug() << s1 << "," << s2 << endl;
         //query.prepare("INSERT INTO records(fileName, tokens) VALUES(?, ?);");
         //query.addBindValue(s1);
         //query.addBindValue(s2);
-
 
         qDebug() << query.lastQuery();
 
