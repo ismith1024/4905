@@ -31,7 +31,7 @@ Tokenizer::~Tokenizer(){
     delete records;
 }
 
-void Tokenizer::writeToSQL(){
+/*void Tokenizer::writeToSQL(){
     // load the SQLite driver
     QSqlDatabase database = QSqlDatabase::addDatabase("QSQLITE");
 
@@ -70,7 +70,7 @@ void Tokenizer::writeToSQL(){
         if(!res)    qDebug() << query.lastError();
     }
 
-}
+}*/
 
 void Tokenizer::tokenize(){
     string line;
@@ -143,5 +143,6 @@ void Tokenizer::replaceStopCharacters(string& line){
     replace(line.begin(), line.end(), (char) -30, '|');
     replace(line.begin(), line.end(), (char) -80, '|');
 }
+
 
 

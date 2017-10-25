@@ -111,6 +111,8 @@ public:
     bool isAdverb(pair<string,string>&);
     bool isDeterminer(pair<string,string>&);
 
+    void dumpUnknownWords(vector<pair<string, string>>&);
+
 };
 
 

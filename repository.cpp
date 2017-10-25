@@ -27,9 +27,10 @@ Repository::~Repository(){
 
 void Repository::getComponents(vector<Component*>& coll){
     QSqlQuery query;
+    //database.open();
 
     if (!query.exec("SELECT * FROM comps;")){
-         qDebug() << "SQL error: "<< query.lastError().text() << endl;
+         qDebug() << "getComponents SQL error: "<< query.lastError().text() << endl;
          exit(-1);
     }
     else qDebug() << query.first();
@@ -48,14 +49,16 @@ void Repository::getComponents(vector<Component*>& coll){
         coll.push_back(newComp);
     }
 
+    //database.close();
 
 }
 
 int Repository::getTechDictionary(map<string,string>* techdict){
     QSqlQuery query;
+    //database.open();
 
     if (!query.exec("SELECT * FROM materialDictionary;")){
-         qDebug() << "SQL error: "<< query.lastError().text() << endl;
+         qDebug() << "getTechDictionary SQL error: "<< query.lastError().text() << endl;
          return -1;
     }
 
@@ -69,6 +72,39 @@ int Repository::getTechDictionary(map<string,string>* techdict){
         techdict->operator[](st1) = st2; //push_back(make_pair(st1, st2));
     }
 
+    //database.close();
     return 0;
 }
 
+int Repository::getAllDwgTextFromDB(vector<vector<string>*>& coll){
+
+    QSqlQuery query;
+    //database.open();
+
+    if (!query.exec("SELECT * FROM text;")){
+         qDebug() << "getAllDwgTextFromDB SQL error: "<< query.lastError().text() << endl;
+         return -1;
+    }
+
+    vector<string>* currentLine = new vector<string>();
+
+    while(query.next()){
+
+        QString s1 = query.value(1).toString();
+
+        QStringList pieces = s1.split('~');
+
+        for(QString s: pieces){
+            currentLine->push_back(s.toLower().toStdString());
+        }
+
+        coll.push_back(currentLine);
+
+        currentLine = new vector<string>();
+
+    }
+
+    //database.close();
+    return 0;
+
+}

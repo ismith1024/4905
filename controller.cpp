@@ -33,6 +33,7 @@ void Controller::run(){
     //if(getTextFromFile(text, tok) != 0) exit(-1);
     if(getTestCase2(text, tok) != 0) exit(-1);
 
+    cout << "TEXT" << endl << ".........................." << endl;
     for(auto& entry: text){
         cout << entry << endl;
     }
@@ -46,12 +47,12 @@ void Controller::run(){
     vector<pair<string,string>> tagResults = vector<pair<string,string>>();
     processor.tag(text, tagResults);
 
-    cout << "Tage results" << endl;
+    cout << "Tag results" << endl << "....................................." << endl;
     for(auto& entry: tagResults){
         cout << entry.first << " : " << entry.second << endl;
     }
 
-
+/////////////////////////// SQL ERROR BELOW HERE /////////////////////////////////
 
     ////TODO: topic analysis .........................................
 
@@ -59,15 +60,17 @@ void Controller::run(){
     ////TODO: run the text through the technical dictionary ..........
     ///     This will idenify numbers, etc. that weare interested in.
     ///     Needs to run after the tagging from corpus -- will include special tags
-    processor.openTechDictionary(repo);
-    processor.applyTechDictionary(tagResults);
+    //processor.openTechDictionary(repo);
+    //processor.applyTechDictionary(tagResults);
 
 
     //////classify the unidentified alphanumeric strings ..............
-    classifyAlpha("hi");
+    //classifyAlpha("hi");
 
     ////Parse the noun and verb phrases ......................
     // Test vector
+
+///////////////////////////// SQL ERROR ABOVE HERE
 
     vector<pair<string,string>> demo = vector<pair<string,string>>();
     demo.push_back(make_pair("awesome","JJ"));
@@ -91,23 +94,36 @@ void Controller::run(){
     vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
     vector<vector<pair<string, string>>*> vPhrases = vector<vector<pair<string, string>>*>();
 
-    processor.getNounPhrases(tagResults, nPhrases);
-    processor.getVerbPhrases(tagResults, vPhrases);
+    vector<vector<string>*> dwgText = vector<vector<string>*>();
 
-    for(auto& entry: nPhrases){
-        cout << "NOUN PHRASE : " << endl;
-        for(auto& e2: (*entry)){
-            cout << e2.first << endl;
-        }
-        cout << endl;
-    }
+    repo.getAllDwgTextFromDB(dwgText);
 
-    for(auto& entry: vPhrases){
-        cout << "VERB PHRASE : " << endl;
-        for(auto& e2: (*entry)){
-            cout << e2.first << endl;
+    for(int i = 0; i < 10; ++i){
+
+        cout << "-----------------" << endl << dwgText.at(i) << endl << "-----------------" << endl << endl;
+
+        processor.tag(*dwgText.at(i), tagResults);
+
+        processor.dumpUnknownWords(tagResults);
+
+        processor.getNounPhrases(tagResults, nPhrases);
+        processor.getVerbPhrases(tagResults, vPhrases);
+
+        for(auto& entry: nPhrases){
+            cout << "NOUN PHRASE : " << endl;
+            for(auto& e2: (*entry)){
+                cout << e2.first << endl;
+            }
+            cout << endl;
         }
-        cout << endl;
+
+        for(auto& entry: vPhrases){
+            cout << "VERB PHRASE : " << endl;
+            for(auto& e2: (*entry)){
+                cout << e2.first << endl;
+            }
+            cout << endl;
+        }
     }
 
     ////TODO: scan noun and verb phrases forword collocations .........
@@ -232,7 +248,7 @@ int Controller::tokenize(string fileName){
 
     Tokenizer* tok = new Tokenizer(fileName);
     tok->tokenize();
-    tok->writeToSQL();
+    //tok->writeToSQL();
 
     delete tok;
 

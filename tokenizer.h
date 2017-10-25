@@ -25,6 +25,8 @@ public:
     void replaceStopCharacters(string&);
     void removeStopCharacters(QString&);
 
+
+
 };
 
 #endif // TOKENIZER_H

@@ -1,4 +1,5 @@
 #include "languageprocessor.h"
+#include <unordered_set>
 
 
 
@@ -465,6 +466,32 @@ bool LanguageProcessor::isDeterminer(pair<string,string>& word){
        ) return true;
 
     return false;
+}
+
+////////
+/// \brief LanguageProcessor::dumpUnknownWords
+/// \param words
+/// Used to find untagged words in text
+void LanguageProcessor::dumpUnknownWords(vector<pair<string, string>>& words){
+
+    ofstream outFile;
+    unordered_set<string> set = unordered_set<string>();
+
+    outFile.open("/home/ian/Data/unknown.txt");
+    for(auto& entry: words){
+        if(entry.second == "???"){
+            //outFile << entry.first << endl;
+            set.insert(entry.first);
+        }
+    }
+
+    for(auto& entry: set){
+        outFile << entry << endl;
+    }
+
+
+    outFile.close();
+    return;
 }
 
 

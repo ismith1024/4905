@@ -22,6 +22,8 @@ public:
     void getComponents(vector<Component*>&);
     int getTechDictionary(map<string,string>*);
 
+    int getAllDwgTextFromDB(vector<vector<string>*>&);
+
 
 private:
     QSqlDatabase database;
