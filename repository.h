@@ -24,6 +24,8 @@ public:
 
     int getAllDwgTextFromDB(vector<vector<string>*>&);
 
+    int getAllDescriptionsFromDB(vector<vector<string>*>&);
+
 
 private:
     QSqlDatabase database;

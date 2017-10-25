@@ -103,6 +103,9 @@ void Tokenizer::tokenize(){
 
 void Tokenizer::removeStopCharacters(QString& line){
     line.remove(QChar('!'));
+    line.remove(QChar(','));
+    line.remove(QChar(':'));
+
 }
 
 void Tokenizer::replaceStopCharacters(string& line){
@@ -111,6 +114,10 @@ void Tokenizer::replaceStopCharacters(string& line){
     replace(line.begin(), line.end(), '\r', '|');
     replace(line.begin(), line.end(), '\xA0', '|');
     replace(line.begin(), line.end(), '\t', '|');
+    replace(line.begin(), line.end(), '-', '|');
+    replace(line.begin(), line.end(), '-', '|');
+    replace(line.begin(), line.end(), '(', '|');
+    replace(line.begin(), line.end(), ')', '|');
     replace(line.begin(), line.end(), '\x1680', '|');
     replace(line.begin(), line.end(), '\x180E', '|');
     replace(line.begin(), line.end(), '\x2000', '|');

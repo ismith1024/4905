@@ -10,6 +10,7 @@
 #include"QString"
 #include"QStringList"
 #include"repository.h"
+#include"unordered_set"
 
 using namespace std;
 
@@ -111,7 +112,7 @@ public:
     bool isAdverb(pair<string,string>&);
     bool isDeterminer(pair<string,string>&);
 
-    void dumpUnknownWords(vector<pair<string, string>>&);
+    void dumpUnknownWords(vector<pair<string, string>>&, string);
 
 };
 

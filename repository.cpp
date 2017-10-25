@@ -108,3 +108,33 @@ int Repository::getAllDwgTextFromDB(vector<vector<string>*>& coll){
     return 0;
 
 }
+
+int Repository::getAllDescriptionsFromDB(vector<vector<string>*>& coll){
+
+    QSqlQuery query;
+
+    if (!query.exec("SELECT desc FROM comps UNION SELECT desc FROM subassemblies UNION SELECT desc FROM generics;")){
+         qDebug() << "getAllDescriptionsFromDB SQL error: "<< query.lastError().text() << endl;
+         return -1;
+    }
+
+    vector<string>* currentLine = new vector<string>();
+
+    while(query.next()){
+
+        QString s1 = query.value(1).toString();
+
+        QStringList pieces = s1.split(' ');
+
+        for(QString s: pieces){
+            currentLine->push_back(s.toLower().toStdString());
+        }
+
+        coll.push_back(currentLine);
+
+        currentLine = new vector<string>();
+
+    }
+
+    return 0;
+}

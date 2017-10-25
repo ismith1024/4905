@@ -472,12 +472,14 @@ bool LanguageProcessor::isDeterminer(pair<string,string>& word){
 /// \brief LanguageProcessor::dumpUnknownWords
 /// \param words
 /// Used to find untagged words in text
-void LanguageProcessor::dumpUnknownWords(vector<pair<string, string>>& words){
+void LanguageProcessor::dumpUnknownWords(vector<pair<string, string>>& words, string loc){
 
     ofstream outFile;
     unordered_set<string> set = unordered_set<string>();
 
-    outFile.open("/home/ian/Data/unknown.txt");
+    string file = "/home/ian/Data/" + loc;
+
+    outFile.open(file);
     for(auto& entry: words){
         if(entry.second == "???"){
             //outFile << entry.first << endl;

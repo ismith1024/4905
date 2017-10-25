@@ -7,6 +7,7 @@
 #include "tokenizer.h"
 #include "QStringList"
 #include "QString"
+#include "unordered_set"
 
 Controller::Controller(){
 
@@ -98,13 +99,19 @@ void Controller::run(){
 
     repo.getAllDwgTextFromDB(dwgText);
 
-    for(int i = 0; i < 10; ++i){
+    //repo.getAllDescriptionsFromDB(dwgText);
 
-        cout << "-----------------" << endl << dwgText.at(i) << endl << "-----------------" << endl << endl;
+    unordered_set<string> unknownWords = unordered_set<string>();
+
+    for(int i = 0; i < dwgText.size(); ++i){
+
+        //cout << "-----------------" << endl << dwgText.at(i) << endl << "-----------------" << endl << endl;
+
+        //cout << *dwgText.at(i) << endl;
 
         processor.tag(*dwgText.at(i), tagResults);
 
-        processor.dumpUnknownWords(tagResults);
+        processor.dumpUnknownWords(tagResults, "unknown");
 
         processor.getNounPhrases(tagResults, nPhrases);
         processor.getVerbPhrases(tagResults, vPhrases);
