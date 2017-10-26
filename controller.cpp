@@ -102,31 +102,55 @@ void Controller::run(){
     repo.getAllDescriptionsFromDB(dwgText);
 
     vector<string> myWords = vector<string>();
+    vector<QString> myWords2 = vector<QString>();
 
     for(auto& entry: dwgText){
         QStringList pieces = QString::fromStdString(entry).split(' ');
         for(auto& e2: pieces){
-            myWords.push_back(e2.toLower().toStdString());
+            if(!processor.containsNumbers(e2)){
+                e2.replace('/', ',');
+                QStringList p2 = e2.split(", _+");
+                for(auto& e3: p2) {
+                    //cout << "Split: " << e3.toStdString() << endl;
+                    myWords2.push_back(e3);
+                }
+            } else {
+                tok.removeStopCharacters(e2);
+                myWords.push_back(e2.toLower().toStdString());
+            }
         }
+    }
+
+    for(auto& entry: myWords2){
+         tok.removeStopCharacters(entry);
+         myWords.push_back(entry.toLower().toStdString());
     }
 
     tagResults = vector<pair<string,string>>();
     processor.tag(myWords, tagResults);
 
     unordered_set<string> unknownWords = unordered_set<string>();
+    unordered_set<string> knownWords = unordered_set<string>();
 
     for(auto& entry: tagResults){
         //cout << entry.first << " : " << entry.second << endl;
 
         if(entry.second == "???"){
-            cout << entry.first << endl;
+            //cout << entry.first << endl;
             unknownWords.insert(entry.first);
+        } else{
+            knownWords.insert(entry.first + " : " + entry.second);
         }
     }
 
     ofstream outfile;
     outfile.open ("/home/ian/Data/unknownFromDBDescField.txt");
+    outfile << " --------------- UNKNOWN WORDS --------------- " << endl;
     for(auto& entry: unknownWords){
+        outfile << entry << endl;
+    }
+    outfile << " --------------- KNOWN WORDS --------------- " << endl;
+    for(auto& entry: knownWords){
         outfile << entry << endl;
     }
     outfile.close();

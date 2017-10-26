@@ -105,6 +105,7 @@ public:
     int getVerbPhrases(vector<pair<string,string>>&, vector<vector<pair<string,string>>*>&);
 
     static bool containsNumbers(string);
+    static bool containsNumbers(QString&);
 
     bool isNoun(pair<string,string>&);
     bool isAdjective(pair<string,string>&);

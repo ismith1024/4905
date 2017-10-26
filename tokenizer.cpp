@@ -106,12 +106,20 @@ void Tokenizer::removeStopCharacters(QString& line){
     line.remove(QChar(':'));
     line.remove(QChar('('));
     line.remove(QChar(')'));
+    line.remove(QChar('`'));
+    line.remove(QChar('<'));
+    line.remove(QChar('>'));
+    line.remove(QChar(';'));
+    line.remove(QChar('“'));
+    line.remove(QChar('”'));
+    line.replace('_', ' ');
 
-    if(LanguageProcessor::containsNumbers(line.toStdString())){
+    if(!LanguageProcessor::containsNumbers(line.toStdString())){
         line.remove(QChar('.'));
         line.remove(QChar('-'));
     }
 }
+
 
 void Tokenizer::replaceStopCharacters(string& line){
 

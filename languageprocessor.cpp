@@ -496,10 +496,25 @@ void LanguageProcessor::dumpUnknownWords(vector<pair<string, string>>& words, st
     return;
 }
 
+
+//////////
+/// \brief LanguageProcessor::containsNumbers
+/// \param str
+/// \return true if there ae [0-9] characters in the string
+///
 bool LanguageProcessor::containsNumbers(string str){
 
     for(char& c: str){
-        if(c >= '1' && c <= '0') return true;
+        if(c >= '0' && c <= '9') return true;
+    }
+
+    return false;
+}
+
+bool LanguageProcessor::containsNumbers(QString& str){
+
+    for(QChar& c: str){
+        if(c >= '0' && c <= '9') return true;
     }
 
     return false;
