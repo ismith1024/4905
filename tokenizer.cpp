@@ -10,6 +10,7 @@
 #include<QDir>
 #include<QSqlQuery>
 #include<QSqlError>
+#include "languageprocessor.h"
 
 using namespace std;
 
@@ -99,16 +100,21 @@ void Tokenizer::tokenize(){
 
 }
 
-
-
 void Tokenizer::removeStopCharacters(QString& line){
     line.remove(QChar('!'));
     line.remove(QChar(','));
     line.remove(QChar(':'));
+    line.remove(QChar('('));
+    line.remove(QChar(')'));
 
+    if(LanguageProcessor::containsNumbers(line.toStdString())){
+        line.remove(QChar('.'));
+        line.remove(QChar('-'));
+    }
 }
 
 void Tokenizer::replaceStopCharacters(string& line){
+
     replace(line.begin(), line.end(), '\n', '|');
     replace(line.begin(), line.end(), ' ', '|');
     replace(line.begin(), line.end(), '\r', '|');

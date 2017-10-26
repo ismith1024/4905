@@ -48,10 +48,10 @@ void Controller::run(){
     vector<pair<string,string>> tagResults = vector<pair<string,string>>();
     processor.tag(text, tagResults);
 
-    cout << "Tag results" << endl << "....................................." << endl;
+    /*cout << "Tag results" << endl << "....................................." << endl;
     for(auto& entry: tagResults){
         cout << entry.first << " : " << entry.second << endl;
-    }
+    }*/
 
 /////////////////////////// SQL ERROR BELOW HERE /////////////////////////////////
 
@@ -95,15 +95,46 @@ void Controller::run(){
     vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
     vector<vector<pair<string, string>>*> vPhrases = vector<vector<pair<string, string>>*>();
 
-    vector<vector<string>*> dwgText = vector<vector<string>*>();
+   vector<string> dwgText = vector<string>();
 
-    repo.getAllDwgTextFromDB(dwgText);
+    //repo.getAllDwgTextFromDB(dwgText);
 
-    //repo.getAllDescriptionsFromDB(dwgText);
+    repo.getAllDescriptionsFromDB(dwgText);
+
+    vector<string> myWords = vector<string>();
+
+    for(auto& entry: dwgText){
+        QStringList pieces = QString::fromStdString(entry).split(' ');
+        for(auto& e2: pieces){
+            myWords.push_back(e2.toLower().toStdString());
+        }
+    }
+
+    tagResults = vector<pair<string,string>>();
+    processor.tag(myWords, tagResults);
 
     unordered_set<string> unknownWords = unordered_set<string>();
 
-    for(int i = 0; i < dwgText.size(); ++i){
+    for(auto& entry: tagResults){
+        //cout << entry.first << " : " << entry.second << endl;
+
+        if(entry.second == "???"){
+            cout << entry.first << endl;
+            unknownWords.insert(entry.first);
+        }
+    }
+
+    ofstream outfile;
+    outfile.open ("/home/ian/Data/unknownFromDBDescField.txt");
+    for(auto& entry: unknownWords){
+        outfile << entry << endl;
+    }
+    outfile.close();
+
+
+
+
+    /*for(int i = 0; i < dwgText.size(); ++i){
 
         //cout << "-----------------" << endl << dwgText.at(i) << endl << "-----------------" << endl << endl;
 
@@ -131,7 +162,7 @@ void Controller::run(){
             }
             cout << endl;
         }
-    }
+    }*/
 
     ////TODO: scan noun and verb phrases forword collocations .........
 

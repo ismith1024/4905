@@ -496,7 +496,14 @@ void LanguageProcessor::dumpUnknownWords(vector<pair<string, string>>& words, st
     return;
 }
 
+bool LanguageProcessor::containsNumbers(string str){
 
+    for(char& c: str){
+        if(c >= '1' && c <= '0') return true;
+    }
+
+    return false;
+}
 
 ///////// SCRAP BELOW HERE
 

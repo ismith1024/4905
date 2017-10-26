@@ -109,7 +109,7 @@ int Repository::getAllDwgTextFromDB(vector<vector<string>*>& coll){
 
 }
 
-int Repository::getAllDescriptionsFromDB(vector<vector<string>*>& coll){
+int Repository::getAllDescriptionsFromDB(vector<string>& coll){
 
     QSqlQuery query;
 
@@ -118,22 +118,9 @@ int Repository::getAllDescriptionsFromDB(vector<vector<string>*>& coll){
          return -1;
     }
 
-    vector<string>* currentLine = new vector<string>();
-
     while(query.next()){
-
-        QString s1 = query.value(1).toString();
-
-        QStringList pieces = s1.split(' ');
-
-        for(QString s: pieces){
-            currentLine->push_back(s.toLower().toStdString());
-        }
-
-        coll.push_back(currentLine);
-
-        currentLine = new vector<string>();
-
+        QString s1 = query.value(0).toString();
+        coll.push_back(s1.toStdString());
     }
 
     return 0;

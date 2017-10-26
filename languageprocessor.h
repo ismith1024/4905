@@ -104,6 +104,8 @@ public:
     int getNounPhrases(vector<pair<string,string>>&, vector<vector<pair<string,string>>*>&);
     int getVerbPhrases(vector<pair<string,string>>&, vector<vector<pair<string,string>>*>&);
 
+    static bool containsNumbers(string);
+
     bool isNoun(pair<string,string>&);
     bool isAdjective(pair<string,string>&);
     bool isPreposition(pair<string,string>&);
