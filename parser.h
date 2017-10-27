@@ -11,6 +11,9 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 
+////////////// Parser class is deprecated
+
+/*
 
 
 class Parser{
@@ -24,7 +27,7 @@ private:
     QString workingPath;
 
 };
-
+*/
 
 
 

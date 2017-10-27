@@ -76,6 +76,12 @@ int Repository::getTechDictionary(map<string,string>* techdict){
     return 0;
 }
 
+
+/////
+/// \brief Repository::getAllDwgTextFromDB
+/// \param coll
+/// \return
+/// This collection houses the texts scraped from the training set of drawings, with topic analysis
 int Repository::getAllDwgTextFromDB(vector<vector<string>*>& coll){
 
     QSqlQuery query;
@@ -109,6 +115,11 @@ int Repository::getAllDwgTextFromDB(vector<vector<string>*>& coll){
 
 }
 
+//////////
+/// \brief Repository::getAllDescriptionsFromDB
+/// \param coll
+/// \return
+/// This collection houses the components existing in the TF2 database
 int Repository::getAllDescriptionsFromDB(vector<string>& coll){
 
     QSqlQuery query;

@@ -27,6 +27,7 @@ public:
     int getAllDescriptionsFromDB(vector<string>&);
 
 
+
 private:
     QSqlDatabase database;
 

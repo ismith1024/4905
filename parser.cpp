@@ -1,12 +1,12 @@
 #include "parser.h"
 
-
+/*
 Parser::Parser(){
     workingPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/files";
 
 }
 
-QStringList&/*<QStringRef>*/ Parser::parse(QString& st, QString& ch, QString& dir){
+QStringList&/*<QStringRef>* / Parser::parse(QString& st, QString& ch, QString& dir){
     QStringList ret = st.split(ch);
     //QVector<QStringRef> pieces = st.split(ch);
     //QStringList<QStringRef> ret = pieces.toList();
@@ -27,3 +27,4 @@ void Parser::test(){
     qDebug() << workingPath;
 
 }
+*/

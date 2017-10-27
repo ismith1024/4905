@@ -12,8 +12,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     control = Controller();
 
     ////This section is for testing
-    Parser* parser = new Parser();
-    parser->test();
+    //Parser* parser = new Parser();
+    //parser->test();
 
 
 }

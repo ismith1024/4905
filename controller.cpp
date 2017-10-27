@@ -95,13 +95,18 @@ void Controller::run(){
     vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
     vector<vector<pair<string, string>>*> vPhrases = vector<vector<pair<string, string>>*>();
 
-   vector<string> dwgText = vector<string>();
+    //this collection will hold the words we are analyzing
+    vector<string> dwgText = vector<string>();
 
+    //function htat retrieves the test case
+    getTestCase2(dwgText, tok);
+
+////////// Code that can be used to open training text for testing instead
     //repo.getAllDwgTextFromDB(dwgText);
+    //repo.getAllDescriptionsFromDB(dwgText);
 
-    repo.getAllDescriptionsFromDB(dwgText);
-
-    vector<string> myWords = vector<string>();
+/////////// Code that was used to obtain untagged words from the training set
+/*    vector<string> myWords = vector<string>();
     vector<QString> myWords2 = vector<QString>();
 
     for(auto& entry: dwgText){
@@ -154,17 +159,17 @@ void Controller::run(){
         outfile << entry << endl;
     }
     outfile.close();
+*/
 
+////// Extracts noun and verb phrases from the free text in dwgText
 
-
-
-    /*for(int i = 0; i < dwgText.size(); ++i){
+    //for(auto& item: dwgText){ //int i = 0; i < dwgText.size(); ++i){
 
         //cout << "-----------------" << endl << dwgText.at(i) << endl << "-----------------" << endl << endl;
 
         //cout << *dwgText.at(i) << endl;
 
-        processor.tag(*dwgText.at(i), tagResults);
+        processor.tag(dwgText, tagResults);
 
         processor.dumpUnknownWords(tagResults, "unknown");
 
@@ -186,9 +191,9 @@ void Controller::run(){
             }
             cout << endl;
         }
-    }*/
+    //}
 
-    ////TODO: scan noun and verb phrases forword collocations .........
+    ////TODO: scan noun and verb phrases for word collocations ........
 
 
     ////TODO: consolidate duplicate material-article types ............

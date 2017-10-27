@@ -68,16 +68,18 @@ void LanguageProcessor::tag(vector<string>& inputText, vector<pair<string, strin
 /// \brief LanguageProcessor::getXML
 /// \return Error code
 /// Opens the Brown Corpus XML file, parses the XML, and populates the dict collection
-///
+/// Does the same for the augmented vocabulary
 int LanguageProcessor::getXML(){
     //open the XML file -- static location for now
     ifstream xmlfile("/home/ian/Data/Corpus.xml");
+    ifstream xml2("/home/ian/Data/techwords.xml");
     string line = "";
-    if (xmlfile.is_open()) {
-      while ( getline (xmlfile,line) ) {
+
+    //this gets the Brown Corpus
+    if (xmlfile.is_open() && xml2.is_open()) {
+        while ( getline (xmlfile,line) ) {
           QString qs = QString::fromStdString(line);
           QStringList pieces = qs.split("<");
-
 
           for(QString st: pieces){
               if(st.size() > 0 && st.at(0) == 'w'){
@@ -93,14 +95,34 @@ int LanguageProcessor::getXML(){
                       dict->push_back(make_pair(s2, s1));
                   }
               }
-
           }
+        }
 
-      }
+        //this gets the augmented vocabulary
+        while ( getline (xml2,line) ) {
+          QString qs = QString::fromStdString(line);
+          QStringList pieces = qs.split("<");
 
-      xmlfile.close();
-      //cout << "Count: " << count << endl;
-      return 0;
+          for(QString st: pieces){
+              if(st.size() > 0 && st.at(0) == 'w'){
+                  QStringList pieces2 = st.split('>');
+
+                  if(pieces2.size() > 1 ){
+                      QString s = pieces2.at(0);
+                      string s1 = s.replace("w type=\"", "").replace("\"","").toStdString();
+                      s1 = toupper(s1);
+                      string s2 = pieces2.at(1).toStdString();
+                      //count++;
+                      //cout << s2 << " : " << s1 << endl;
+                      dict->push_back(make_pair(s2, s1));
+                  }
+              }
+          }
+        }
+
+        xmlfile.close();
+        xml2.close();
+        return 0;
     }
 
     else {
@@ -109,8 +131,6 @@ int LanguageProcessor::getXML(){
     }
 
 }
-
-
 
 string LanguageProcessor::toupper(string& s){
     string ret = "";
