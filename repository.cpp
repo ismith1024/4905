@@ -136,3 +136,53 @@ int Repository::getAllDescriptionsFromDB(vector<string>& coll){
 
     return 0;
 }
+
+/////////
+/// \brief repository::getTopicCounts
+/// \return
+/// counts the frequency of words in known instances of a topic
+int repository::getTopicCounts(map<string, int>& counts, enum TOPIC topic){
+    QSqlQuery query;
+    QString queryString = "";
+    switch(topic){
+        case METAL:
+            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Metal'";
+            break;
+        case PLASTIC:
+            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Plastic'";
+            break;
+        case CABLE:
+            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Cable'";
+            break;
+        case ASSEMBLY:
+            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Assembly'";
+            break;
+        case OTHER:
+            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Other'";
+            break;
+        case PCBA:
+            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'PCBA'";
+            break;
+        case LABEL:
+            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Label'";
+            break;
+        case ELECTRONICS:
+            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Electronics'";
+            break;
+        case PACKAGING:
+            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Packaging'";
+            break;
+    }
+
+    if(!query.exec(queryString)){
+        cout << "getTopicCounts query failed : " << query.lastError().text() << endl;
+        return -1;
+    }
+
+    while(query.next()){
+        string s1 = query.value(0).toString().toStdString();
+        counts[s1]++;
+    }
+
+    return 0;
+}

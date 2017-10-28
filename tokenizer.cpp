@@ -112,10 +112,18 @@ void Tokenizer::removeStopCharacters(QString& line){
     line.remove(QChar(';'));
     line.remove(QChar('“'));
     line.remove(QChar('”'));
+    line.remove(QChar('#'));
+    line.remove(QChar('$'));
+    line.remove(QChar('*'));
+    line.remove(QChar('['));
+    line.remove(QChar(']'));
+    line.remove(QChar('?'));
+    line.remove(QChar('\''));
     line.replace('_', ' ');
+    line.replace("&", " and ");
 
     if(!LanguageProcessor::containsNumbers(line.toStdString())){
-        line.remove(QChar('.'));
+        line.remove(QChar('.')); //TODO: split on terminal period instead.
         line.remove(QChar('-'));
     }
 }

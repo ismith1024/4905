@@ -9,6 +9,7 @@
 #include <QVariant>
 #include "component.h"
 #include <vector>
+#include
 
 using namespace std;
 
@@ -25,6 +26,9 @@ public:
     int getAllDwgTextFromDB(vector<vector<string>*>&);
 
     int getAllDescriptionsFromDB(vector<string>&);
+
+    int getTopicCounts(map<string, int>&, enum TOPIC);
+
 
 
 

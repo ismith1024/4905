@@ -8,6 +8,7 @@
 #include "QStringList"
 #include "QString"
 #include "unordered_set"
+#include "topicanalyzer.h"
 
 Controller::Controller(){
 
@@ -26,6 +27,7 @@ void Controller::run(){
     LanguageProcessor processor = LanguageProcessor();
     Tokenizer tok = Tokenizer();
     Repository repo = Repository();
+    TopicAnalyzer top = TopicAnalyzer(repo);
 
     /////obtain the text ..............................................
     //this is the text we will be working on
@@ -73,24 +75,7 @@ void Controller::run(){
 
 ///////////////////////////// SQL ERROR ABOVE HERE
 
-    vector<pair<string,string>> demo = vector<pair<string,string>>();
-    demo.push_back(make_pair("awesome","JJ"));
-    demo.push_back(make_pair("far","NN"));
-    demo.push_back(make_pair("out","IN"));
-    demo.push_back(make_pair("group","NN"));
-    demo.push_back(make_pair("is","VV"));
-    demo.push_back(make_pair("a","DT???"));
-    demo.push_back(make_pair("super","JJ"));
-    demo.push_back(make_pair("nice","JJ"));
-    demo.push_back(make_pair("noun","NN"));
-    demo.push_back(make_pair("phrase","NN"));
-    demo.push_back(make_pair("also","CC"));
-    demo.push_back(make_pair("I","PRP"));
-    demo.push_back(make_pair("like","VB"));
-    demo.push_back(make_pair("climbing","VBG"));
-    demo.push_back(make_pair("on","IN"));
-    demo.push_back(make_pair("red","JJ"));
-    demo.push_back(make_pair("stairs","NN"));
+
 
     vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
     vector<vector<pair<string, string>>*> vPhrases = vector<vector<pair<string, string>>*>();
@@ -472,3 +457,23 @@ test = UtilityAlgorithms::levDist(s2, s3);
 
 cout << "Levenshtein -- " << s2 << ", " << s3 << " " << test << endl;
 */
+
+///////////////////// DEMO TAGGED TEXT
+/*vector<pair<string,string>> demo = vector<pair<string,string>>();
+demo.push_back(make_pair("awesome","JJ"));
+demo.push_back(make_pair("far","NN"));
+demo.push_back(make_pair("out","IN"));
+demo.push_back(make_pair("group","NN"));
+demo.push_back(make_pair("is","VV"));
+demo.push_back(make_pair("a","DT???"));
+demo.push_back(make_pair("super","JJ"));
+demo.push_back(make_pair("nice","JJ"));
+demo.push_back(make_pair("noun","NN"));
+demo.push_back(make_pair("phrase","NN"));
+demo.push_back(make_pair("also","CC"));
+demo.push_back(make_pair("I","PRP"));
+demo.push_back(make_pair("like","VB"));
+demo.push_back(make_pair("climbing","VBG"));
+demo.push_back(make_pair("on","IN"));
+demo.push_back(make_pair("red","JJ"));
+demo.push_back(make_pair("stairs","NN"));*/

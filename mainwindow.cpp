@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     control = Controller();
 
     ////This section is for testing
+    /// parser class is deprecated
     //Parser* parser = new Parser();
     //parser->test();
 

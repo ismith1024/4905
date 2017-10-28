@@ -40,7 +40,8 @@ SOURCES += \
     component.cpp \
     bayesianstringclassifier.cpp \
     languageprocessor.cpp \
-    sqlrecord.cpp
+    sqlrecord.cpp \
+    topicanalyzer.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -53,7 +54,8 @@ HEADERS += \
     hcluster.h \
     component.h \
     bayesianstringclassifier.h \
-    languageprocessor.h
+    languageprocessor.h \
+    topicanalyzer.h
 
 FORMS += \
         mainwindow.ui
