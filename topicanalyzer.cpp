@@ -68,20 +68,21 @@ TopicAnalyzer::TopicAnalyzer(Repository& repo){
 void TopicAnalyzer::printTopicWords(){
 
     //Will consider the word interesting if it appears k% more frequently than usual
+    /////////////TODO: set these numbers to whatever works best
     const float THRESHOLD = 0.3 * (1.0/9.0);
     const int SUPPORT = 5;
     cout << "..METAL................" << endl;
 
     for(auto& entry: metalCounts){
         float ratio = ((float) metalCounts[entry.first]) / ((float) aggregateCounts[entry.first]);
-        if(ratio > THRESHOLD && metalCounts[entry.first] >= SUPPORT) cout << entry.first << " .... " << ratio << endl;
+        if(ratio > THRESHOLD && metalCounts[entry.first] >= SUPPORT) cout << entry.first << " .... ratio: " << ratio << " ......support: " << metalCounts[entry.first] << endl;
     }
 
     cout << "..PLASTIC................" << endl;
 
     for(auto& entry: plasticCounts){
         float ratio = ((float) plasticCounts[entry.first]) / ((float) aggregateCounts[entry.first]);
-        if(ratio > THRESHOLD && plasticCounts[entry.first] >= SUPPORT) cout << entry.first << " .... " << ratio << endl;
+        if(ratio > THRESHOLD && plasticCounts[entry.first] >= SUPPORT) cout << entry.first << " .... ratio: " << ratio << " ......support: " << plasticCounts[entry.first] <<  endl;
     }
 
 
