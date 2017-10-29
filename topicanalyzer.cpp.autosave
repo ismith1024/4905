@@ -121,7 +121,7 @@ void TopicAnalyzer::printTopicWords(){
         float ratio = ((float) electronicsCounts[entry.first]) / ((float) aggregateCounts[entry.first]);
         if(ratio > THRESHOLD && electronicsCounts[entry.first] >= SUPPORT) cout << entry.first << " .... ratio: " << ratio << " ......support: " << electronicsCounts[entry.first] <<  endl;
     }
-    cout << "..PACKEGING................" << endl;
+    cout << "..PACKAGING................" << endl;
 
     for(auto& entry: packagingCounts){
         float ratio = ((float) packagingCounts[entry.first]) / ((float) aggregateCounts[entry.first]);
