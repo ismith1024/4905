@@ -31,7 +31,6 @@ LIBS += \
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    parser.cpp \
      controller.cpp \
     repository.cpp \
     tokenizer.cpp \
@@ -45,7 +44,6 @@ SOURCES += \
 
 HEADERS += \
         mainwindow.h \
-    parser.h \
     controller.h \
     repository.h \
     tokenizer.h \
