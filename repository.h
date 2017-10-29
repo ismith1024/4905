@@ -9,14 +9,16 @@
 #include <QVariant>
 #include "component.h"
 #include <vector>
-#include
+#include "enums.h"
+#include "tokenizer.h"
 
 using namespace std;
 
-class Repository
-{
+class Repository{
+
 public:
-    Repository();
+
+    Repository(Tokenizer&);
     QSqlDatabase& getDatabase();
     ~Repository();
 
@@ -27,14 +29,11 @@ public:
 
     int getAllDescriptionsFromDB(vector<string>&);
 
-    int getTopicCounts(map<string, int>&, enum TOPIC);
-
-
-
+    int getTopicCounts(map<string, int>&, enum enums::TOPIC);
 
 private:
     QSqlDatabase database;
-
+    Tokenizer tok;
 
 };
 

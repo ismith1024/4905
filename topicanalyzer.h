@@ -7,30 +7,24 @@
 #include<iostream>
 #include<fstream>
 #include "repository.h"
+#include "enums.h"
+//#include "tokenizer.h"
 
 class TopicAnalyzer{
 
 public:
-    enum TOPIC{
-        METAL,
-        PLASTIC,
-        CABLE,
-        ASSEMBLY,
-        OTHER,
-        PCBA,
-        LABEL,
-        ELECTRONICS,
-        PACKAGING
-    };
 
-    enum TOPIC findTopic(string);
-    enum TOPIC findTopic(vector<string>&);
+    enum enums::TOPIC findTopic(string, Repository&);
+    enum enums::TOPIC findTopic(vector<string>&, Repository&);
+
+    void printTopicWords();
 
     TopicAnalyzer(Repository&);
 
 private:
-    Repository repo;
-    map<string,int> brownCounts;
+    //Repository repo;
+    //Tokenizer tok;
+    map<string,int> aggregateCounts;
     map<string,int> metalCounts;
     map<string,int> plasticCounts;
     map<string,int> cableCounts;
@@ -41,6 +35,6 @@ private:
     map<string,int> electronicsCounts;
     map<string,int> packagingCounts;
 
-}
+};
 
 #endif // TOPICANALYZER_H

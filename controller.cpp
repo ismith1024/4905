@@ -42,9 +42,14 @@
  *
  ******************************************************/
 
-Controller::Controller(){
+/*Controller::Controller(){
 
-}
+    processor = LanguageProcessor();
+    tok = Tokenizer();
+    repo = Repository(tok);
+    top = TopicAnalyzer(repo);
+
+}*/
 
 void Controller::handleTokenizeRequest(){
     qDebug() << "Tokenize button pressed";
@@ -56,10 +61,10 @@ void Controller::handleTokenizeRequest(){
 ///
 void Controller::run(){
 
-    LanguageProcessor processor = LanguageProcessor();
-    Tokenizer tok = Tokenizer();
-    Repository repo = Repository();
-    TopicAnalyzer top = TopicAnalyzer(repo);
+    /////obtain the text ..............................................
+    ////tokenize the text .............................................
+    //This collection is intended for use by fully implemented application
+    vector<vector<string>*> testingSet = vector<vector<string>*>();
 
     //temporary text to test functions
     vector<string> text = vector<string>();
@@ -76,28 +81,33 @@ void Controller::run(){
     testingSet.push_back(forNow2);
 
 
-    /////obtain the text ..............................................
-    ////tokenize the text .............................................
-    //This collection is intended for use by fully implemented application
-    vector<vector<string>*> testingSet = vector<vector<string>*>();
+    cout << "Get test case" << endl;
 
     //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
     if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
     //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
 
     ////tag the text .................................................
+    cout << "Tagging words" << endl;
+
     processor.getXML();
     processor.countTags();
     vector<pair<string,string>> tagResults = vector<pair<string,string>>();
     processor.tag(text, tagResults);
 
     ////topic analysis ..............................................
-    enum TOPIC currentTopic;
+
+    cout << "Print topic words" << endl;
+    top.printTopicWords();
+
+    /*enum TOPIC currentTopic;
 
     for(auto& entry: testingSet){
         currentTopic = top.findTopic(*entry);
         //do some stuff
-    }
+    }*/
+
+    exit(0);
 
 /////////////////////////// SQL ERROR AFTER HERE  ----> /////////////////////////////////
 
@@ -111,13 +121,10 @@ void Controller::run(){
     //////classify the unidentified alphanumeric strings ..............
     //classifyAlpha("hi");
 
-    ////Parse the noun and verb phrases ......................
-    // Test vector
-
 ///////////////////////////// <---- SQL ERROR BEFORE HERE
 
 
-
+    ////Parse the noun and verb phrases ......................
     vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
     vector<vector<pair<string, string>>*> vPhrases = vector<vector<pair<string, string>>*>();
 
@@ -193,7 +200,7 @@ void Controller::run(){
 ///
 int Controller::classifyAlpha(string val){
 
-    Repository repo = Repository();
+    //Repository repo = Repository();
     vector<Component*> collection = vector<Component*>();
 
     int i = 0;
@@ -232,7 +239,7 @@ int Controller::getTestCase2(vector<string>& text, Tokenizer& tok){
               tok.removeStopCharacters(entry);
               string s = entry.toLower().toStdString();
               /*if(s.length() > 0 && (s.at(0) >= 'a' && s.at(0) <= 'z') || (s.at(0) >= 'A' && s.at(0) <= 'Z') || (s.at(0) >= '1' && s.at(0) <= '0') )*/
-              cout << "String " << s << " length: " << s.length() << endl;
+              //cout << "String " << s << " length: " << s.length() << endl;
               if(s.length() != 0) text.push_back(s);
           }
       }

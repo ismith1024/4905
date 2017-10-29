@@ -53,7 +53,8 @@ HEADERS += \
     component.h \
     bayesianstringclassifier.h \
     languageprocessor.h \
-    topicanalyzer.h
+    topicanalyzer.h \
+    enums.h
 
 FORMS += \
         mainwindow.ui

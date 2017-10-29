@@ -3,7 +3,9 @@
 #include <QDebug>
 #include <qstring.h>
 
-Repository::Repository(){
+Repository::Repository(Tokenizer& tk){
+
+    tok = tk;
 
     // load the SQLite driver
     database = QSqlDatabase::addDatabase("QSQLITE");
@@ -141,47 +143,54 @@ int Repository::getAllDescriptionsFromDB(vector<string>& coll){
 /// \brief repository::getTopicCounts
 /// \return
 /// counts the frequency of words in known instances of a topic
-int repository::getTopicCounts(map<string, int>& counts, enum TOPIC topic){
+int Repository::getTopicCounts(map<string, int>& counts, enum enums::TOPIC topic){
     QSqlQuery query;
     QString queryString = "";
     switch(topic){
-        case METAL:
-            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Metal'";
+        case enums::METAL:
+            queryString = "SELECT  text.txt FROM topicAnalysis join text on topicAnalysis.filename = text.file WHERE docType = 'Metal'";
             break;
-        case PLASTIC:
-            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Plastic'";
+        case enums::PLASTIC:
+            queryString = "SELECT  text.txt FROM topicAnalysis join text on topicAnalysis.filename = text.file WHERE docType = 'Plastic'";
             break;
-        case CABLE:
-            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Cable'";
+        case enums::CABLE:
+            queryString = "SELECT  text.txt FROM topicAnalysis join text on topicAnalysis.filename = text.file WHERE docType = 'Cable'";
             break;
-        case ASSEMBLY:
-            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Assembly'";
+        case enums::ASSEMBLY:
+            queryString = "SELECT  text.txt FROM topicAnalysis join text on topicAnalysis.filename = text.file WHERE docType = 'Assembly'";
             break;
-        case OTHER:
-            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Other'";
+        case enums::OTHER:
+            queryString = "SELECT  text.txt FROM topicAnalysis join text on topicAnalysis.filename = text.file WHERE docType = 'Other'";
             break;
-        case PCBA:
-            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'PCBA'";
+        case enums::PCBA:
+            queryString = "SELECT  text.txt FROM topicAnalysis join text on topicAnalysis.filename = text.file WHERE docType = 'PCBA'";
             break;
-        case LABEL:
-            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Label'";
+        case enums::LABEL:
+            queryString = "SELECT  text.txt FROM topicAnalysis join text on topicAnalysis.filename = text.file WHERE docType = 'Label'";
             break;
-        case ELECTRONICS:
-            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Electronics'";
+        case enums::ELECTRONICS:
+            queryString = "SELECT  text.txt FROM topicAnalysis join text on topicAnalysis.filename = text.file WHERE docType = 'Electronics'";
             break;
-        case PACKAGING:
-            queryString = "SELECT txt FROM topicAnalysis WHERE docType = 'Packaging'";
+        case enums::PACKAGING:
+            queryString = "SELECT text.txt FROM topicAnalysis join text on topicAnalysis.filename = text.file WHERE docType = 'Packaging'";
             break;
     }
 
     if(!query.exec(queryString)){
-        cout << "getTopicCounts query failed : " << query.lastError().text() << endl;
+        cout << "getTopicCounts query failed : " << query.lastError().text().toStdString() << endl;
         return -1;
     }
 
+
+    //cout << "Repository::getTopicCounts() -- " << queryString.toStdString() << endl;
     while(query.next()){
-        string s1 = query.value(0).toString().toStdString();
-        counts[s1]++;
+        QStringList pieces = query.value(0).toString().split(QChar('~'));
+        for(auto& entry: pieces){
+            tok.removeStopCharacters(entry);
+            string s1 = entry.toLower().toStdString();
+            //cout << s1 << endl;
+            counts[s1]++;
+        }
     }
 
     return 0;

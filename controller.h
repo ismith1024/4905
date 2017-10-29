@@ -11,13 +11,24 @@
 #include "component.h"
 #include "bayesianstringclassifier.h"
 #include "tokenizer.h"
+#include "repository.h"
+#include "topicanalyzer.h"
+#include "languageprocessor.h"
 
 using namespace std;
 
 class Controller
 {
+
+
+private:
+    LanguageProcessor processor;
+    Tokenizer tok;
+    Repository repo;
+    TopicAnalyzer top;
+
 public:
-    Controller();
+    Controller() : repo(tok), top(repo){};
     void handleTokenizeRequest();
     int getTextFromFile(vector<string>&, Tokenizer&);
     int getTestCase1(vector<string>&, Tokenizer&);
@@ -30,6 +41,7 @@ public:
     int classifyAlpha(string);
 
     void run();
+
 
 };
 

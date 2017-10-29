@@ -115,8 +115,8 @@ int LanguageProcessor::getXML(){
 
                   if(pieces2.size() > 1 ){
                       QString s = pieces2.at(0);
-                      string s1 = s.replace("w type=\"", "").replace("\"","").toStdString();
-                      s1 = tolower(s1);
+                      string s1 = s.replace("w type=\"", "").replace("\"","").toLower().toStdString();
+                      //s1 = tolower(s1);
                       string s2 = pieces2.at(1).toStdString();
                       //count++;
                       //cout << s2 << " : " << s1 << endl;
