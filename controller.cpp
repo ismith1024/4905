@@ -87,6 +87,9 @@ void Controller::run(){
     if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
     //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
 
+    //cout << "TEXT:" << endl;
+    //for(auto& entry: text) cout << entry << endl;
+
     ////tag the text .................................................
     cout << "Tagging words" << endl;
 
@@ -97,11 +100,13 @@ void Controller::run(){
 
     ////topic analysis ..............................................
 
+    cout << "TOPIC ANLYSIS..." << endl;
     cout << "Print topic words" << endl;
-    top.printTopicWords();
+    //top.printTopicWords();
+    enum enums::TOPIC topic = top.findTopic(text, repo);
+    cout << "Topic: " << topic << endl;
 
-    /*enum TOPIC currentTopic;
-
+    /*
     for(auto& entry: testingSet){
         currentTopic = top.findTopic(*entry);
         //do some stuff
