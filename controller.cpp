@@ -10,6 +10,38 @@
 #include "unordered_set"
 #include "topicanalyzer.h"
 
+/******************************************************
+ * Description of overall control flow:
+ * Open a text case
+ *   for each file:
+ *       determine the topic
+ *       scan for parents
+ *   for each line:
+ *       tokenize (remove stop characters, split into words, fix capitalization
+ *       extract noun and verb phrases, put each into a collection
+ *       for each phrase:
+ *           identify collocations based on augmented corpus
+ *               for each collocation:
+ *                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic)
+ *               for each remaining word:
+ *                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic)
+ *               for untagged words:
+ *                   if candidate part number
+ *                       associate with most likely material-article type based on bayesian classifier
+ *               for each association:
+ *                   collapse based on:
+ *                       deduplication
+ *                       taxonomy
+ *       for each association:
+ *           determine a parent based on probability of material-article type having the parent in:
+ *                   the file
+ *                   the parent file
+ *
+ * Output:
+ * ||Filename||Line item||Parent||MFR||MPN||Description||Material-article type||
+ *
+ ******************************************************/
+
 Controller::Controller(){
 
 }
@@ -29,20 +61,28 @@ void Controller::run(){
     Repository repo = Repository();
     TopicAnalyzer top = TopicAnalyzer(repo);
 
+    //text for the actual control flow
+    vector<vector<string>*> testingSet = vector<vector<string>*>();
+
     /////obtain the text ..............................................
-    //this is the text we will be working on
-    vector<string> text = vector<string>();
-
-    //if(getTextFromFile(text, tok) != 0) exit(-1);
-    if(getTestCase2(text, tok) != 0) exit(-1);
-
-    cout << "TEXT" << endl << ".........................." << endl;
-    for(auto& entry: text){
-        cout << entry << endl;
-    }
-
     ////TODO:tokenize the text .......................................
 
+    //this is the text we will be working on
+    vector<string> text = vector<string>();
+    //TODO: get a full test case
+    // For now:
+    vector<string>* forNow1 = new vector<string>();
+    forNow1->push_back("Placeholder");
+    forNow1->push_back("Text");
+    vector<string>* forNow2 = new vector<string>();
+    forNow2->push_back("More");
+    forNow2->push_back("Placeholder");
+    forNow2->push_back("Text");
+    testingSet.push_back(forNow1);
+    testingSet.push_back(forNow2);
+
+    //USE THIS TO GET TEST CASE 1 --> if(getTextFromFile(text, tok) != 0) exit(-1);
+    if(getTestCase2(text, tok) != 0) exit(-1);
 
     ////tag the text .................................................
     processor.getXML();
@@ -50,15 +90,15 @@ void Controller::run(){
     vector<pair<string,string>> tagResults = vector<pair<string,string>>();
     processor.tag(text, tagResults);
 
-    /*cout << "Tag results" << endl << "....................................." << endl;
-    for(auto& entry: tagResults){
-        cout << entry.first << " : " << entry.second << endl;
-    }*/
+    ////topic analysis ..............................................
+    enum TOPIC currentTopic;
 
-/////////////////////////// SQL ERROR BELOW HERE /////////////////////////////////
+    for(auto& entry: testingSet){
+        currentTopic = top.findTopic(*entry);
+        //do some stuff
+    }
 
-    ////TODO: topic analysis .........................................
-
+/////////////////////////// SQL ERROR AFTER HERE  ----> /////////////////////////////////
 
     ////TODO: run the text through the technical dictionary ..........
     ///     This will idenify numbers, etc. that weare interested in.
@@ -73,7 +113,7 @@ void Controller::run(){
     ////Parse the noun and verb phrases ......................
     // Test vector
 
-///////////////////////////// SQL ERROR ABOVE HERE
+///////////////////////////// <---- SQL ERROR BEFORE HERE
 
 
 
@@ -90,61 +130,9 @@ void Controller::run(){
     //repo.getAllDwgTextFromDB(dwgText);
     //repo.getAllDescriptionsFromDB(dwgText);
 
-/////////// Code that was used to obtain untagged words from the training set
-/*    vector<string> myWords = vector<string>();
-    vector<QString> myWords2 = vector<QString>();
+/////////// Legacy code that was used to obtain untagged words from the training set
+    //obtainUntaggedWords(tagResults);
 
-    for(auto& entry: dwgText){
-        QStringList pieces = QString::fromStdString(entry).split(' ');
-        for(auto& e2: pieces){
-            if(!processor.containsNumbers(e2)){
-                e2.replace('/', ',');
-                QStringList p2 = e2.split(", _+");
-                for(auto& e3: p2) {
-                    //cout << "Split: " << e3.toStdString() << endl;
-                    myWords2.push_back(e3);
-                }
-            } else {
-                tok.removeStopCharacters(e2);
-                myWords.push_back(e2.toLower().toStdString());
-            }
-        }
-    }
-
-    for(auto& entry: myWords2){
-         tok.removeStopCharacters(entry);
-         myWords.push_back(entry.toLower().toStdString());
-    }
-
-    tagResults = vector<pair<string,string>>();
-    processor.tag(myWords, tagResults);
-
-    unordered_set<string> unknownWords = unordered_set<string>();
-    unordered_set<string> knownWords = unordered_set<string>();
-
-    for(auto& entry: tagResults){
-        //cout << entry.first << " : " << entry.second << endl;
-
-        if(entry.second == "???"){
-            //cout << entry.first << endl;
-            unknownWords.insert(entry.first);
-        } else{
-            knownWords.insert(entry.first + " : " + entry.second);
-        }
-    }
-
-    ofstream outfile;
-    outfile.open ("/home/ian/Data/unknownFromDBDescField.txt");
-    outfile << " --------------- UNKNOWN WORDS --------------- " << endl;
-    for(auto& entry: unknownWords){
-        outfile << entry << endl;
-    }
-    outfile << " --------------- KNOWN WORDS --------------- " << endl;
-    for(auto& entry: knownWords){
-        outfile << entry << endl;
-    }
-    outfile.close();
-*/
 
 ////// Extracts noun and verb phrases from the free text in dwgText
 
@@ -261,10 +249,7 @@ int Controller::getTestCase2(vector<string>& text, Tokenizer& tok){
 /////////////
 /// getTextFromFile()
 /// gets the text from a file
-///
-///
-///
-///
+/// Used to otain the text from testcase.txt
 int Controller::getTextFromFile(vector<string>& text, Tokenizer& tok){
 
     //open the file -- static location for now
@@ -307,6 +292,12 @@ int Controller::tokenize(string fileName){
     return 0;
 }
 
+///////////////
+/// \brief Controller::crossValidate
+/// \param bayes
+/// \param collection
+/// Used when performing cross-validation to test the Bayesian component classifier
+///
 void Controller::crossValidate(BayesianStringClassifier& bayes, vector<Component*>& collection){
     Component* testComp = new Component("Bob's bolts", "CRCW040222R0FKED", "Some widget", "");
     vector<Component*> testing = vector<Component*>();
@@ -348,7 +339,70 @@ void Controller::crossValidate(BayesianStringClassifier& bayes, vector<Component
 }
 
 ////////////////////////////////////////////////////////////////
-///SCRAP CODE BELOW HERE
+///LEGACY CODE BELOW HERE
+
+
+////////////////
+//// \brief Controller::obtainUntaggedWords
+//// \param tegResults
+/// Legacy function to idenify the untagged words in the training set
+/// Used to build technical corpus
+/*void Controller::obtainUntaggedWords(vector<string>& tegResults){
+        vector<string> myWords = vector<string>();
+        vector<QString> myWords2 = vector<QString>();
+
+        for(auto& entry: dwgText){
+            QStringList pieces = QString::fromStdString(entry).split(' ');
+            for(auto& e2: pieces){
+                if(!processor.containsNumbers(e2)){
+                    e2.replace('/', ',');
+                    QStringList p2 = e2.split(", _+");
+                    for(auto& e3: p2) {
+                        //cout << "Split: " << e3.toStdString() << endl;
+                        myWords2.push_back(e3);
+                    }
+                } else {
+                    tok.removeStopCharacters(e2);
+                    myWords.push_back(e2.toLower().toStdString());
+                }
+            }
+        }
+
+        for(auto& entry: myWords2){
+             tok.removeStopCharacters(entry);
+             myWords.push_back(entry.toLower().toStdString());
+        }
+
+        tagResults = vector<pair<string,string>>();
+        processor.tag(myWords, tagResults);
+
+        unordered_set<string> unknownWords = unordered_set<string>();
+        unordered_set<string> knownWords = unordered_set<string>();
+
+        for(auto& entry: tagResults){
+            //cout << entry.first << " : " << entry.second << endl;
+
+            if(entry.second == "???"){
+                //cout << entry.first << endl;
+                unknownWords.insert(entry.first);
+            } else{
+                knownWords.insert(entry.first + " : " + entry.second);
+            }
+        }
+
+        ofstream outfile;
+        outfile.open ("/home/ian/Data/unknownFromDBDescField.txt");
+        outfile << " --------------- UNKNOWN WORDS --------------- " << endl;
+        for(auto& entry: unknownWords){
+            outfile << entry << endl;
+        }
+        outfile << " --------------- KNOWN WORDS --------------- " << endl;
+        for(auto& entry: knownWords){
+            outfile << entry << endl;
+        }
+        outfile.close();
+
+} */
 
 
 ///////////////
