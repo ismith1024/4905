@@ -30,6 +30,8 @@ public:
     int getAllDescriptionsFromDB(vector<string>&);
 
     int getTopicCounts(map<string, int>&, enum enums::TOPIC);
+    int getTopicsByNumber(map<enums::TOPIC, int>&);
+    int countOfStringGivenTopic(string, enums::TOPIC);
 
 private:
     QSqlDatabase database;

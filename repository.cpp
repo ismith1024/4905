@@ -195,3 +195,81 @@ int Repository::getTopicCounts(map<string, int>& counts, enum enums::TOPIC topic
 
     return 0;
 }
+
+int Repository::getTopicsByNumber(map<enums::TOPIC, int>& counts){
+    QSqlQuery query;
+    QString queryString = "SELECT DISTINCT docType, COUNT(docType) FROM topicAnalysis GROUP BY docType;";
+
+    if(!query.exec(queryString)){
+        cout << "getTopicsByNumber query failed : " << query.lastError().text().toStdString() << endl;
+        return -1;
+    }
+
+    while(query.next()){
+        string resultType = query.value(0).toString().toStdString();
+        if(resultType == "Assembly") counts[enums::ASSEMBLY] = query.value(1).toInt();
+        else if(resultType == "Cable") counts[enums::CABLE] = query.value(1).toInt();
+        else if(resultType == "Electronics") counts[enums::ELECTRONICS] = query.value(1).toInt();
+        else if(resultType == "Label") counts[enums::LABEL] = query.value(1).toInt();
+         else if(resultType == "Metal") counts[enums::METAL] = query.value(1).toInt();
+         else if(resultType == "Other") counts[enums::OTHER] = query.value(1).toInt();
+         else if(resultType == "PCBA") counts[enums::PCBA] = query.value(1).toInt();
+         else if(resultType == "Packaging") counts[enums::PACKAGING] = query.value(1).toInt();
+         else if(resultType == "Plastic") counts[enums::PLASTIC] = query.value(1).toInt();
+    }
+
+    return 0;
+}
+
+int Repository::countOfStringGivenTopic(string txt, enums::TOPIC topic){
+    QSqlQuery query;
+    QString queryString = "SELECT topicAnalysis.docType, count(docType) from topicAnalysis JOIN text ON text.file = topicAnalysis.filename WHERE topicAnalysis.docType = ";
+
+    switch(topic){
+    case enums::METAL:
+        queryString += "'Metal'";
+        break;
+    case enums::PLASTIC:
+        queryString += "'Plastic'";
+        break;
+    case enums::CABLE:
+        queryString += "'Cable'";
+        break;
+    case enums::ASSEMBLY:
+        queryString += "'Assembly'";
+        break;
+    case enums::OTHER:
+        queryString += "'Other'";
+        break;
+    case enums::PCBA:
+        queryString += "'PCBA'";
+        break;
+    case enums::LABEL:
+        queryString += "'Label'";
+        break;
+    case enums::ELECTRONICS:
+        queryString += "'Electronics'";
+        break;
+    case enums::PACKAGING:
+        queryString += "'Packaging'";
+        break;
+
+    }
+
+    queryString = queryString + QString::fromStdString("AND (text.txt LIKE '%~" + txt + "~%' OR text.txt LIKE '" + txt + "~%' OR text.txt LIKE '%~" + txt + "');");
+
+    if(!query.exec(queryString)){
+        cout << "countOfStringGivenTopic query failed : " << query.lastError().text().toStdString() << endl;
+        return -1;
+    }
+
+    while(query.next()){
+        int ret = query.value(1).toInt();
+        //cout << queryString.toStdString() << endl;
+        //cout << topic << " has " << ret << " documents with '" << txt << "'" << endl;
+        return ret;
+    }
+
+
+}
+

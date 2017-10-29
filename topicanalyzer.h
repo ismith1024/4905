@@ -34,6 +34,7 @@ private:
     map<string,int> labelCounts;
     map<string,int> electronicsCounts;
     map<string,int> packagingCounts;
+    map<enums::TOPIC, int> counts;
 
 };
 
