@@ -398,7 +398,13 @@ void Controller::getCollocationsFromDBDescriptions(){
 
     repo.getAllDescriptionsFromDB(allDescriptions);
 
+    //for(auto& entry: allDescriptions) cout << entry << endl;
+
     processor.findCollocationMetrics(allDescriptions, singles, pairs);
+
+    //for(auto& entry: singles) cout << entry.first << endl;
+    //for(auto& entry: pairs) cout << entry.first.first << " , " << entry.first.second << endl;
+
     processor.mimForCollocations(singles, pairs, collocations);
 
     cout << "COLLOCATIONS ............" << endl;
