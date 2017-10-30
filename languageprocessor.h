@@ -60,6 +60,9 @@ public:
 
     void dumpUnknownWords(vector<pair<string, string>>&, string);
 
+    void findCollocationMetrics(vector<string>&, map<string, int>&, map<pair<string,string>, int>& );
+    void mimForCollocations(map<string, int>&, map<pair<string,string>, int>&, vector<pair<string, string>>&);
+
 };
 
 #endif // LANGUAGEPROCESSOR_H

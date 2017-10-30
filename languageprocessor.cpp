@@ -382,10 +382,58 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
         }
         ++it;
     }
+}
+
+///////////////
+/// \brief LanguageProcessir::findCollocationMetrics
+/// \param inStrings - collection of space-delimited words  -- ["Hi there", "It's a nice day", ... "Bye for now!"]
+/// \param singles   - occurrances of single words : <foo, x>
+/// \param pairs     - occurrances of word pairs: <<bar, baz>, y>
+/// Finds the metrics that will be used by Mutula Information Measure to identify word collocations
+void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<string, int>& singles, map<pair<string,string>, int>& pairs){
+    //the strings are delimited words.
+    vector<QStringList> splitWords = vector<QStringList>();
+    QStringList::iterator it, it2;
+
+    for(auto& entry: inStrings){
+        splitWords.push_back(QString::fromStdString(entry).split(' '));
+    }
+
+    //Count the single words
+    for(auto& entry: splitWords){
+        for(it = entry.begin(); it != entry.end(); it++){
+            singles[(it->.toStdString())]++;
+            for(it2 = it+1; it2 != entry.end(); it2++){
+                pair<string, string> pr = make_pair(it->toStdString(), it2->toStdString());
+                pairs[pr]++;
+            }
+        }
+    }
+}
 
 
+///////////
+/// \brief LanguageProcessor::mimForCollocations
+/// \param singles -- counts of single word occurrances
+/// \param pairs -- counts of word pair occurrances
+/// \param collocations -- the collocations the function finds
+///  Uses point wise mutual information on the single and pair counts to find word collocations in technical corpus text
+void LanguageProcessor::mimForCollocations(map<string, int>& singles, map<pair<string,string>, int>& pairs, vector<pair<string, string>>& collocations){
+    //TODO: Adjust this threshold
+    const int THRESHOLD = 0.5;
+
+    for(auto& entry: pairs){
+        int pairCount = entry.second;
+        int s1Count = singles[entry.first.first];
+        int s2Count = singles[entry.first.second];
+
+        float mim = log((float) pairCount / (s1Count * s2Count));
+
+        if(mim > THRESHOLD) collocations.push_back(entry);
+    }
 
 }
+
 
 /////
 /// \brief LanguageProcessor::isNoun
