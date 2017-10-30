@@ -402,7 +402,7 @@ void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<st
     //Count the single words
     for(auto& entry: splitWords){
         for(it = entry.begin(); it != entry.end(); it++){
-            singles[(it->.toStdString())]++;
+            singles[(it->toStdString())]++;
             for(it2 = it+1; it2 != entry.end(); it2++){
                 pair<string, string> pr = make_pair(it->toStdString(), it2->toStdString());
                 pairs[pr]++;
@@ -420,7 +420,7 @@ void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<st
 ///  Uses point wise mutual information on the single and pair counts to find word collocations in technical corpus text
 void LanguageProcessor::mimForCollocations(map<string, int>& singles, map<pair<string,string>, int>& pairs, vector<pair<string, string>>& collocations){
     //TODO: Adjust this threshold
-    const int THRESHOLD = 0.5;
+    const int THRESHOLD = 0.0;
 
     for(auto& entry: pairs){
         int pairCount = entry.second;
@@ -429,7 +429,7 @@ void LanguageProcessor::mimForCollocations(map<string, int>& singles, map<pair<s
 
         float mim = log((float) pairCount / (s1Count * s2Count));
 
-        if(mim > THRESHOLD) collocations.push_back(entry);
+        if(mim > THRESHOLD) collocations.push_back(entry.first);
     }
 
 }

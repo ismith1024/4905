@@ -80,6 +80,10 @@ void Controller::run(){
     testingSet.push_back(forNow1);
     testingSet.push_back(forNow2);
 
+    getCollocationsFromDBDescriptions();
+
+    exit(0);
+
 
     cout << "Get test case" << endl;
 
@@ -381,6 +385,39 @@ void Controller::crossValidate(BayesianStringClassifier& bayes, vector<Component
 
     delete testComp;
 }
+
+/////////
+/// \brief Controller::getCollocationsFromDBDescriptions
+/// Used during development to find the word collocations from the training set
+void Controller::getCollocationsFromDBDescriptions(){
+
+    vector<string> allDescriptions = vector<string>();
+    map<string, int> singles = map<string, int>();
+    map<pair<string,string>, int> pairs = map<pair<string,string>, int>();
+    vector<pair<string,string>> collocations = vector<pair<string,string>>();
+
+    repo.getAllDescriptionsFromDB(allDescriptions);
+
+    processor.findCollocationMetrics(allDescriptions, singles, pairs);
+    processor.mimForCollocations(singles, pairs, collocations);
+
+    cout << "COLLOCATIONS ............" << endl;
+    for(auto& entry: collocations){
+        cout << "<" << entry.first << "," << entry.second << ">" << endl;
+    }
+
+
+}
+
+
+/*
+/////////
+/// \brief LanguageProcessir::findCollocationMetrics
+/// \param inStrings - collection of space-delimited words  -- ["Hi there", "It's a nice day", ... "Bye for now!"]
+/// \param singles   - occurrances of single words : <foo, x>
+/// \param pairs     - occurrances of word pairs: <<bar, baz>, y>
+/// Finds the metrics that will be used by Mutula Information Measure to identify word collocations
+void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<string, int>& singles, map<pair<string,string>, int>& pairs){*/
 
 ////////////////////////////////////////////////////////////////
 ///LEGACY CODE BELOW HERE

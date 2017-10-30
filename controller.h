@@ -40,6 +40,8 @@ public:
 
     int classifyAlpha(string);
 
+    void getCollocationsFromDBDescriptions();
+
     void run();
 
 
