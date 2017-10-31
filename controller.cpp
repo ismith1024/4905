@@ -401,7 +401,7 @@ void Controller::getCollocationsFromDBDescriptions(){
 
     //for(auto& entry: allDescriptions) cout << entry << endl;
 
-    processor.findCollocationMetrics(allDescriptions, singles, pairs);
+    processor.findCollocationMetrics(allDescriptions, singles, pairs, tok);
 
     //for(auto& entry: singles) cout << entry.first << endl;
     //for(auto& entry: pairs) cout << entry.first.first << " , " << entry.first.second << endl;

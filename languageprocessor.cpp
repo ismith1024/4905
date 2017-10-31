@@ -390,7 +390,7 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
 /// \param singles   - occurrances of single words : <foo, x>
 /// \param pairs     - occurrances of word pairs: <<bar, baz>, y>
 /// Finds the metrics that will be used by Mutula Information Measure to identify word collocations
-void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<string, int>& singles, map<pair<string,string>, int>& pairs){
+void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<string, int>& singles, map<pair<string,string>, int>& pairs, Tokenizer& tok){
     //the strings are delimited words.
     vector<QStringList> splitWords = vector<QStringList>();
     QStringList::iterator it, it2;
@@ -401,6 +401,9 @@ void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<st
 
     //Count the single words
     for(auto& entry: splitWords){
+        for(auto& e2: entry){
+            tok.removeStopCharacters(e2);
+        }
         for(it = entry.begin(); it != entry.end(); it++){
             singles[(it->toLower().toStdString())]++;
             for(it2 = it+1; it2 <= it+2 && it2 != entry.end(); it2++){
@@ -420,7 +423,7 @@ void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<st
 ///  Uses point wise mutual information on the single and pair counts to find word collocations in technical corpus text
 void LanguageProcessor::mimForCollocations(map<string, int>& singles, map<pair<string,string>, int>& pairs, vector<pair<string, string>>& collocations){
     //TODO: Adjust this threshold
-    const int THRESHOLD = -1.0;
+    const int THRESHOLD = -10.0;
 
     for(auto& entry: pairs){
         int pairCount = entry.second;
