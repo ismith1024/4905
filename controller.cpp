@@ -14,28 +14,29 @@
  * Description of overall control flow:
  * Open a text case
  *   for each file:
- *       determine the topic
- *       scan for parents
+ *       determine the topic                                                        --TODO: optimize
+ *       scan for parents                                                           --TODO: start
  *   for each line:
- *       tokenize (remove stop characters, split into words, fix capitalization)
- *       extract noun and verb phrases, put each into a collection
+ *       tokenize (remove stop characters, split into words, fix capitalization)    -- done
+ *       extract noun and verb phrases, put each into a collection                  -- done
  *       for each phrase:
- *           identify collocations based on augmented corpus
+ *           identify collocations based on augmented corpus                        -- TODO: optimize parms, compile stop-words
  *               for each collocation:
- *                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic)
+ *                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic) --TODO: start
  *               for each remaining word:
- *                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic)
+ *                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic) --TODO: Bayesian not working
  *               for untagged words:
  *                   if candidate part number
- *                       associate with most likely material-article type based on bayesian classifier
+ *                       associate with most likely material-article type based on bayesian classifier --done
+ *                       associate with most likely suppleir based on Bayesian classifier --TODO: start (but can adapt the classifier)
  *               for each association:
  *                   collapse based on:
- *                       deduplication
- *                       taxonomy
+ *                       deduplication                                               --TODO: start
+ *                       taxonomy                                                    --TODO: start
  *       for each association:
  *           determine a parent based on probability of material-article type having the parent in:
- *                   the file
- *                   the parent file
+ *                   the file                                                        --TODO: start
+ *                   the parent file                                                 --TODO: start
  *
  * Output:
  * ||Filename||Line item||Parent||MFR||MPN||Description||Material-article type||

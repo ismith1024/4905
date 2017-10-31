@@ -389,7 +389,7 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
 /// \param inStrings - collection of space-delimited words  -- ["Hi there", "It's a nice day", ... "Bye for now!"]
 /// \param singles   - occurrances of single words : <foo, x>
 /// \param pairs     - occurrances of word pairs: <<bar, baz>, y>
-/// Finds the metrics that will be used by Mutula Information Measure to identify word collocations
+/// Finds the metrics that will be used by Mutulal Information Measure to identify word collocations
 void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<string, int>& singles, map<pair<string,string>, int>& pairs, Tokenizer& tok){
     const int SEARCH_DIST = 4;
 
