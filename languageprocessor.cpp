@@ -403,7 +403,7 @@ void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<st
     for(auto& entry: splitWords){
         for(it = entry.begin(); it != entry.end(); it++){
             singles[(it->toLower().toStdString())]++;
-            for(it2 = it+1; it2 != entry.end(); it2++){
+            for(it2 = it+1; it2 <= it+2 && it2 != entry.end(); it2++){
                 pair<string, string> pr = make_pair(it->toLower().toStdString(), it2->toLower().toStdString());
                 pairs[pr]++;
             }

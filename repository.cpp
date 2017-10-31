@@ -273,3 +273,19 @@ int Repository::countOfStringGivenTopic(string txt, enums::TOPIC topic){
 
 }
 
+int Repository::getContractsComponentsDescriptionsFromDB(vector<string>& coll){
+    QSqlQuery query;
+
+    if (!query.exec("SELECT Description FROM contractsComponents WHERE Description IS NOT NULL;")){
+         qDebug() << "getContractsComponentsDescriptionsFromDB SQL error: "<< query.lastError().text() << endl;
+         return -1;
+    }
+
+    while(query.next()){
+        QString s1 = query.value(0).toString();
+        coll.push_back(s1.toStdString());
+    }
+
+    return 0;
+}
+

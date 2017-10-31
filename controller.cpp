@@ -396,7 +396,8 @@ void Controller::getCollocationsFromDBDescriptions(){
     map<pair<string,string>, int> pairs = map<pair<string,string>, int>();
     vector<pair<string,string>> collocations = vector<pair<string,string>>();
 
-    repo.getAllDescriptionsFromDB(allDescriptions);
+    //repo.getAllDescriptionsFromDB(allDescriptions);
+    repo.getContractsComponentsDescriptionsFromDB(allDescriptions);
 
     //for(auto& entry: allDescriptions) cout << entry << endl;
 

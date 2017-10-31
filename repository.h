@@ -28,6 +28,7 @@ public:
     int getAllDwgTextFromDB(vector<vector<string>*>&);
 
     int getAllDescriptionsFromDB(vector<string>&);
+    int getContractsComponentsDescriptionsFromDB(vector<string>&);
 
     int getTopicCounts(map<string, int>&, enum enums::TOPIC);
     int getTopicsByNumber(map<enums::TOPIC, int>&);
