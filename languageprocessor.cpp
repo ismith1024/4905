@@ -391,6 +391,8 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
 /// \param pairs     - occurrances of word pairs: <<bar, baz>, y>
 /// Finds the metrics that will be used by Mutula Information Measure to identify word collocations
 void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<string, int>& singles, map<pair<string,string>, int>& pairs, Tokenizer& tok){
+    const int SEARCH_DIST = 4;
+
     //the strings are delimited words.
     vector<QStringList> splitWords = vector<QStringList>();
     QStringList::iterator it, it2;
@@ -406,7 +408,7 @@ void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<st
         }
         for(it = entry.begin(); it != entry.end(); it++){
             singles[(it->toLower().toStdString())]++;
-            for(it2 = it+1; it2 <= it+2 && it2 != entry.end(); it2++){
+            for(it2 = it+1; it2 <= it+SEARCH_DIST && it2 != entry.end(); it2++){
                 pair<string, string> pr = make_pair(it->toLower().toStdString(), it2->toLower().toStdString());
                 pairs[pr]++;
             }
@@ -423,7 +425,9 @@ void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<st
 ///  Uses point wise mutual information on the single and pair counts to find word collocations in technical corpus text
 void LanguageProcessor::mimForCollocations(map<string, int>& singles, map<pair<string,string>, int>& pairs, vector<pair<string, string>>& collocations){
     //TODO: Adjust this threshold
-    const int THRESHOLD = -10.0;
+    //TODO: Compile non-collocation words
+    const float THRESHOLD = -7.0;
+    const int MIN_SUPP = 5;
 
     for(auto& entry: pairs){
         int pairCount = entry.second;
@@ -432,7 +436,7 @@ void LanguageProcessor::mimForCollocations(map<string, int>& singles, map<pair<s
 
         float mim = log((float) pairCount / (s1Count * s2Count));
 
-        if(mim > THRESHOLD) collocations.push_back(entry.first);
+        if(mim < THRESHOLD && entry.second >= MIN_SUPP) collocations.push_back(entry.first);
     }
 
 }

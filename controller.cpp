@@ -17,7 +17,7 @@
  *       determine the topic
  *       scan for parents
  *   for each line:
- *       tokenize (remove stop characters, split into words, fix capitalization
+ *       tokenize (remove stop characters, split into words, fix capitalization)
  *       extract noun and verb phrases, put each into a collection
  *       for each phrase:
  *           identify collocations based on augmented corpus
