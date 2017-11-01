@@ -393,6 +393,23 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
 void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<string, int>& singles, map<pair<string,string>, int>& pairs, Tokenizer& tok){
     const int SEARCH_DIST = 4;
 
+    vector<string> stopWords = vector<string>();
+
+    stopWords.push_back("");
+    stopWords.push_back("x");
+    stopWords.push_back("z");
+    stopWords.push_back("t");
+    stopWords.push_back("s");
+    stopWords.push_back("l");
+    stopWords.push_back("per");
+    stopWords.push_back("for");
+    stopWords.push_back("f");
+    stopWords.push_back("e");
+    stopWords.push_back("with");
+    stopWords.push_back("t7");
+    //stopWords.push_back("");
+
+
     //the strings are delimited words.
     vector<QStringList> splitWords = vector<QStringList>();
     QStringList::iterator it, it2;
@@ -409,8 +426,11 @@ void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<st
         for(it = entry.begin(); it != entry.end(); it++){
             singles[(it->toLower().toStdString())]++;
             for(it2 = it+1; it2 <= it+SEARCH_DIST && it2 != entry.end(); it2++){
-                pair<string, string> pr = make_pair(it->toLower().toStdString(), it2->toLower().toStdString());
-                pairs[pr]++;
+                if(find(stopWords.begin(), stopWords.end(), it->toLower().toStdString()) == stopWords.end() &&
+                        find(stopWords.begin(), stopWords.end(), it2->toLower().toStdString()) == stopWords.end()){
+                    pair<string, string> pr = make_pair(it->toLower().toStdString(), it2->toLower().toStdString());
+                    pairs[pr]++;
+                }
             }
         }
     }
@@ -425,9 +445,8 @@ void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<st
 ///  Uses point wise mutual information on the single and pair counts to find word collocations in technical corpus text
 void LanguageProcessor::mimForCollocations(map<string, int>& singles, map<pair<string,string>, int>& pairs, vector<pair<string, string>>& collocations){
     //TODO: Adjust this threshold
-    //TODO: Compile non-collocation words
     const float THRESHOLD = -7.0;
-    const int MIN_SUPP = 5;
+    const int MIN_SUPP = 10;
 
     for(auto& entry: pairs){
         int pairCount = entry.second;
@@ -600,6 +619,7 @@ bool LanguageProcessor::containsNumbers(QString& str){
 
     return false;
 }
+
 
 ///////// SCRAP BELOW HERE
 
