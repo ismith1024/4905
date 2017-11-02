@@ -43,6 +43,7 @@ public:
     void getCollocationsFromDBDescriptions();
 
     void run();
+    void run2();
 
 
 };

@@ -52,6 +52,69 @@
 
 }*/
 
+class testFile{
+public:
+    string filename;
+    string text;
+    vector<string> words;
+    vector<string, string> tags;
+    enum enums::TOPIC topic;
+    testFile* parent;
+    vector<string> nounPhrases;
+    vector<string> verbPhrases;
+};
+
+/*void Controller::run2(){
+    //* Open a text case
+    vector<testFile*> inputText = vector<testFile*>();
+    getTestCase(inputText);
+
+    //*   for each file:
+    //*       determine the topic                                                        --TODO: optimize
+    top.findTopic(inputText, repo);
+
+    //*       scan for parents                                                           --TODO: start
+    for(auto& current: inputText){
+        for(auto& other: inputText){
+            if(other != current && find(*current->text.begin(), *current->text.end(), *other->filename) != *current->text.end()){
+                current->parent = other->filename;
+            }
+        }
+    }
+    //*   for each line:
+    //*       tokenize (remove stop characters, split into words, fix capitalization)    -- done
+    //*       extract noun and verb phrases, put each into a collection                  -- done
+    for(auto& entry: inputText){
+        processor.getNounPhrases(
+    }
+
+    //*       for each phrase:
+    //*           identify collocations based on augmented corpus                        -- TODO: optimize parms, compile stop-words
+    //*               for each collocation:
+    //*                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic) --TODO: start
+    //*               for each remaining word:
+    //*                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic) --TODO: Bayesian not working
+    //*               for untagged words:
+    //*                   if candidate part number
+    //*                       associate with most likely material-article type based on bayesian classifier --done
+    //*                       associate with most likely suppleir based on Bayesian classifier --TODO: start (but can adapt the classifier)
+    //*               for each association:
+    //*                   collapse based on:
+    //*                       deduplication                                               --TODO: start
+    //*                       taxonomy                                                    --TODO: start
+    //*       for each association:
+    //*           determine a parent based on probability of material-article type having the parent in:
+    //*                   the file                                                        --TODO: start
+    //*                   the parent file                                                 --TODO: start
+    //*
+    //* Output:
+    //* ||Filename||Line item||Parent||MFR||MPN||Description||Material-article type|| * /
+
+
+
+
+}*/
+
 void Controller::handleTokenizeRequest(){
     qDebug() << "Tokenize button pressed";
 }
