@@ -3,6 +3,7 @@
 #include <iostream>
 #include <QDebug>
 //#include "parser.h"
+using namespace std;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow){
 
@@ -18,41 +19,57 @@ MainWindow::~MainWindow(){
 }
 
 void MainWindow::on_pushButton_clicked(){
+    cout << "Tokenize text" << endl;
     control.handleTokenizeRequest();
 }
 
 void MainWindow::on_pushButton_10_clicked(){
+    cout << "Bye!" << endl;
     exit(0);
 }
 
 void MainWindow::on_pushButton_2_clicked(){
+    cout << "Testing topic extraction" << endl;
     control.testTopicExtraction();
 }
 
 void MainWindow::on_pushButton_3_clicked(){
+    cout << "Testing string classification" << endl;
     control.testClassifyingString();
 }
 
 void MainWindow::on_pushButton_4_clicked(){
+    cout << "Testing finding collocations" << endl;
     control.testFindCollocations();
 }
 
 void MainWindow::on_pushButton_11_clicked(){
+    cout << "Testing classifying a collocation" << endl;;
     control.testClassifyCollocations();
 }
 
 void MainWindow::on_pushButton_12_clicked(){
+    cout << "Testing noun phrase extraction" << endl;
     control.testNounPhrases();
 }
 
 void MainWindow::on_pushButton_13_clicked(){
+    cout << "Testing verb phrase extraction" << endl;
     control.testVerbPhrases();
 }
 
 void MainWindow::on_pushButton_14_clicked(){
+    cout << "Testing supplier classification given part number and article type" << endl;
     control.testClassifySupplier();
 }
 
 void MainWindow::on_pushButton_15_clicked(){
+    cout << "Testing entity deduplication" << endl;
     control.testEntityDeduplication();
+}
+
+void MainWindow::on_pushButton_5_clicked(){
+    int tcNum = ui->testCaseSpinBox->cleanText().toInt();
+    cout << "Run full test case number " << tcNum << endl;
+    control.runTestCase(tcNum);
 }

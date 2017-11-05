@@ -64,7 +64,7 @@ public:
     vector<string> verbPhrases;
 };
 
-/*void Controller::run2(){
+/*void Controller::runTestCase(int tcNum){
     //* Open a text case
     vector<testFile*> inputText = vector<testFile*>();
     getTestCase(inputText);

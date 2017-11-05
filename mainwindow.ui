@@ -69,66 +69,14 @@
    <widget class="QPushButton" name="pushButton_5">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>420</x>
       <y>30</y>
-      <width>80</width>
+      <width>111</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
-     <string>Run TC1</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_6">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>60</y>
-      <width>80</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Run TC2</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_7">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>90</y>
-      <width>80</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Run TC3</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_8">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>120</y>
-      <width>80</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Run TC4</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_9">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>150</y>
-      <width>80</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Run TC5</string>
+     <string>Run Full Test Case</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_10">
@@ -233,6 +181,22 @@
     </property>
     <property name="text">
      <string>Full System Test</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="testCaseSpinBox">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>30</y>
+      <width>45</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>5</number>
     </property>
    </widget>
   </widget>

@@ -44,6 +44,7 @@ public:
 
     void run();
     void run2();
+    void runTestCase(int);
 
     ////Unit Testing
     int testTopicExtraction();
