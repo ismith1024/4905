@@ -505,6 +505,21 @@ void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<st
 ///             - Entity deduplication
 /////
 ///////////////////////////////////////////////////////////////
+int Controller::testTopicExtraction(){}
+
+int Controller::testClassifyingString(){}
+
+int Controller::testFindCollocations(){} // Finding quasi-word collocations
+
+int Controller::testClassifyCollocations(){} //Classifying a quasi-word collocation
+
+int Controller::testNounPhrases(){} // Finding noun phrases in free text
+
+int Controller::testVerbPhrases(){} // Finding verb phrase fragments in free text
+
+int Controller::testClassifySupplier(){} // Classifying the supplier of an identified part number
+
+int Controller::testEntityDeduplication(){} //Entity deduplication
 
 
 ////////////////////////////////////////////////////////////////

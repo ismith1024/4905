@@ -11,12 +11,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     control = Controller();
 
-    ////This section is for testing
-    /// parser class is deprecated
-    //Parser* parser = new Parser();
-    //parser->test();
-
-
 }
 
 MainWindow::~MainWindow(){
@@ -25,4 +19,40 @@ MainWindow::~MainWindow(){
 
 void MainWindow::on_pushButton_clicked(){
     control.handleTokenizeRequest();
+}
+
+void MainWindow::on_pushButton_10_clicked(){
+    exit(0);
+}
+
+void MainWindow::on_pushButton_2_clicked(){
+    control.testTopicExtraction();
+}
+
+void MainWindow::on_pushButton_3_clicked(){
+    control.testClassifyingString();
+}
+
+void MainWindow::on_pushButton_4_clicked(){
+    control.testFindCollocations();
+}
+
+void MainWindow::on_pushButton_11_clicked(){
+    control.testClassifyCollocations();
+}
+
+void MainWindow::on_pushButton_12_clicked(){
+    control.testNounPhrases();
+}
+
+void MainWindow::on_pushButton_13_clicked(){
+    control.testVerbPhrases();
+}
+
+void MainWindow::on_pushButton_14_clicked(){
+    control.testClassifySupplier();
+}
+
+void MainWindow::on_pushButton_15_clicked(){
+    control.testEntityDeduplication();
 }
