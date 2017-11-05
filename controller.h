@@ -45,6 +45,15 @@ public:
     void run();
     void run2();
 
+    ////Unit Testing
+    int testTopicExtraction();
+    int testClassifyingString();
+    int testFindCollocations(); // Finding quasi-word collocations
+    int testClassifyCollocations(); //Classifying a quasi-word collocation
+    int testNounPhrases(); // Finding noun phrases in free text
+    int testVerbPhrases(); // Finding verb phrase fragments in free text
+    int testClassifySupplier(); // Classifying the supplier of an identified part number
+    int testEntityDeduplication(); //Entity deduplication
 
 };
 

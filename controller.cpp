@@ -119,6 +119,9 @@ void Controller::handleTokenizeRequest(){
     qDebug() << "Tokenize button pressed";
 }
 
+
+
+
 //////////////////////
 /// Controller::run
 /// Manages high-level control flow
@@ -386,8 +389,6 @@ int Controller::getTextFromFile(vector<string>& text, Tokenizer& tok){
 }
 
 
-
-
 ///////////////
 /// TOKENIZE
 /// Tokenizes a text file given by fileName
@@ -491,8 +492,24 @@ void Controller::getCollocationsFromDBDescriptions(){
 void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<string, int>& singles, map<pair<string,string>, int>& pairs){*/
 
 ////////////////////////////////////////////////////////////////
-///LEGACY CODE BELOW HERE
+/////
+///   UNIT TEST FUNCTIONS
+///         Unit testing is supported for:
+///             - Topic Extraction
+///             - Classifying a mixed-character alphanumeric string
+///             - Finding quasi-word collocations
+///             - Classifying a quasi-word collocation
+///             - Finding noun phrases in free text
+///             - Finding verb phrase fragments in free text
+///             - Classifying the supplier of an identified part number
+///             - Entity deduplication
+/////
+///////////////////////////////////////////////////////////////
 
+
+////////////////////////////////////////////////////////////////
+///LEGACY CODE BELOW HERE
+////////////////////////////////////////////////////////////////
 
 ////////////////
 //// \brief Controller::obtainUntaggedWords
