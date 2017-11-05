@@ -73,3 +73,9 @@ void MainWindow::on_pushButton_5_clicked(){
     cout << "Run full test case number " << tcNum << endl;
     control.runTestCase(tcNum);
 }
+
+void MainWindow::on_pushButton_6_clicked(){
+    int tcNum = ui->testCaseSpinBox->cleanText().toInt();
+    cout << "Clean test case number " << tcNum << endl;
+    control.cleanTestCase(tcNum);
+}

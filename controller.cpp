@@ -52,7 +52,7 @@
 
 }*/
 
-class testFile{
+/*class testFile{
 public:
     string filename;
     string text;
@@ -62,10 +62,81 @@ public:
     testFile* parent;
     vector<string> nounPhrases;
     vector<string> verbPhrases;
-};
+};*/
 
-/*void Controller::runTestCase(int tcNum){
-    //* Open a text case
+
+
+///////////////
+/// \brief Controller::runTestCase
+/// \param tcNum - the test case number
+/// Expects a test case in the following text format:
+/// <filename> word1 word2 ... wordn \n
+/// One line per file
+///
+void Controller::runTestCase(int tcNum){
+
+    string dir = "/home/ian/Data/Testcases/";
+    dir += tcNum + "/testcase.txt";
+
+    vector<testFile*> files = vector<testFile*>();
+    vector<string> text = vector<string>();
+    vector<string>::iterator it;
+
+    ifstream thefile(dir);
+    string line = "";
+    if (!thefile.is_open()) return;
+
+    //else do the work
+    //This part fills in the filename, <words collection>
+    while ( getline (thefile,line) ) {
+        text = vector<string>();
+        QString theLine = QString::fromStdString(line);
+        QStringList pieces = theLine.split(' ');
+        for(auto& entry: pieces){
+            tok.removeStopCharacters(entry);
+            string s = entry.toStdString();
+            text.push_back(s);//QString::toStdString(entry));
+        }
+
+        testFile* tf = new testFile();
+        tf->filename = text.front();
+        for(it = text.begin() +1; it != text.end(); ++it){
+            tf->words.push_back(*it);
+        }
+        files.push_back(tf);
+    }
+    thefile.close();
+
+    //tag the words
+    for(auto& entry: files){
+        processor.tag(entry->words, entry-> tags);
+    }
+
+
+
+
+
+
+    //shutdown
+    for(auto& entry: files) delete entry;
+}
+
+///////////////
+/// \brief Controller::cleanTestCase
+/// \param tcNum
+/// Compiles the reuslts of the more * | cat to the format expected by runTestCase()
+void Controller::cleanTestCase(int tcNum){
+
+    string dir = "/home/ian/Data/Testcases/";
+    dir += tcNum + "/testcase.txt";
+
+}
+
+
+
+
+    //
+    /* Open a text case
     vector<testFile*> inputText = vector<testFile*>();
     getTestCase(inputText);
 

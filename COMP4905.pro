@@ -54,7 +54,8 @@ HEADERS += \
     bayesianstringclassifier.h \
     languageprocessor.h \
     topicanalyzer.h \
-    enums.h
+    enums.h \
+    testfile.h
 
 FORMS += \
         mainwindow.ui

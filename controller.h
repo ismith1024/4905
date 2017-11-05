@@ -14,6 +14,7 @@
 #include "repository.h"
 #include "topicanalyzer.h"
 #include "languageprocessor.h"
+#include "testfile.h"
 
 using namespace std;
 
@@ -45,6 +46,7 @@ public:
     void run();
     void run2();
     void runTestCase(int);
+    void cleanTestCase(int);
 
     ////Unit Testing
     int testTopicExtraction();
