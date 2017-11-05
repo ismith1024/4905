@@ -117,6 +117,9 @@ void Controller::runTestCase(int tcNum){
 
 
 
+
+
+
     //shutdown
     for(auto& entry: files) delete entry;
 }
@@ -126,10 +129,8 @@ void Controller::runTestCase(int tcNum){
 /// \param tcNum
 /// Compiles the reuslts of the more * | cat to the format expected by runTestCase()
 void Controller::cleanTestCase(int tcNum){
-
     string dir = "/home/ian/Data/Testcases/";
     dir += tcNum + "/testcase.txt";
-
 }
 
 
@@ -217,10 +218,6 @@ void Controller::run(){
     forNow2->push_back("Text");
     testingSet.push_back(forNow1);
     testingSet.push_back(forNow2);
-
-    getCollocationsFromDBDescriptions();
-
-    exit(0);
 
 
     cout << "Get test case" << endl;
@@ -339,6 +336,193 @@ void Controller::run(){
 
 }
 
+////////////////////////////////////////////////////////////////
+/////
+///   UNIT TEST FUNCTIONS
+///         Unit testing is supported for:
+///             - Topic Extraction
+///             - Classifying a mixed-character alphanumeric string
+///             - Finding quasi-word collocations
+///             - Classifying a quasi-word collocation
+///             - Finding noun phrases in free text
+///             - Finding verb phrase fragments in free text
+///             - Classifying the supplier of an identified part number
+///             - Entity deduplication
+/////
+///////////////////////////////////////////////////////////////
+int Controller::testTopicExtraction(){
+    /////obtain the text ..............................................
+    ////tokenize the text .............................................
+    //This collection is intended for use by fully implemented application
+    vector<vector<string>*> testingSet = vector<vector<string>*>();
+
+    //temporary text to test functions
+    vector<string> text = vector<string>();
+
+    cout << "Get test case" << endl;
+
+    //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
+    if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
+    //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
+
+    ////tag the text .................................................
+    cout << "Tagging words" << endl;
+
+    processor.getXML();
+    processor.countTags();
+    vector<pair<string,string>> tagResults = vector<pair<string,string>>();
+    processor.tag(text, tagResults);
+
+    ////topic analysis ..............................................
+
+    cout << "TOPIC ANLYSIS..." << endl;
+    cout << "Print topic words" << endl;
+    //top.printTopicWords();
+    enum enums::TOPIC topic = top.findTopic(text, repo);
+    cout << "Topic: " << topic << endl;
+
+    /*
+    for(auto& entry: testingSet){
+        currentTopic = top.findTopic(*entry);
+        //do some stuff
+    }*/
+
+}
+
+int Controller::testClassifyingString(){}
+
+ // Finding quasi-word collocations
+int Controller::testFindCollocations(){
+    getCollocationsFromDBDescriptions();
+    exit(0);
+}
+
+int Controller::testClassifyCollocations(){} //Classifying a quasi-word collocation
+
+int Controller::testNounPhrases(){
+
+    //temporary text to test functions
+    vector<string> text = vector<string>();
+
+    cout << "Get test case" << endl;
+
+    //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
+    if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
+    //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
+
+    ////tag the text .................................................
+    cout << "Tagging words" << endl;
+
+    processor.getXML();
+    processor.countTags();
+    vector<pair<string,string>> tagResults = vector<pair<string,string>>();
+    processor.tag(text, tagResults);
+
+    /////////////////////////// SQL ERROR AFTER HERE  ----> /////////////////////////////////
+    ////TODO: run the text through the technical dictionary ..........
+    ///     This will idenify numbers, etc. that weare interested in.
+    ///     Needs to run after the tagging from corpus -- will include special tags
+    //processor.openTechDictionary(repo);
+    //processor.applyTechDictionary(tagResults);
+    //////classify the unidentified alphanumeric strings ..............
+    //classifyAlpha("hi");
+    ///////////////////////////// <---- SQL ERROR BEFORE HERE
+
+
+    ////Parse the noun and verb phrases ......................
+    vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
+
+    //this collection will hold the words we are analyzing
+    vector<string> dwgText = vector<string>();
+
+    //function that retrieves the test case
+    getTestCase2(dwgText, tok);
+
+    ////////// Code that can be used to open training text for testing instead
+    //repo.getAllDwgTextFromDB(dwgText);
+    //repo.getAllDescriptionsFromDB(dwgText);
+
+    ////// Extracts noun and verb phrases from the free text in dwgText
+
+    processor.tag(dwgText, tagResults);
+    processor.getNounPhrases(tagResults, nPhrases);
+
+    for(auto& entry: nPhrases){
+        cout << "NOUN PHRASE : " << endl;
+        for(auto& e2: (*entry)){
+            cout << e2.first << endl;
+        }
+        cout << endl;
+    }
+
+    return 0;
+
+}
+
+int Controller::testVerbPhrases(){
+    //temporary text to test functions
+    vector<string> text = vector<string>();
+
+    //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
+    if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
+    //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
+
+
+    ////tag the text .................................................
+    cout << "Tagging words" << endl;
+
+    processor.getXML();
+    processor.countTags();
+    vector<pair<string,string>> tagResults = vector<pair<string,string>>();
+    processor.tag(text, tagResults);
+
+    /////////////////////////// SQL ERROR AFTER HERE  ----> /////////////////////////////////
+    ////TODO: run the text through the technical dictionary ..........
+    ///     This will idenify numbers, etc. that weare interested in.
+    ///     Needs to run after the tagging from corpus -- will include special tags
+    //processor.openTechDictionary(repo);
+    //processor.applyTechDictionary(tagResults);
+    //////classify the unidentified alphanumeric strings ..............
+    //classifyAlpha("hi");
+    ///////////////////////////// <---- SQL ERROR BEFORE HERE
+
+
+    ////Parse the noun and verb phrases ......................
+     vector<vector<pair<string, string>>*> vPhrases = vector<vector<pair<string, string>>*>();
+
+    //this collection will hold the words we are analyzing
+    vector<string> dwgText = vector<string>();
+
+    //function htat retrieves the test case
+    getTestCase2(dwgText, tok);
+
+    ////////// Code that can be used to open training text for testing instead
+    //repo.getAllDwgTextFromDB(dwgText);
+    //repo.getAllDescriptionsFromDB(dwgText);
+
+    /////////// Legacy code that was used to obtain untagged words from the training set
+    //obtainUntaggedWords(tagResults);
+
+    ////// Extracts noun and verb phrases from the free text in dwgText
+
+    processor.tag(dwgText, tagResults);
+    processor.getVerbPhrases(tagResults, vPhrases);
+
+    for(auto& entry: vPhrases){
+        cout << "VERB PHRASE : " << endl;
+        for(auto& e2: (*entry)){
+            cout << e2.first << endl;
+        }
+        cout << endl;
+    }
+
+    return 0;
+
+}
+
+int Controller::testClassifySupplier(){return 0;} // Classifying the supplier of an identified part number
+
+int Controller::testEntityDeduplication(){return 0;} //Entity deduplication
 
 
 
@@ -562,35 +746,7 @@ void Controller::getCollocationsFromDBDescriptions(){
 /// Finds the metrics that will be used by Mutula Information Measure to identify word collocations
 void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<string, int>& singles, map<pair<string,string>, int>& pairs){*/
 
-////////////////////////////////////////////////////////////////
-/////
-///   UNIT TEST FUNCTIONS
-///         Unit testing is supported for:
-///             - Topic Extraction
-///             - Classifying a mixed-character alphanumeric string
-///             - Finding quasi-word collocations
-///             - Classifying a quasi-word collocation
-///             - Finding noun phrases in free text
-///             - Finding verb phrase fragments in free text
-///             - Classifying the supplier of an identified part number
-///             - Entity deduplication
-/////
-///////////////////////////////////////////////////////////////
-int Controller::testTopicExtraction(){}
 
-int Controller::testClassifyingString(){}
-
-int Controller::testFindCollocations(){} // Finding quasi-word collocations
-
-int Controller::testClassifyCollocations(){} //Classifying a quasi-word collocation
-
-int Controller::testNounPhrases(){} // Finding noun phrases in free text
-
-int Controller::testVerbPhrases(){} // Finding verb phrase fragments in free text
-
-int Controller::testClassifySupplier(){} // Classifying the supplier of an identified part number
-
-int Controller::testEntityDeduplication(){} //Entity deduplication
 
 
 ////////////////////////////////////////////////////////////////
