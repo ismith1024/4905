@@ -112,7 +112,7 @@ Probability of a topic given a string:
 
             probs[enums::METAL] *= 1.0 - (probTopicGivenStr * probOfString / probOfTopic);
 
-            cout << "METAL: " << "T|s: " << probTopicGivenStr << " T: " << probOfTopic << " S: " << probOfString << " ... prob now:" << probs[enums::METAL] << endl;
+            //cout << "METAL: " << "T|s: " << probTopicGivenStr << " T: " << probOfTopic << " S: " << probOfString << " ... prob now:" << probs[enums::METAL] << endl;
         }
         if(plasticCounts.find(entry) != plasticCounts.end() && plasticCounts[entry] > 0)
             probs[enums::PLASTIC] *= 1.0 - ((float)plasticCounts[entry] / aggregateCounts[entry]);
@@ -134,7 +134,7 @@ Probability of a topic given a string:
         entry.second = 1.00 - entry.second;
     }
 
-    cout << "METAL: " << probs[enums::METAL] << endl;
+    /*cout << "METAL: " << probs[enums::METAL] << endl;
     cout << "PLASTIC: " << probs[enums::PLASTIC] << endl;
     cout << "CABLE: " << probs[enums::CABLE] << endl;
     cout << "ASSEMBLY: " << probs[enums::ASSEMBLY] << endl;
@@ -143,7 +143,7 @@ Probability of a topic given a string:
     cout << "LABEL: " << probs[enums::LABEL] << endl;
     cout << "ELECTRONICS: " << probs[enums::ELECTRONICS] << endl;
     cout << "PACKAGING: " << probs[enums::PACKAGING] << endl;
-
+*/
     float maxVal = probs[enums::METAL];
     enum enums::TOPIC max = enums::METAL;
     if(probs[enums::PLASTIC] > maxVal){maxVal = probs[enums::PLASTIC]; max = enums::PLASTIC; }

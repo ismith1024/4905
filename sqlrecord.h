@@ -2,7 +2,6 @@
 #define SQLRECORD_H
 
 
-
 #include<string>
 
 using namespace std;
@@ -16,3 +15,4 @@ public:
 };
 
 #endif // SQLRECORD_H
+

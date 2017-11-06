@@ -39,15 +39,14 @@ SOURCES += \
     component.cpp \
     bayesianstringclassifier.cpp \
     languageprocessor.cpp \
-    sqlrecord.cpp \
-    topicanalyzer.cpp
+    topicanalyzer.cpp \
+    sqlrecord.cpp
 
 HEADERS += \
         mainwindow.h \
     controller.h \
     repository.h \
     tokenizer.h \
-    sqlrecord.h \
     utilityalgorithms.h \
     hcluster.h \
     component.h \
@@ -55,7 +54,8 @@ HEADERS += \
     languageprocessor.h \
     topicanalyzer.h \
     enums.h \
-    testfile.h
+    testfile.h \
+    sqlrecord.h
 
 FORMS += \
         mainwindow.ui

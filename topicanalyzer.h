@@ -14,7 +14,7 @@ class TopicAnalyzer{
 
 public:
 
-    enum enums::TOPIC findTopic(vector<vector<string>*>& coll, Repository& repo);
+    enum enums::TOPIC findTopic(vector<vector<string>*>&, Repository&);
     enum enums::TOPIC findTopic(vector<string>, Repository&);
 
     void printTopicWords();

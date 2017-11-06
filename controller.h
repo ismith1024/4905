@@ -40,7 +40,7 @@ public:
 
     int classifyAlpha(string);
 
-    void getCollocationsFromDBDescriptions();
+    void getCollocationsFromDBDescriptions(vector<pair<string, string>>&);
 
     void run();
     void run2();

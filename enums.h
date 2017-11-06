@@ -15,6 +15,8 @@ namespace enums{
         PACKAGING
     };
 
+    static const char* topicStrings[] = {"METAL", "PLASTIC", "CABLE", "ASSEMBLY", "OTHER", "PCBA", "LABEL", "ELECTRONICS", "PACKAGING" };
+
     enum POS {
         /*These are mostly the tags of the Penn Treebank tagset as used by LanguageTool,
         with examples. See "new tag" for tags introduced by LanguageTool.

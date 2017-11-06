@@ -7,6 +7,7 @@ public:
     string text;
     vector<string> words;
     vector<pair<string, string>> tags;
+    map<pair<string, string>, string> collocations;
     enum enums::TOPIC topic;
     testFile* parent;
     vector<string> nounPhrases;

@@ -16,12 +16,12 @@
  * Open a text case
  *   for each file:
  *       determine the topic                                                        --TODO: optimize
- *       scan for parents                                                           --TODO: start
+ *       scan for parents                                                           -- done
  *   for each line:
  *       tokenize (remove stop characters, split into words, fix capitalization)    -- done
  *       extract noun and verb phrases, put each into a collection                  -- done
  *       for each phrase:
- *           identify collocations based on augmented corpus                        -- TODO: optimize parms, compile stop-words
+ *           identify collocations based on augmented corpus                        -- TODO: tentatively works -- optimize parms, compile stop-words
  *               for each collocation:
  *                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic) --TODO: start
  *               for each remaining word:
@@ -111,6 +111,24 @@ void Controller::runTestCase(int tcNum){
     }
     thefile.close();
 
+    //determine the topic
+    for(auto& entry: files){
+        entry->topic = top.findTopic(entry->words, repo);
+    }
+
+    //scan for parents
+    //if another file's f1 name is found in the text of a file f2, then f1's parent is f2
+    for(auto& e1: files){
+        for(auto& e2: e1->words){
+            for(auto& e3: files){
+                //TODO: strip off "txt" and ".pdf" from filenames
+                if(e3 != e1 && e3->filename == e2){
+                    e3->parent = e1;
+                }
+            }
+        }
+    }
+
     //tag the words
     processor.getXML();
     processor.countTags();
@@ -118,11 +136,39 @@ void Controller::runTestCase(int tcNum){
         processor.tag(entry->words, entry->tags);
     }
 
+
+    //look for collocations
+    const int SEARCHDIST = 4;
+    vector<pair<string,string>> colls = vector<pair<string, string>>();
+    //processor.findCollocationMetrics();
+    getCollocationsFromDBDescriptions(colls);
+    vector<string>::iterator it3, it4;
     for(auto& entry: files){
+        for(it3 = entry->words.begin(); it3 != entry->words.end(); ++it3){
+            for(it4 = it3+1; it4 != entry->words.end() && it4 <= it3 + SEARCHDIST; ++it4){
+                for(auto& e3: colls){
+                    if(e3.first == *it3 && e3.second == *it4){
+                        (*entry).collocations[e3] = "0";
+                    }
+                }
+            }
+        }
+    }
+
+    ////// Display results for testing purposes
+    for(auto& entry: files){
+        cout << endl << "FILE: " << entry->filename << "       TOPIC: " << enums::topicStrings[entry->topic] << " ....... " << endl;
         for(auto& e2: entry->tags){
             cout << e2.first << "   " << e2.second << endl;
         }
+        cout << "Collocations..." << endl;
+        for(auto& e2: entry->collocations){
+            cout << "<" << e2.first.first << ", " << e2.first.second << ">" << endl;
+        }
+
     }
+
+
 
     //shutdown
     for(auto& entry: files) delete entry;
@@ -349,8 +395,10 @@ int Controller::testTopicExtraction(){
 int Controller::testClassifyingString(){}
 
  // Finding quasi-word collocations
+
 int Controller::testFindCollocations(){
-    getCollocationsFromDBDescriptions();
+    vector<pair<string,string>> colls = vector<pair<string,string>>();
+    getCollocationsFromDBDescriptions(colls);
 }
 
 int Controller::testClassifyCollocations(){} //Classifying a quasi-word collocation
@@ -667,7 +715,7 @@ void Controller::crossValidate(BayesianStringClassifier& bayes, vector<Component
 /////////
 /// \brief Controller::getCollocationsFromDBDescriptions
 /// Used during development to find the word collocations from the training set
-void Controller::getCollocationsFromDBDescriptions(){
+void Controller::getCollocationsFromDBDescriptions(vector<pair<string, string>>& coll){
 
     vector<string> allDescriptions = vector<string>();
     map<string, int> singles = map<string, int>();
@@ -686,9 +734,10 @@ void Controller::getCollocationsFromDBDescriptions(){
 
     processor.mimForCollocations(singles, pairs, collocations);
 
-    cout << "COLLOCATIONS ............" << endl;
+    cout << "Getting Collocations From DB ............" << endl;
     for(auto& entry: collocations){
-        cout << "<" << entry.first << "," << entry.second << ">" << endl;
+        //cout << "<" << entry.first << "," << entry.second << ">" << endl;
+        coll.push_back(entry);
     }
 
 
