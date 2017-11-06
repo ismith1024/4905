@@ -21,7 +21,6 @@ using namespace std;
 class Controller
 {
 
-
 private:
     LanguageProcessor processor;
     Tokenizer tok;
@@ -29,7 +28,7 @@ private:
     TopicAnalyzer top;
 
 public:
-    Controller() : repo(tok), top(repo){};
+    Controller() : repo(&tok), top(repo){cout << "Controller ctor";}
     void handleTokenizeRequest();
     int getTextFromFile(vector<string>&, Tokenizer&);
     int getTestCase1(vector<string>&, Tokenizer&);
@@ -47,6 +46,7 @@ public:
     void run2();
     void runTestCase(int);
     void cleanTestCase(int);
+    //void rungui(int, char*);
 
     ////Unit Testing
     int testTopicExtraction();

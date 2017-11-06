@@ -18,7 +18,7 @@ class Repository{
 
 public:
 
-    Repository(Tokenizer&);
+    Repository(Tokenizer*);
     QSqlDatabase& getDatabase();
     ~Repository();
 
@@ -36,7 +36,7 @@ public:
 
 private:
     QSqlDatabase database;
-    Tokenizer tok;
+    Tokenizer* tok;
 
 };
 

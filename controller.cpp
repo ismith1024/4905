@@ -43,14 +43,14 @@
  *
  ******************************************************/
 
-/*Controller::Controller(){
+//Controller::Controller(){
 
-    processor = LanguageProcessor();
-    tok = Tokenizer();
-    repo = Repository(tok);
-    top = TopicAnalyzer(repo);
+    //processor = LanguageProcessor();
+    //tok = Tokenizer();
+    //repo = Repository(tok);
+    //top = TopicAnalyzer(repo);
 
-}*/
+//}
 
 /*class testFile{
 public:
@@ -65,7 +65,6 @@ public:
 };*/
 
 
-
 ///////////////
 /// \brief Controller::runTestCase
 /// \param tcNum - the test case number
@@ -75,6 +74,7 @@ public:
 ///
 void Controller::runTestCase(int tcNum){
 
+    /*
     string dir = "/home/ian/Data/Testcases/";
     dir += tcNum + "/testcase.txt";
 
@@ -112,16 +112,9 @@ void Controller::runTestCase(int tcNum){
         processor.tag(entry->words, entry-> tags);
     }
 
-
-
-
-
-
-
-
-
     //shutdown
     for(auto& entry: files) delete entry;
+    */
 }
 
 ///////////////
@@ -129,8 +122,10 @@ void Controller::runTestCase(int tcNum){
 /// \param tcNum
 /// Compiles the reuslts of the more * | cat to the format expected by runTestCase()
 void Controller::cleanTestCase(int tcNum){
+    /*
     string dir = "/home/ian/Data/Testcases/";
     dir += tcNum + "/testcase.txt";
+    */
 }
 
 
@@ -350,6 +345,8 @@ void Controller::run(){
 ///             - Entity deduplication
 /////
 ///////////////////////////////////////////////////////////////
+
+//TODO: broken
 int Controller::testTopicExtraction(){
     /////obtain the text ..............................................
     ////tokenize the text .............................................
@@ -399,6 +396,7 @@ int Controller::testFindCollocations(){
 
 int Controller::testClassifyCollocations(){} //Classifying a quasi-word collocation
 
+//todo: broken
 int Controller::testNounPhrases(){
 
     //temporary text to test functions
@@ -459,6 +457,7 @@ int Controller::testNounPhrases(){
 
 }
 
+//todo: broken
 int Controller::testVerbPhrases(){
     //temporary text to test functions
     vector<string> text = vector<string>();

@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <qstring.h>
 
-Repository::Repository(Tokenizer& tk){
+Repository::Repository(Tokenizer* tk){
 
     tok = tk;
 
@@ -24,7 +24,7 @@ QSqlDatabase& Repository::getDatabase(){
 }
 
 Repository::~Repository(){
-    database.close();
+    //database.close();
 }
 
 void Repository::getComponents(vector<Component*>& coll){
@@ -186,7 +186,7 @@ int Repository::getTopicCounts(map<string, int>& counts, enum enums::TOPIC topic
     while(query.next()){
         QStringList pieces = query.value(0).toString().split(QChar('~'));
         for(auto& entry: pieces){
-            tok.removeStopCharacters(entry);
+            tok->removeStopCharacters(entry);
             string s1 = entry.toLower().toStdString();
             //cout << s1 << endl;
             counts[s1]++;

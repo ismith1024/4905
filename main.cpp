@@ -12,25 +12,27 @@
 #include"controller.h"
 //#include "component.h"
 
-/* code for the GUI app
-int main(int argc, char *argv[])
-{
+using namespace std;
+
+//code for the GUI app
+int main(int argc, char *argv[]){
+    //Controller control = Controller();
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
 
     return a.exec();
 }
-*/
-
-using namespace std;
-
-int main(int argc, char* argv[]){
 
 
 
-    Controller control = Controller();
 
-    control.run();
+//int main(int argc, char* argv[]){
 
-}
+
+
+
+
+    //control.run();
+
+//}
