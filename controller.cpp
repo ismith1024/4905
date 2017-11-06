@@ -9,6 +9,7 @@
 #include "QString"
 #include "unordered_set"
 #include "topicanalyzer.h"
+#include<string>
 
 /******************************************************
  * Description of overall control flow:
@@ -74,9 +75,9 @@ public:
 ///
 void Controller::runTestCase(int tcNum){
 
-    /*
+
     string dir = "/home/ian/Data/Testcases/";
-    dir += tcNum + "/testcase.txt";
+    dir += to_string(tcNum) + "/testcase.txt";
 
     vector<testFile*> files = vector<testFile*>();
     vector<string> text = vector<string>();
@@ -84,7 +85,10 @@ void Controller::runTestCase(int tcNum){
 
     ifstream thefile(dir);
     string line = "";
-    if (!thefile.is_open()) return;
+    if (!thefile.is_open()){
+        cout << "Cannot open " << dir << endl;
+        return;
+    }
 
     //else do the work
     //This part fills in the filename, <words collection>
@@ -108,13 +112,21 @@ void Controller::runTestCase(int tcNum){
     thefile.close();
 
     //tag the words
+    processor.getXML();
+    processor.countTags();
     for(auto& entry: files){
-        processor.tag(entry->words, entry-> tags);
+        processor.tag(entry->words, entry->tags);
+    }
+
+    for(auto& entry: files){
+        for(auto& e2: entry->tags){
+            cout << e2.first << "   " << e2.second << endl;
+        }
     }
 
     //shutdown
     for(auto& entry: files) delete entry;
-    */
+
 }
 
 ///////////////

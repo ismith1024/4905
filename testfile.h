@@ -6,7 +6,7 @@ public:
     string filename;
     string text;
     vector<string> words;
-    vector<string, string> tags;
+    vector<pair<string, string>> tags;
     enum enums::TOPIC topic;
     testFile* parent;
     vector<string> nounPhrases;
