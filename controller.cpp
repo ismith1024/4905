@@ -130,58 +130,6 @@ void Controller::cleanTestCase(int tcNum){
 
 
 
-
-    //
-    /* Open a text case
-    vector<testFile*> inputText = vector<testFile*>();
-    getTestCase(inputText);
-
-    //*   for each file:
-    //*       determine the topic                                                        --TODO: optimize
-    top.findTopic(inputText, repo);
-
-    //*       scan for parents                                                           --TODO: start
-    for(auto& current: inputText){
-        for(auto& other: inputText){
-            if(other != current && find(*current->text.begin(), *current->text.end(), *other->filename) != *current->text.end()){
-                current->parent = other->filename;
-            }
-        }
-    }
-    //*   for each line:
-    //*       tokenize (remove stop characters, split into words, fix capitalization)    -- done
-    //*       extract noun and verb phrases, put each into a collection                  -- done
-    for(auto& entry: inputText){
-        processor.getNounPhrases(
-    }
-
-    //*       for each phrase:
-    //*           identify collocations based on augmented corpus                        -- TODO: optimize parms, compile stop-words
-    //*               for each collocation:
-    //*                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic) --TODO: start
-    //*               for each remaining word:
-    //*                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic) --TODO: Bayesian not working
-    //*               for untagged words:
-    //*                   if candidate part number
-    //*                       associate with most likely material-article type based on bayesian classifier --done
-    //*                       associate with most likely suppleir based on Bayesian classifier --TODO: start (but can adapt the classifier)
-    //*               for each association:
-    //*                   collapse based on:
-    //*                       deduplication                                               --TODO: start
-    //*                       taxonomy                                                    --TODO: start
-    //*       for each association:
-    //*           determine a parent based on probability of material-article type having the parent in:
-    //*                   the file                                                        --TODO: start
-    //*                   the parent file                                                 --TODO: start
-    //*
-    //* Output:
-    //* ||Filename||Line item||Parent||MFR||MPN||Description||Material-article type|| * /
-
-
-
-
-}*/
-
 void Controller::handleTokenizeRequest(){
     qDebug() << "Tokenize button pressed";
 }
@@ -735,6 +683,10 @@ void Controller::getCollocationsFromDBDescriptions(){
 }
 
 
+////////////////////////////////////////////////////////////////
+///LEGACY CODE BELOW HERE
+////////////////////////////////////////////////////////////////
+
 /*
 /////////
 /// \brief LanguageProcessir::findCollocationMetrics
@@ -744,12 +696,6 @@ void Controller::getCollocationsFromDBDescriptions(){
 /// Finds the metrics that will be used by Mutula Information Measure to identify word collocations
 void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<string, int>& singles, map<pair<string,string>, int>& pairs){*/
 
-
-
-
-////////////////////////////////////////////////////////////////
-///LEGACY CODE BELOW HERE
-////////////////////////////////////////////////////////////////
 
 ////////////////
 //// \brief Controller::obtainUntaggedWords
@@ -940,3 +886,55 @@ demo.push_back(make_pair("climbing","VBG"));
 demo.push_back(make_pair("on","IN"));
 demo.push_back(make_pair("red","JJ"));
 demo.push_back(make_pair("stairs","NN"));*/
+
+
+// Outline of control flow
+/* Open a text case
+vector<testFile*> inputText = vector<testFile*>();
+getTestCase(inputText);
+
+//*   for each file:
+//*       determine the topic                                                        --TODO: optimize
+top.findTopic(inputText, repo);
+
+//*       scan for parents                                                           --TODO: start
+for(auto& current: inputText){
+    for(auto& other: inputText){
+        if(other != current && find(*current->text.begin(), *current->text.end(), *other->filename) != *current->text.end()){
+            current->parent = other->filename;
+        }
+    }
+}
+//*   for each line:
+//*       tokenize (remove stop characters, split into words, fix capitalization)    -- done
+//*       extract noun and verb phrases, put each into a collection                  -- done
+for(auto& entry: inputText){
+    processor.getNounPhrases(
+}
+
+//*       for each phrase:
+//*           identify collocations based on augmented corpus                        -- TODO: optimize parms, compile stop-words
+//*               for each collocation:
+//*                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic) --TODO: start
+//*               for each remaining word:
+//*                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic) --TODO: Bayesian not working
+//*               for untagged words:
+//*                   if candidate part number
+//*                       associate with most likely material-article type based on bayesian classifier --done
+//*                       associate with most likely suppleir based on Bayesian classifier --TODO: start (but can adapt the classifier)
+//*               for each association:
+//*                   collapse based on:
+//*                       deduplication                                               --TODO: start
+//*                       taxonomy                                                    --TODO: start
+//*       for each association:
+//*           determine a parent based on probability of material-article type having the parent in:
+//*                   the file                                                        --TODO: start
+//*                   the parent file                                                 --TODO: start
+//*
+//* Output:
+//* ||Filename||Line item||Parent||MFR||MPN||Description||Material-article type|| * /
+
+
+
+
+}*/
