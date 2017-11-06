@@ -98,13 +98,14 @@ void Controller::runTestCase(int tcNum){
         QStringList pieces = theLine.split(' ');
         for(auto& entry: pieces){
             tok.removeStopCharacters(entry);
-            string s = entry.toStdString();
+            string s = entry.toLower().toStdString();
             text.push_back(s);//QString::toStdString(entry));
         }
 
         testFile* tf = new testFile();
         tf->filename = text.front();
         for(it = text.begin() +1; it != text.end(); ++it){
+
             tf->words.push_back(*it);
         }
         files.push_back(tf);
@@ -133,7 +134,7 @@ void Controller::runTestCase(int tcNum){
     processor.getXML();
     processor.countTags();
     for(auto& entry: files){
-        processor.tag(entry->words, entry->tags);
+        processor.tag(entry->words, entry->tags);        
     }
 
 
@@ -155,6 +156,25 @@ void Controller::runTestCase(int tcNum){
         }
     }
 
+    BayesianStringClassifier bayes = BayesianStringClassifier();
+
+    //classify collocations
+    //classify untagged words
+    /*for(auto& e1: files){
+        for(auto& e2: e1->tags){
+            if(e2.second = "???"){
+                bayes.classify();
+            }
+        }
+    }*/
+
+
+    //lookup mixed alphanumerics
+    //classify remaining mixed alphanumerics
+    //match MPN and MFR and MFR - MPN matches
+    //Deduplicate generics
+    //build component hierarchy
+
     ////// Display results for testing purposes
     for(auto& entry: files){
         cout << endl << "FILE: " << entry->filename << "       TOPIC: " << enums::topicStrings[entry->topic] << " ....... " << endl;
@@ -167,8 +187,6 @@ void Controller::runTestCase(int tcNum){
         }
 
     }
-
-
 
     //shutdown
     for(auto& entry: files) delete entry;
