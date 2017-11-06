@@ -391,7 +391,6 @@ int Controller::testClassifyingString(){}
  // Finding quasi-word collocations
 int Controller::testFindCollocations(){
     getCollocationsFromDBDescriptions();
-    exit(0);
 }
 
 int Controller::testClassifyCollocations(){} //Classifying a quasi-word collocation

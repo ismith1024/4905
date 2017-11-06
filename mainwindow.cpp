@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
     qDebug() << "Window is open";
 
-    control = Controller();
+    //control = Controller();
 
 }
 

@@ -16,23 +16,9 @@ using namespace std;
 
 //code for the GUI app
 int main(int argc, char *argv[]){
-    //Controller control = Controller();
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
 
     return a.exec();
 }
-
-
-
-
-//int main(int argc, char* argv[]){
-
-
-
-
-
-    //control.run();
-
-//}
