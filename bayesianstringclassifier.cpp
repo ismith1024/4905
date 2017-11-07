@@ -130,6 +130,89 @@ map<string, float>* BayesianStringClassifier::classify(Component* comp, vector<C
     return ret;
 }
 
+
+map<string, float>* BayesianStringClassifier::classify(string& comp, vector<Component*>& components){
+
+    map<string, float>* ret = new map<string, float>();
+    if(comp.size() < 3) return ret;
+
+    //find the substrings in the component's part number
+        vector<string> substrings = vector<string>();
+        for(int i = 0; i < comp.size() -2; ++i){
+            substrings.push_back(comp.substr(i, i+2));
+        }
+
+    //count the components
+        map<string, int> typeCounts = map<string, int>();
+        for(Component* c: components){
+            typeCounts[c->type]++;
+        }
+
+    //Determine the probability of each class
+        map<string, float> probType = map<string, float>();
+
+        for(Component* c: components){
+            probType[c->type]++;
+        }
+
+        for(const auto& entry: probType){
+            probType[entry.first] = entry.second / probType.size();
+        }
+
+    //probability of substring
+
+         map<string, float> probSubs = map<string, float>();
+         for(Component* c: components){
+             for(string str: substrings){
+                 if(c->mpn.find(str) != string::npos) probSubs[str]++;
+             }
+         }
+
+         for(auto& entry: probSubs){
+             probSubs[entry.first] = entry.second / probSubs.size();
+         }
+
+     //Probability of the substring given type
+         map<pair<string, string>, float> probSubsGivenType = map<pair<string, string>, float>(); //first is type and second is substring
+
+         for(Component* c: components){
+             for(auto& entry: probSubs){
+                 std::size_t found = c->mpn.find(entry.first);
+                if(found != string::npos){
+                    probSubsGivenType[make_pair(c->type, entry.first)]++;
+                }
+             }
+         }
+
+         //divide by the number of components with that type
+         for(auto& entry: probSubsGivenType){
+             probSubsGivenType[entry.first] = probSubsGivenType[entry.first] / typeCounts[entry.first.first];
+         }
+
+     //Determine the probability of type given substring
+
+         //first, determine the probability it is not a type -- start with 1.0
+         map<string, float> complementProbs = map<string, float>();
+         for(auto& entry: probType){
+             complementProbs[entry.first] = 1.0;
+         }
+
+         //second, multiply this by the probability that the substring implies a type
+         for(string subs: substrings){
+             if(probSubs[subs] == 0) continue;
+             else for(auto& cType: probType){
+                 complementProbs[cType.first] = complementProbs[cType.first] * (1.0 - (probSubsGivenType[make_pair(cType.first, subs)] * probType[cType.first] / probSubs[subs] ));
+             }
+         }
+
+         for(auto& entry: complementProbs){
+             (*ret)[entry.first] = 1.0 - entry.second;
+         }
+
+
+    return ret;
+}
+
 /*
 map<string, float>* BayesianStringClassifier::classify2(Component* comp, vector<Component*>& components){
 

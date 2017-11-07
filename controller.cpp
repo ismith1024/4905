@@ -156,20 +156,54 @@ void Controller::runTestCase(int tcNum){
         }
     }
 
-    BayesianStringClassifier bayes = BayesianStringClassifier();
-
     //classify collocations
-    //classify untagged words
-    /*for(auto& e1: files){
+
+    vector<string> supplierNames = vector<string>();
+    repo.getSupplierNames(supplierNames);
+
+    //Tag manufacturer names
+    for(auto& e1:files){
         for(auto& e2: e1->tags){
-            if(e2.second = "???"){
-                bayes.classify();
+            for(auto& e3: supplierNames){
+                if(e3 == e2.first){
+                    e2.second = "NNP type: MFR";
+                }
             }
         }
-    }*/
+    }
+
+    //build noun phrases
+    //build verb phrases
+    for(auto& entry: files){
+        processor.getNounPhrases(entry->tags, entry->nounPhrases);
+        processor.getVerbPhrases(entry->tags, entry->verbPhrases);
+    }
 
 
     //lookup mixed alphanumerics
+    BayesianStringClassifier bayes = BayesianStringClassifier();
+    vector<Component*> collection = vector<Component*>();
+    repo.getComponents(collection);
+    bayes.learn(collection);
+
+
+    //classify untagged words
+    for(auto& e1: files){
+        for(auto& e2: e1->tags){
+            if(e2.second == "???"){
+                map<string, float>* results = new map<string,float>();
+                results = bayes.classify(e2.first, collection);
+                if(results->size() > 0){
+                    auto choice = std::max_element(results->begin(), results->end(),
+                        [](const pair<string, float>& p1, const pair<string, float>& p2) {
+                            return p1.second < p2.second; });
+                    e2.second = "NN type=" + choice->first;
+                }
+                delete results;
+            }
+        }
+    }
+
     //classify remaining mixed alphanumerics
     //match MPN and MFR and MFR - MPN matches
     //Deduplicate generics
@@ -178,12 +212,28 @@ void Controller::runTestCase(int tcNum){
     ////// Display results for testing purposes
     for(auto& entry: files){
         cout << endl << "FILE: " << entry->filename << "       TOPIC: " << enums::topicStrings[entry->topic] << " ....... " << endl;
+        cout << "PARENT: " << (entry->parent == 0 ? "ROOT" : entry->parent->filename) << endl;
         for(auto& e2: entry->tags){
             cout << e2.first << "   " << e2.second << endl;
         }
         cout << "Collocations..." << endl;
         for(auto& e2: entry->collocations){
             cout << "<" << e2.first.first << ", " << e2.first.second << ">" << endl;
+        }
+        cout << "Noun Phrases..." << endl;
+        for(auto& e2: entry->nounPhrases){
+            for(auto& e3: (*e2)){
+                cout << e3.first << "..";
+            }
+            cout << endl;
+        }
+
+        cout << "Verb Phrases..." << endl;
+        for(auto& e2: entry->verbPhrases){
+            for(auto& e3: (*e2)){
+                cout << e3.first << "..";
+            }
+            cout << endl;
         }
 
     }

@@ -10,8 +10,8 @@ public:
     map<pair<string, string>, string> collocations;
     enum enums::TOPIC topic;
     testFile* parent;
-    vector<string> nounPhrases;
-    vector<string> verbPhrases;
+    vector<vector<pair<string,string>>*> nounPhrases;
+    vector<vector<pair<string,string>>*> verbPhrases;
 };
 
 

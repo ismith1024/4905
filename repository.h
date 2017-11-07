@@ -33,6 +33,7 @@ public:
     int getTopicCounts(map<string, int>&, enum enums::TOPIC);
     int getTopicsByNumber(map<enums::TOPIC, int>&);
     int countOfStringGivenTopic(string, enums::TOPIC);
+    int getSupplierNames(vector<string>&);
 
 private:
     QSqlDatabase database;

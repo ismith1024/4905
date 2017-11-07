@@ -289,3 +289,18 @@ int Repository::getContractsComponentsDescriptionsFromDB(vector<string>& coll){
     return 0;
 }
 
+int Repository::getSupplierNames(vector<string>& coll){
+    QSqlQuery query;
+
+    if (!query.exec("SELECT suppName FROM suppliers;")){
+         qDebug() << "getSupplierNames SQL error: "<< query.lastError().text() << endl;
+         return -1;
+    }
+
+    while(query.next()){
+        QString s1 = query.value(0).toString().toLower();
+        coll.push_back(s1.toStdString());
+    }
+
+    return 0;
+}
