@@ -115,7 +115,7 @@ int LanguageProcessor::getXML(){
 
                   if(pieces2.size() > 1 ){
                       QString s = pieces2.at(0);
-                      string s1 = s.replace("w type=\"", "").replace("\"","").toLower().toStdString();
+                      string s1 = s.replace("w type=\"", "").replace("w type=", "").replace("\"","").toLower().toStdString();
                       //s1 = tolower(s1);
                       string s2 = pieces2.at(1).toStdString();
                       //count++;
@@ -468,13 +468,18 @@ void LanguageProcessor::mimForCollocations(map<string, int>& singles, map<pair<s
 ///
 bool LanguageProcessor::isNoun(pair<string,string>& word){
 
-    if (word.second == "NN" ||
+    if(word.second.size() >= 2 && word.second.at(0) == 'N' && word.second.at(1) == 'N') return true;
+    if(word.second == "CD") return true;
+    if(word.second.size() >= 2 && word.second.at(0) == 'n' && word.second.at(1) == 'n') return true;
+
+
+    /*if (word.second == "NN" ||
             word.second == "NNS" ||               //   Noun, plural: bicycles, earthquake, zippers
             word.second == "NN_U" ||              //  Nouns that are always uncountable		#new tag - deviation from Penn, examples: admiration, Afrikaans
             word.second == "NN_UN"||              // Nouns that might be used in the plural form and with an indefinite article, depending on their meaning	#new tag - deviation from Penn, examples: establishment, wax, afternoon
             word.second == "NNP"  ||              //   Proper noun, singular: Denver, DORAN, Alexandra
             word.second == "NNPS"                 //Proper noun, plural: Buddhists, Englishmen
-            ) return true;
+            ) return true;*/
     return false;
 
 }

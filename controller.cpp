@@ -73,6 +73,22 @@ public:
 /// <filename> word1 word2 ... wordn \n
 /// One line per file
 ///
+/// Syntax of a data file:
+///
+///  Tokens are delimited by spaces
+///     The first token is the filename
+///   Phrases are delmited by tabs
+///   Lines are terminated by a ~ Tilde character
+///   Files are delimited by a newline character
+///
+/// To create a test file:
+///     - Create a text file or tab-delimited table
+///     - more * | cat > out.txt
+///     - sed -i 's/\n/ ~ /g' testcase2.txt
+///     - sed -i 's/~::::::::::::::~/\n/g' testcase2.txt
+///     - sed -i 's/.txt\n/ /g' testcase2.txt (or just remove the line by hand)
+///
+///
 void Controller::runTestCase(int tcNum){
 
 
@@ -96,18 +112,17 @@ void Controller::runTestCase(int tcNum){
         text = vector<string>();
         QString theLine = QString::fromStdString(line);
         QStringList pieces = theLine.split(' ');
+
         for(auto& entry: pieces){
             tok.removeStopCharacters(entry);
             string s = entry.toLower().toStdString();
             text.push_back(s);//QString::toStdString(entry));
         }
-
+        //text.push_back(".");
         testFile* tf = new testFile();
         tf->filename = text.front();
         for(it = text.begin() +1; it != text.end(); ++it){
-
-            tf->words.push_back(*it);
-        }
+            tf->words.push_back(*it);        }
         files.push_back(tf);
     }
     thefile.close();
@@ -134,7 +149,7 @@ void Controller::runTestCase(int tcNum){
     processor.getXML();
     processor.countTags();
     for(auto& entry: files){
-        processor.tag(entry->words, entry->tags);        
+        processor.tag(entry->words, entry->tags);
     }
 
 
@@ -146,10 +161,12 @@ void Controller::runTestCase(int tcNum){
     vector<string>::iterator it3, it4;
     for(auto& entry: files){
         for(it3 = entry->words.begin(); it3 != entry->words.end(); ++it3){
-            for(it4 = it3+1; it4 != entry->words.end() && it4 <= it3 + SEARCHDIST; ++it4){
-                for(auto& e3: colls){
-                    if(e3.first == *it3 && e3.second == *it4){
-                        (*entry).collocations[e3] = "0";
+            if(*it3 != "~"){
+                for(it4 = it3+1; it4 != entry->words.end() && it4 <= it3 + SEARCHDIST && *it4 != "~"; ++it4){
+                    for(auto& e3: colls){
+                        if(e3.first == *it3 && e3.second == *it4){
+                            (*entry).collocations[e3] = "0";
+                        }
                     }
                 }
             }
@@ -164,9 +181,11 @@ void Controller::runTestCase(int tcNum){
     //Tag manufacturer names
     for(auto& e1:files){
         for(auto& e2: e1->tags){
+            if(e2.first == "~") e2.second = "DOT";
+            else
             for(auto& e3: supplierNames){
                 if(e3 == e2.first){
-                    e2.second = "NNP type: MFR";
+                    e2.second = "NNP type=MFR";
                 }
             }
         }
@@ -237,6 +256,15 @@ void Controller::runTestCase(int tcNum){
         }
 
     }
+
+    /*for(auto& entry: files){
+        cout << "..........." << endl << entry->filename << endl << "................" << endl;
+        for(auto& e2: entry->tags){
+            if(e2.second == "DOT") cout << endl;
+            else cout << e2.first << " " << e2.second << " | ";
+        }
+    }*/
+
 
     //shutdown
     for(auto& entry: files) delete entry;

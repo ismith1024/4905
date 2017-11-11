@@ -74,6 +74,7 @@ namespace enums{
         MFR, //Supplier
         MPN, //Part number
         ALP, //Alphanumeric
+
     };
 
 
