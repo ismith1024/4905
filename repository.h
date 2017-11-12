@@ -11,6 +11,8 @@
 #include <vector>
 #include "enums.h"
 #include "tokenizer.h"
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -34,6 +36,7 @@ public:
     int getTopicsByNumber(map<enums::TOPIC, int>&);
     int countOfStringGivenTopic(string, enums::TOPIC);
     int getSupplierNames(vector<string>&);
+    void getWordsFromMaterialDictionary();
 
 private:
     QSqlDatabase database;

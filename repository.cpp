@@ -304,3 +304,34 @@ int Repository::getSupplierNames(vector<string>& coll){
 
     return 0;
 }
+
+void Repository::getWordsFromMaterialDictionary(){
+    QSqlQuery query;
+
+    if (!query.exec("SELECT * FROM materialDictionary;")){
+         qDebug() << "getWordsFromMaterialDictionary SQL error: "<< query.lastError().text() << endl;
+         return;
+    }
+
+    map<string, string> results = map<string,string>();
+
+    while(query.next()){
+        QStringList res1 = query.value(0).toString().split(' ');
+        string res2 = query.value(1).toString().toStdString();
+        for(auto& entry: res1){
+            results[entry.toStdString()] = res2;
+           }
+    }
+
+
+    ofstream myfile;
+      myfile.open ("/home/ian/Data/revisedDict.sql");
+
+    for(auto& entry: results){
+        myfile << "INSERT INTO materialDictionary VALUES '" << entry.first << "','" << entry.second << "';" << endl;
+//        cout << entry.first << " |" << entry.second << endl;
+
+        }
+    myfile.close();
+
+}

@@ -216,7 +216,9 @@ void Controller::runTestCase(int tcNum){
                     auto choice = std::max_element(results->begin(), results->end(),
                         [](const pair<string, float>& p1, const pair<string, float>& p2) {
                             return p1.second < p2.second; });
-                    e2.second = "NN type=" + choice->first;
+                    if(choice->second > 0.1)
+                        e2.second = "NN type=" + choice->first;
+                    else e2.second = "UNCLASSIFIED";
                 }
                 delete results;
             }
@@ -488,7 +490,12 @@ int Controller::testTopicExtraction(){
 
 }
 
-int Controller::testClassifyingString(){}
+///// NOT THE TEST CASE -- placeholder
+int Controller::testClassifyingString(){
+    cout << "Words from material dictionary -- not the test case" << endl;
+    repo.getWordsFromMaterialDictionary();
+
+}
 
  // Finding quasi-word collocations
 
