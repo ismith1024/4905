@@ -97,6 +97,9 @@ void Controller::runTestCase(int tcNum){
 
     vector<testFile*> files = vector<testFile*>();
     vector<string> text = vector<string>();
+
+    vector<Component*> results = vector<Component*>();
+
     vector<string>::iterator it;
 
     ifstream thefile(dir);
@@ -504,7 +507,44 @@ int Controller::testFindCollocations(){
     getCollocationsFromDBDescriptions(colls);
 }
 
-int Controller::testClassifyCollocations(){} //Classifying a quasi-word collocation
+//////
+/// \brief Controller::testClassifyCollocations
+/// \return success or failure
+///
+/// Test case for classifying some arbitrary quasi-word collocations
+///
+int Controller::testClassifyCollocations(){
+    vector<pair<string, string>> testVector = vector<pair<string, string>>();
+    BayesianStringClassifier bayes = BayesianStringClassifier();
+    vector<Component*> components = vector<Component*>();
+    repo.getComponents(components);
+
+    //the test cases
+    testVector.push_back(make_pair("stainless", "steel"));
+    testVector.push_back(make_pair("zinc", "yellow"));
+    testVector.push_back(make_pair("res", "1k"));
+    testVector.push_back(make_pair("15", "pos"));
+    testVector.push_back(make_pair("washer", "ss"));
+    testVector.push_back(make_pair("fh", "zn"));
+    testVector.push_back(make_pair("1206", "X5R"));
+
+    for(auto& entry: testVector){
+        map<string, float>* results = bayes.classifyCollocation(entry, components);
+
+        cout << endl << endl << "CLASSIFY COLLOCATION: <" << entry.first << ", " << entry.second << ">" << endl;
+        if(results != 0){
+
+            for(auto& e2: (*results)){
+                if(e2.second > 0) cout << e2.first << " : " << e2.second << endl;
+            }
+            delete results;
+
+        } else cout << "Not found in corpus" << endl;
+
+    }
+
+
+}
 
 //todo: broken
 int Controller::testNounPhrases(){

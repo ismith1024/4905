@@ -11,6 +11,88 @@ BayesianStringClassifier::~BayesianStringClassifier(){
 }
 
 
+//////////
+/// \brief BayesianStringClassifier::classifyCollocations
+/// \input parameter: a collection of collocations <string, string>
+/// \return a pointer to the results.  format -- [class: probability]
+/// <word1, word2>, class
+///
+/// implements pr(class | coll) = pr(coll | class) * pr(class) / pr(coll)
+/// RETURNS NULL POINTER IF THE COLLOCATION DOES NOT EXIST IN THE CORPUS
+///
+map<string, float>* BayesianStringClassifier::classifyCollocation(pair<string,string>& collocation, vector<Component*>& comps){
+
+    //we will ignore components without a description field
+    int totalComponents = 0;
+
+    //calculate pr(class)
+    map<string, float> prClass = map<string, float>();
+    for(auto& entry: comps){
+        if(entry->description != ""){
+            prClass[entry->type]++;
+            totalComponents ++;
+        }
+    }
+    //divide by the denominator to find probability
+    for(auto& entry: prClass){
+        entry.second /= totalComponents;
+    }
+
+    //calculate pr(coll)
+    //get rid of the map, only need a float
+    //map<pair<string,string>, float> prColl = map<pair<string,string>, float>();
+    float prColl = 0.0;
+    for(auto& entry: comps){
+        if(entry->description != ""){
+            bool hasFirst = false;
+            bool hasSecond = false;
+            QStringList pieces = QString::fromStdString(entry->description).split(" ");
+            for(auto& e2: pieces){
+                string test = e2.toStdString();
+                if(test == collocation.first) hasFirst = true;
+                else if(test == collocation.second) hasSecond = true;
+            }
+            if(hasFirst && hasSecond) prColl++;//prColl[collocation]++;
+        }
+    }
+    //for(auto& entry: prColl) entry.second /= totalComponents;
+    prColl /= totalComponents;
+    if(prColl == 0) return 0;
+
+    //Apply Beayes' Theorem
+    //calculate pr(coll | class)
+    //key = the class that is given
+    //value = probability
+    map<string, float> prCollGivenClass = map<string, float>();
+    for(auto& entry: comps){
+        if(entry->description != ""){
+            bool hasFirst = false;
+            bool hasSecond = false;
+            QStringList pieces = QString::fromStdString(entry->description).split(" ");
+            for(auto& e2: pieces){
+                string test = e2.toStdString();
+                if(test == collocation.first) hasFirst = true;
+                else if(test == collocation.second) hasSecond = true;
+            }
+            if(hasFirst && hasSecond) prCollGivenClass[entry->type]++;
+        }
+    }
+    for(auto& entry: prCollGivenClass){
+        entry.second /= prClass[entry.first] * totalComponents;
+
+    }
+
+    //put the results together:
+    map<string, float>* ret = new map<string, float>();
+
+    //iterates over all <class, probability> tuples where class is known to this function
+    for(auto& entry: prClass){
+        (*ret)[entry.first] = prCollGivenClass[entry.first] * entry.second / prColl;
+    }
+
+    return ret;
+
+}
 
 /*
 
