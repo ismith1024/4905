@@ -27,6 +27,32 @@ Repository::~Repository(){
     //database.close();
 }
 
+
+void Repository::getComponentsIncludingGenerics(vector<Component*>& coll){
+    QSqlQuery query;
+    //database.open();
+
+    if (!query.exec("SELECT * FROM comps UNION ALL SELECT * FROM generics WHERE TYPE IS NOT NULL;")){
+         qDebug() << "getComponents SQL error: "<< query.lastError().text() << endl;
+         exit(-1);
+    }
+    else qDebug() << query.first();
+
+    Component* newComp;
+
+    while(query.next()){
+        //cout << query.value(0).toString().toStdString();
+        string mfr = query.value(0).toString().toStdString();
+        string mpn = query.value(1).toString().toStdString();
+        string desc = query.value(2).toString().toStdString();
+        string type = query.value(3).toString().toStdString();
+
+        newComp = new Component(mfr, mpn, desc, type);
+
+        coll.push_back(newComp);
+    }
+}
+
 void Repository::getComponents(vector<Component*>& coll){
     QSqlQuery query;
     //database.open();

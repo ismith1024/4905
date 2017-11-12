@@ -25,6 +25,7 @@ public:
     ~Repository();
 
     void getComponents(vector<Component*>&);
+    void getComponentsIncludingGenerics(vector<Component*>&);
     int getTechDictionary(map<string,string>*);
 
     int getAllDwgTextFromDB(vector<vector<string>*>&);

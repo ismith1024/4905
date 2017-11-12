@@ -18,6 +18,7 @@ BayesianStringClassifier::~BayesianStringClassifier(){
 /// <word1, word2>, class
 ///
 /// implements pr(class | coll) = pr(coll | class) * pr(class) / pr(coll)
+/// Requires strings to be in lower case
 /// RETURNS NULL POINTER IF THE COLLOCATION DOES NOT EXIST IN THE CORPUS
 ///
 map<string, float>* BayesianStringClassifier::classifyCollocation(pair<string,string>& collocation, vector<Component*>& comps){
@@ -46,7 +47,7 @@ map<string, float>* BayesianStringClassifier::classifyCollocation(pair<string,st
         if(entry->description != ""){
             bool hasFirst = false;
             bool hasSecond = false;
-            QStringList pieces = QString::fromStdString(entry->description).split(" ");
+            QStringList pieces = QString::fromStdString(entry->description).toLower().split(" ");
             for(auto& e2: pieces){
                 string test = e2.toStdString();
                 if(test == collocation.first) hasFirst = true;
@@ -68,7 +69,7 @@ map<string, float>* BayesianStringClassifier::classifyCollocation(pair<string,st
         if(entry->description != ""){
             bool hasFirst = false;
             bool hasSecond = false;
-            QStringList pieces = QString::fromStdString(entry->description).split(" ");
+            QStringList pieces = QString::fromStdString(entry->description).toLower().split(" ");
             for(auto& e2: pieces){
                 string test = e2.toStdString();
                 if(test == collocation.first) hasFirst = true;

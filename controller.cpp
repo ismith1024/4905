@@ -99,6 +99,7 @@ void Controller::runTestCase(int tcNum){
     vector<string> text = vector<string>();
 
     vector<Component*> results = vector<Component*>();
+    BayesianStringClassifier bayes = BayesianStringClassifier();
 
     vector<string>::iterator it;
 
@@ -177,9 +178,32 @@ void Controller::runTestCase(int tcNum){
     }
 
     //classify collocations
+    vector<Component*> components = vector<Component*>();
+    repo.getComponentsIncludingGenerics(components);
+    getCollocationsFromDBDescriptions(colls);
+    vector<Component*> compsIncGenerics = vector<Component*>();
+    repo.getComponentsIncludingGenerics(compsIncGenerics);
 
     vector<string> supplierNames = vector<string>();
     repo.getSupplierNames(supplierNames);
+
+    for(auto& entry: files){
+        for(auto& e2: entry->collocations){
+            pair<string,string> coll = make_pair(e2.first.first, e2.first.second);
+            map<string, float>* results = bayes.classifyCollocation(coll, compsIncGenerics);
+            cout << endl << endl << "CLASSIFY COLLOCATION: <" << coll.first << ", " << coll.second << ">" << endl;
+            if(results != 0){
+
+                for(auto& e3: (*results)){
+                    if(e3.second > 0) cout << e3.first << " : " << e3.second << endl;
+                }
+                delete results;
+
+            } else cout << "Not found in corpus" << endl;
+
+        }
+    }
+
 
     //Tag manufacturer names
     for(auto& e1:files){
@@ -203,7 +227,7 @@ void Controller::runTestCase(int tcNum){
 
 
     //lookup mixed alphanumerics
-    BayesianStringClassifier bayes = BayesianStringClassifier();
+
     vector<Component*> collection = vector<Component*>();
     repo.getComponents(collection);
     bayes.learn(collection);
@@ -296,147 +320,7 @@ void Controller::handleTokenizeRequest(){
 
 
 
-//////////////////////
-/// Controller::run
-/// Manages high-level control flow
-///
-void Controller::run(){
 
-    /////obtain the text ..............................................
-    ////tokenize the text .............................................
-    //This collection is intended for use by fully implemented application
-    vector<vector<string>*> testingSet = vector<vector<string>*>();
-
-    //temporary text to test functions
-    vector<string> text = vector<string>();
-    //TODO: get a full test case
-    // For now:
-    vector<string>* forNow1 = new vector<string>();
-    forNow1->push_back("Placeholder");
-    forNow1->push_back("Text");
-    vector<string>* forNow2 = new vector<string>();
-    forNow2->push_back("More");
-    forNow2->push_back("Placeholder");
-    forNow2->push_back("Text");
-    testingSet.push_back(forNow1);
-    testingSet.push_back(forNow2);
-
-
-    cout << "Get test case" << endl;
-
-    //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
-    if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
-    //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
-
-    //cout << "TEXT:" << endl;
-    //for(auto& entry: text) cout << entry << endl;
-
-    ////tag the text .................................................
-    cout << "Tagging words" << endl;
-
-    processor.getXML();
-    processor.countTags();
-    vector<pair<string,string>> tagResults = vector<pair<string,string>>();
-    processor.tag(text, tagResults);
-
-    ////topic analysis ..............................................
-
-    cout << "TOPIC ANLYSIS..." << endl;
-    cout << "Print topic words" << endl;
-    //top.printTopicWords();
-    enum enums::TOPIC topic = top.findTopic(text, repo);
-    cout << "Topic: " << topic << endl;
-
-    /*
-    for(auto& entry: testingSet){
-        currentTopic = top.findTopic(*entry);
-        //do some stuff
-    }*/
-
-    exit(0);
-
-/////////////////////////// SQL ERROR AFTER HERE  ----> /////////////////////////////////
-
-    ////TODO: run the text through the technical dictionary ..........
-    ///     This will idenify numbers, etc. that weare interested in.
-    ///     Needs to run after the tagging from corpus -- will include special tags
-    //processor.openTechDictionary(repo);
-    //processor.applyTechDictionary(tagResults);
-
-
-    //////classify the unidentified alphanumeric strings ..............
-    //classifyAlpha("hi");
-
-///////////////////////////// <---- SQL ERROR BEFORE HERE
-
-
-    ////Parse the noun and verb phrases ......................
-    vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
-    vector<vector<pair<string, string>>*> vPhrases = vector<vector<pair<string, string>>*>();
-
-    //this collection will hold the words we are analyzing
-    vector<string> dwgText = vector<string>();
-
-    //function htat retrieves the test case
-    getTestCase2(dwgText, tok);
-
-////////// Code that can be used to open training text for testing instead
-    //repo.getAllDwgTextFromDB(dwgText);
-    //repo.getAllDescriptionsFromDB(dwgText);
-
-/////////// Legacy code that was used to obtain untagged words from the training set
-    //obtainUntaggedWords(tagResults);
-
-
-////// Extracts noun and verb phrases from the free text in dwgText
-
-    //for(auto& item: dwgText){ //int i = 0; i < dwgText.size(); ++i){
-
-        //cout << "-----------------" << endl << dwgText.at(i) << endl << "-----------------" << endl << endl;
-
-        //cout << *dwgText.at(i) << endl;
-
-        processor.tag(dwgText, tagResults);
-
-        processor.dumpUnknownWords(tagResults, "unknown");
-
-        processor.getNounPhrases(tagResults, nPhrases);
-        processor.getVerbPhrases(tagResults, vPhrases);
-
-        for(auto& entry: nPhrases){
-            cout << "NOUN PHRASE : " << endl;
-            for(auto& e2: (*entry)){
-                cout << e2.first << endl;
-            }
-            cout << endl;
-        }
-
-        for(auto& entry: vPhrases){
-            cout << "VERB PHRASE : " << endl;
-            for(auto& e2: (*entry)){
-                cout << e2.first << endl;
-            }
-            cout << endl;
-        }
-    //}
-
-    ////TODO: scan noun and verb phrases for word collocations ........
-
-
-    ////TODO: consolidate duplicate material-article types ............
-
-
-    ////TODO: establish parent-child relationships ....................
-
-
-    ////TODO: write the findings ......................................
-    //for now, just print the final collection.
-    //print text for debug
-    /*for(auto& entry: tagResults){
-        cout << entry.first << " : " << entry.second << endl;
-    }*/
-
-}
 
 ////////////////////////////////////////////////////////////////
 /////
@@ -504,7 +388,27 @@ int Controller::testClassifyingString(){
 
 int Controller::testFindCollocations(){
     vector<pair<string,string>> colls = vector<pair<string,string>>();
+    BayesianStringClassifier bayes = BayesianStringClassifier();
+    vector<Component*> components = vector<Component*>();
+    repo.getComponentsIncludingGenerics(components);
     getCollocationsFromDBDescriptions(colls);
+
+    for(auto& entry: colls){
+        map<string, float>* results = bayes.classifyCollocation(entry, components);
+
+        cout << endl << endl << "CLASSIFY COLLOCATION: <" << entry.first << ", " << entry.second << ">" << endl;
+        if(results != 0){
+
+            for(auto& e2: (*results)){
+                if(e2.second > 0) cout << e2.first << " : " << e2.second << endl;
+            }
+            delete results;
+
+        } else cout << "Not found in corpus" << endl;
+
+    }
+
+
 }
 
 //////
@@ -517,16 +421,18 @@ int Controller::testClassifyCollocations(){
     vector<pair<string, string>> testVector = vector<pair<string, string>>();
     BayesianStringClassifier bayes = BayesianStringClassifier();
     vector<Component*> components = vector<Component*>();
-    repo.getComponents(components);
+    repo.getComponentsIncludingGenerics(components);
 
     //the test cases
     testVector.push_back(make_pair("stainless", "steel"));
-    testVector.push_back(make_pair("zinc", "yellow"));
-    testVector.push_back(make_pair("res", "1k"));
+    testVector.push_back(make_pair("zinc", "blue"));
+    testVector.push_back(make_pair("res", "0603"));
     testVector.push_back(make_pair("15", "pos"));
     testVector.push_back(make_pair("washer", "ss"));
     testVector.push_back(make_pair("fh", "zn"));
-    testVector.push_back(make_pair("1206", "X5R"));
+    testVector.push_back(make_pair("1206", "x5r"));
+    testVector.push_back(make_pair("astm", "967"));
+    testVector.push_back(make_pair("rubber", "bumper"));
 
     for(auto& entry: testVector){
         map<string, float>* results = bayes.classifyCollocation(entry, components);
@@ -1142,3 +1048,145 @@ for(auto& entry: inputText){
 
 
 }*/
+
+//////////////////////
+/// Controller::run
+/// This was the driver prior to implementation of GUI panel
+///
+void Controller::run(){
+
+    /////obtain the text ..............................................
+    ////tokenize the text .............................................
+    //This collection is intended for use by fully implemented application
+    vector<vector<string>*> testingSet = vector<vector<string>*>();
+
+    //temporary text to test functions
+    vector<string> text = vector<string>();
+    //TODO: get a full test case
+    // For now:
+    vector<string>* forNow1 = new vector<string>();
+    forNow1->push_back("Placeholder");
+    forNow1->push_back("Text");
+    vector<string>* forNow2 = new vector<string>();
+    forNow2->push_back("More");
+    forNow2->push_back("Placeholder");
+    forNow2->push_back("Text");
+    testingSet.push_back(forNow1);
+    testingSet.push_back(forNow2);
+
+
+    cout << "Get test case" << endl;
+
+    //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
+    if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
+    //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
+
+    //cout << "TEXT:" << endl;
+    //for(auto& entry: text) cout << entry << endl;
+
+    ////tag the text .................................................
+    cout << "Tagging words" << endl;
+
+    processor.getXML();
+    processor.countTags();
+    vector<pair<string,string>> tagResults = vector<pair<string,string>>();
+    processor.tag(text, tagResults);
+
+    ////topic analysis ..............................................
+
+    cout << "TOPIC ANLYSIS..." << endl;
+    cout << "Print topic words" << endl;
+    //top.printTopicWords();
+    enum enums::TOPIC topic = top.findTopic(text, repo);
+    cout << "Topic: " << topic << endl;
+
+    /*
+    for(auto& entry: testingSet){
+        currentTopic = top.findTopic(*entry);
+        //do some stuff
+    }*/
+
+    exit(0);
+
+/////////////////////////// SQL ERROR AFTER HERE  ----> /////////////////////////////////
+
+    ////TODO: run the text through the technical dictionary ..........
+    ///     This will idenify numbers, etc. that weare interested in.
+    ///     Needs to run after the tagging from corpus -- will include special tags
+    //processor.openTechDictionary(repo);
+    //processor.applyTechDictionary(tagResults);
+
+
+    //////classify the unidentified alphanumeric strings ..............
+    //classifyAlpha("hi");
+
+///////////////////////////// <---- SQL ERROR BEFORE HERE
+
+
+    ////Parse the noun and verb phrases ......................
+    vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
+    vector<vector<pair<string, string>>*> vPhrases = vector<vector<pair<string, string>>*>();
+
+    //this collection will hold the words we are analyzing
+    vector<string> dwgText = vector<string>();
+
+    //function htat retrieves the test case
+    getTestCase2(dwgText, tok);
+
+////////// Code that can be used to open training text for testing instead
+    //repo.getAllDwgTextFromDB(dwgText);
+    //repo.getAllDescriptionsFromDB(dwgText);
+
+/////////// Legacy code that was used to obtain untagged words from the training set
+    //obtainUntaggedWords(tagResults);
+
+
+////// Extracts noun and verb phrases from the free text in dwgText
+
+    //for(auto& item: dwgText){ //int i = 0; i < dwgText.size(); ++i){
+
+        //cout << "-----------------" << endl << dwgText.at(i) << endl << "-----------------" << endl << endl;
+
+        //cout << *dwgText.at(i) << endl;
+
+        processor.tag(dwgText, tagResults);
+
+        processor.dumpUnknownWords(tagResults, "unknown");
+
+        processor.getNounPhrases(tagResults, nPhrases);
+        processor.getVerbPhrases(tagResults, vPhrases);
+
+        for(auto& entry: nPhrases){
+            cout << "NOUN PHRASE : " << endl;
+            for(auto& e2: (*entry)){
+                cout << e2.first << endl;
+            }
+            cout << endl;
+        }
+
+        for(auto& entry: vPhrases){
+            cout << "VERB PHRASE : " << endl;
+            for(auto& e2: (*entry)){
+                cout << e2.first << endl;
+            }
+            cout << endl;
+        }
+    //}
+
+    ////TODO: scan noun and verb phrases for word collocations ........
+
+
+    ////TODO: consolidate duplicate material-article types ............
+
+
+    ////TODO: establish parent-child relationships ....................
+
+
+    ////TODO: write the findings ......................................
+    //for now, just print the final collection.
+    //print text for debug
+    /*for(auto& entry: tagResults){
+        cout << entry.first << " : " << entry.second << endl;
+    }*/
+
+}
