@@ -77,16 +77,26 @@ public:
 ///
 ///  Tokens are delimited by spaces
 ///     The first token is the filename
-///   Phrases are delmited by tabs
+///   Fragments are delmited by tabs (this is primarily used for spreadsheet cells)
 ///   Lines are terminated by a ~ Tilde character
 ///   Files are delimited by a newline character
 ///
 /// To create a test file:
-///     - Create a text file or tab-delimited table
-///     - more * | cat > out.txt
-///     - sed -i 's/\n/ ~ /g' testcase2.txt
-///     - sed -i 's/~::::::::::::::~/\n/g' testcase2.txt
-///     - sed -i 's/.txt\n/ /g' testcase2.txt (or just remove the line by hand)
+///     - Create one or more text files and/or tab-delimited tables.  Use the .txt extension.
+///     - Write the filenames and file contents to a single text file:
+///         more * | cat > out.txt
+///     - Replace newline characters with the DOT symbol (in this system, the ~ character)
+///         sed -i 's/\n/ ~ /g' out.txt
+///     - If the source of the document is a pdf, a double newline is the DOT symbol.
+///         sed -t 's/~~/|/g' out.txt
+///         tr '~' ' ' < out.txt >out2.txt
+///         tr '|' '~' < out2.txt >out3.txt
+///         mv out3.txt out.txt
+///     - Replace the more command's 14-colon symbol
+///         sed -i 's/~::::::::::::::~/\n/g' out.txt
+///     - Replace the newline that follows a filename with a space
+///         sed -i 's/.txt\n/.txt /g' testcase2.txt
+///         (or just do it by hand with a text editor)
 ///
 ///
 void Controller::runTestCase(int tcNum){
@@ -234,6 +244,7 @@ void Controller::runTestCase(int tcNum){
 
 
     //classify untagged words
+    //TODO: remove words in collocations
     for(auto& e1: files){
         for(auto& e2: e1->tags){
             if(e2.second == "???"){
