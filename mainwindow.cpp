@@ -79,3 +79,8 @@ void MainWindow::on_pushButton_6_clicked(){
     cout << "Clean test case number " << tcNum << endl;
     control.cleanTestCase(tcNum);
 }
+
+void MainWindow::on_pushButton_7_clicked()
+{
+    control.testParent();
+}

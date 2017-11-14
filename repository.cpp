@@ -53,6 +53,31 @@ void Repository::getComponentsIncludingGenerics(vector<Component*>& coll){
     }
 }
 
+//////////////
+/// \brief getParentTypes
+/// Takes in a material-article type
+/// Output parameter is a map with the % of parents of each material article type
+/// For example: zin plate in, [(Steel_other: 0.45), (Steel_unknown: 0.55)] out
+void Repository::getParentTypes(map<string, float>& values, string material){
+    QSqlQuery query;
+
+    QString qs = QString::fromStdString("SELECT source.MaterialType, pars.MaterialType FROM (ContractsComponents natural join components) as source, (ContractsComponents natural join components) as pars WHERE source.parent = pars.lineitem AND pars.MaterialType IS NOT NULL AND source.MaterialType = '" + material + "';");
+
+    if (!query.exec(qs)){
+         qDebug() << "getComponents SQL error: "<< query.lastError().text() << endl;
+         exit(-1);
+    }
+
+    //values = map<string, float>();
+    cout << qs.toStdString();
+
+    while(query.next()){
+        cout << query.value(0).toString().toStdString() << " : " << query.value(1).toString().toStdString() << endl;
+    }
+
+}
+
+
 void Repository::getComponents(vector<Component*>& coll){
     QSqlQuery query;
     //database.open();

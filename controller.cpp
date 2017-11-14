@@ -83,6 +83,8 @@ public:
 ///
 /// To create a test file:
 ///     - Create one or more text files and/or tab-delimited tables.  Use the .txt extension.
+///     - Use pdftotext (from the popplertools library) to convert a pdf to text
+///         pdftotext source.pdf target.txt
 ///     - Write the filenames and file contents to a single text file:
 ///         more * | cat > out.txt
 ///     - Replace newline characters with the DOT symbol (in this system, the ~ character)
@@ -590,6 +592,12 @@ int Controller::testClassifySupplier(){return 0;} // Classifying the supplier of
 
 int Controller::testEntityDeduplication(){return 0;} //Entity deduplication
 
+void Controller::testParent(){
+    map<string, float> res = map<string, float>();
+    cout << "Test parents" << endl;
+    string t = "Subassembly";
+    repo.getParentTypes(res, t);
+}
 
 
 //////////////////////////////////

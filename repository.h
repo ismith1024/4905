@@ -38,6 +38,7 @@ public:
     int countOfStringGivenTopic(string, enums::TOPIC);
     int getSupplierNames(vector<string>&);
     void getWordsFromMaterialDictionary();
+    void getParentTypes(map<string, float>&, string);
 
 private:
     QSqlDatabase database;
