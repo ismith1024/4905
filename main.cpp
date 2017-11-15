@@ -7,7 +7,7 @@
 #include "hcluster.h"
 #include<map>
 #include<list>
-#include "bayesianstringclassifier.h"
+#include "bayesianclassifier.h"
 #include"languageprocessor.h"
 #include"controller.h"
 //#include "component.h"

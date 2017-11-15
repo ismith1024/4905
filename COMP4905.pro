@@ -37,10 +37,10 @@ SOURCES += \
     utilityalgorithms.cpp \
     hcluster.cpp \
     component.cpp \
-    bayesianstringclassifier.cpp \
     languageprocessor.cpp \
     topicanalyzer.cpp \
-    sqlrecord.cpp
+    sqlrecord.cpp \
+    bayesianclassifier.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -50,12 +50,12 @@ HEADERS += \
     utilityalgorithms.h \
     hcluster.h \
     component.h \
-    bayesianstringclassifier.h \
     languageprocessor.h \
     topicanalyzer.h \
     enums.h \
     testfile.h \
-    sqlrecord.h
+    sqlrecord.h \
+    bayesianclassifier.h
 
 FORMS += \
         mainwindow.ui
