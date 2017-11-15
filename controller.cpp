@@ -3,7 +3,7 @@
 #include "languageprocessor.h"
 #include "repository.h"
 #include "component.h"
-#include "bayesianstringclassifier.h"
+#include "bayesianclassifier.h"
 #include "tokenizer.h"
 #include "QStringList"
 #include "QString"
@@ -111,7 +111,7 @@ void Controller::runTestCase(int tcNum){
     vector<string> text = vector<string>();
 
     vector<Component*> results = vector<Component*>();
-    BayesianStringClassifier bayes = BayesianStringClassifier();
+    BayesianClassifier bayes = BayesianClassifier();
 
     vector<string>::iterator it;
 
@@ -401,7 +401,7 @@ int Controller::testClassifyingString(){
 
 int Controller::testFindCollocations(){
     vector<pair<string,string>> colls = vector<pair<string,string>>();
-    BayesianStringClassifier bayes = BayesianStringClassifier();
+    BayesianClassifier bayes = BayesianClassifier();
     vector<Component*> components = vector<Component*>();
     repo.getComponentsIncludingGenerics(components);
     getCollocationsFromDBDescriptions(colls);
@@ -432,7 +432,7 @@ int Controller::testFindCollocations(){
 ///
 int Controller::testClassifyCollocations(){
     vector<pair<string, string>> testVector = vector<pair<string, string>>();
-    BayesianStringClassifier bayes = BayesianStringClassifier();
+    BayesianClassifier bayes = BayesianClassifier();
     vector<Component*> components = vector<Component*>();
     repo.getComponentsIncludingGenerics(components);
 
@@ -588,7 +588,29 @@ int Controller::testVerbPhrases(){
 
 }
 
-int Controller::testClassifySupplier(){return 0;} // Classifying the supplier of an identified part number
+/////////
+/// \brief Controller::testClassifySupplier
+/// \return
+///  Test classifier for supplier given MPN
+int Controller::testClassifySupplier(){
+    vector<Component*> comps = vector<Component*>();
+    repo.getComponents(comps);
+
+    BayesianClassifier bayes = BayesianClassifier();
+    string testComp = "CRCW060312K0JNEA";
+    map<string, float>* results = bayes.classifySupplier(testComp, comps);
+
+    if(results = 0) return -1;
+
+    cout << endl << endl << "CLASSIFY " << testComp << endl;
+    for(auto& entry: (*results)){
+        cout << entry.first << " : " << entry.second << endl;
+    }
+
+
+    delete results;
+    return 0;
+} // Classifying the supplier of an identified part number
 
 int Controller::testEntityDeduplication(){return 0;} //Entity deduplication
 
@@ -626,7 +648,7 @@ int Controller::classifyAlpha(string val){
     int i = 0;
     repo.getComponents(collection);
 
-    BayesianStringClassifier bayes = BayesianStringClassifier();
+    BayesianClassifier bayes = BayesianClassifier();
 
     /////// For testing
     //crossValidate(bayes, collection);
@@ -755,7 +777,7 @@ int Controller::tokenize(string fileName){
 /// \param collection
 /// Used when performing cross-validation to test the Bayesian component classifier
 ///
-void Controller::crossValidate(BayesianStringClassifier& bayes, vector<Component*>& collection){
+void Controller::crossValidate(BayesianClassifier& bayes, vector<Component*>& collection){
     Component* testComp = new Component("Bob's bolts", "CRCW040222R0FKED", "Some widget", "");
     vector<Component*> testing = vector<Component*>();
     vector<Component*>::iterator it;

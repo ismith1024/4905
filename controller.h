@@ -9,7 +9,7 @@
 #include<iostream>
 #include<fstream>
 #include "component.h"
-#include "bayesianstringclassifier.h"
+#include "bayesianclassifier.h"
 #include "tokenizer.h"
 #include "repository.h"
 #include "topicanalyzer.h"
@@ -34,7 +34,7 @@ public:
     int getTestCase1(vector<string>&, Tokenizer&);
     int getTestCase2(vector<string>&, Tokenizer&);
     int getTestCase3(vector<string>&, Tokenizer&);
-    void crossValidate(BayesianStringClassifier&, vector<Component*>&);
+    void crossValidate(BayesianClassifier&, vector<Component*>&);
 
     int tokenize(string);
 

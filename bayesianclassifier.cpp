@@ -1,11 +1,11 @@
-#include "bayesianstringclassifier.h"
+#include "bayesianclassifier.h"
 
-BayesianStringClassifier::BayesianStringClassifier(){
+BayesianClassifier::BayesianClassifier(){
     frequencies = new map<string, StringRecord>();
 }
 
 
-BayesianStringClassifier::~BayesianStringClassifier(){
+BayesianClassifier::~BayesianClassifier(){
 
     delete frequencies;
 }
@@ -21,7 +21,7 @@ BayesianStringClassifier::~BayesianStringClassifier(){
 /// Requires strings to be in lower case
 /// RETURNS NULL POINTER IF THE COLLOCATION DOES NOT EXIST IN THE CORPUS
 ///
-map<string, float>* BayesianStringClassifier::classifyCollocation(pair<string,string>& collocation, vector<Component*>& comps){
+map<string, float>* BayesianClassifier::classifyCollocation(pair<string,string>& collocation, vector<Component*>& comps){
 
     //we will ignore components without a description field
     int totalComponents = 0;
@@ -95,9 +95,7 @@ map<string, float>* BayesianStringClassifier::classifyCollocation(pair<string,st
 
 }
 
-/*
-
-*/
+//////////////////
 /*
 This learning will:
     - iterate a three-character window over the part number of all components
@@ -105,7 +103,7 @@ This learning will:
         - <C1C2C3: <classification: count++> >
 
 */
-void BayesianStringClassifier::learn(vector<Component*>& comps){
+void BayesianClassifier::learn(vector<Component*>& comps){
 
     //map<string, StringRecord>& freq = *frequencies;
     //counts the frequency of substrings given component type, and the frequency of each substring
@@ -133,7 +131,13 @@ void BayesianStringClassifier::learn(vector<Component*>& comps){
 
 */
 
-map<string, float>* BayesianStringClassifier::classify(Component* comp, vector<Component*>& components){
+////////////
+/// \brief BayesianClassifier::classify
+/// \param comp
+/// \param components
+/// \return
+///
+map<string, float>* BayesianClassifier::classify(Component* comp, vector<Component*>& components){
     map<string, float>* ret = new map<string, float>();
 
     //find the substrings in the component's part number
@@ -213,8 +217,13 @@ map<string, float>* BayesianStringClassifier::classify(Component* comp, vector<C
     return ret;
 }
 
-
-map<string, float>* BayesianStringClassifier::classify(string& comp, vector<Component*>& components){
+//////////////////////
+/// \brief BayesianClassifier::classify
+/// \param comp
+/// \param components
+/// \return
+///
+map<string, float>* BayesianClassifier::classify(string& comp, vector<Component*>& components){
 
     map<string, float>* ret = new map<string, float>();
     if(comp.size() < 3) return ret;
@@ -295,6 +304,37 @@ map<string, float>* BayesianStringClassifier::classify(string& comp, vector<Comp
 
     return ret;
 }
+
+/////////////////
+/// \brief BayesianClassifier::classifySupplier
+/// \return
+/// Similar to matieral-article classifier:
+/// Determines the probability of a manufacturer for an arbitrary alphanumeric string
+///
+/// Pr(supplier | trigram) = Pr(trigram | supplier) * Pr(supplier) / Pr(trigram)
+/// RETURNS NULL IF INVALID WHICH MUST BE HANDLED
+///
+map<string, float>* BayesianClassifier::classifySupplier(string& mpn, vector<Component*>& components){
+
+    if(mpn.length() < 3) return 0;
+
+    auto trigrams = vector<string>();
+    auto ret = new map<string,float>();
+
+    /*string::iterator it, it2;
+    for(it = mpn.begin(); it != mpn.end() -3; ++it){
+
+    }*/
+    for(int i = 0; i < mpn.length() - 2; ++i){
+        trigrams.push_back(mpn.substr(i,3));
+    }
+
+    for(auto& entry: trigrams){
+        cout << entry << endl;
+    }
+
+}
+
 
 /*
 map<string, float>* BayesianStringClassifier::classify2(Component* comp, vector<Component*>& components){

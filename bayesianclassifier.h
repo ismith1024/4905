@@ -22,7 +22,7 @@ public:
     ~StringRecord();
 };
 
-class BayesianStringClassifier{
+class BayesianClassifier{
 
 private:
     static const int MIN_SUPPORT = 10;
@@ -37,9 +37,10 @@ public:
     map<string, float>*  classify(string&, vector<Component*>&);
 
     map<string,float>* classifyCollocation(pair<string,string>&, vector<Component*>&);
+    map<string, float>* classifySupplier(string&, vector<Component*>&);
 
-    BayesianStringClassifier();
-    ~BayesianStringClassifier();
+    BayesianClassifier();
+    ~BayesianClassifier();
 
 };
 
