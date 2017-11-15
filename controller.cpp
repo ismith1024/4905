@@ -595,8 +595,23 @@ int Controller::testEntityDeduplication(){return 0;} //Entity deduplication
 void Controller::testParent(){
     map<string, float> res = map<string, float>();
     cout << "Test parents" << endl;
-    string t = "Subassembly";
-    repo.getParentTypes(res, t);
+    vector<Component*> comps = vector<Component*>();
+    repo.getComponents(comps);
+    random_shuffle(comps.begin(), comps.end());
+    vector<Component*>::iterator it;
+    for(it = comps.begin(); it <= comps.begin() + 10; ++it){
+        auto res = map<string, float>();
+        repo.getParentTypes(res, (*it)->type);
+        cout << endl << *(*it) << endl;
+        for(auto& entry: res){
+            cout << entry.first << " : " << entry.second << endl;
+        }
+
+    }
+
+
+    //string t = "Subassembly";
+    //repo.getParentTypes(res, t);
 }
 
 

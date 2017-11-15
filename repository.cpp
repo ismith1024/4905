@@ -19,15 +19,17 @@ Repository::Repository(Tokenizer* tk){
 
 }
 
-QSqlDatabase& Repository::getDatabase(){
-    return database;
-}
+
 
 Repository::~Repository(){
-    //database.close();
+    cout << "Closing database" << endl;
+    database.close();
 }
 
-
+/////////////
+/// \brief Repository::getComponentsIncludingGenerics
+/// \param coll
+/// Retrieves components, including generic components and materials
 void Repository::getComponentsIncludingGenerics(vector<Component*>& coll){
     QSqlQuery query;
     //database.open();
@@ -68,16 +70,20 @@ void Repository::getParentTypes(map<string, float>& values, string material){
          exit(-1);
     }
 
-    //values = map<string, float>();
-    cout << qs.toStdString();
+    //cout << qs.toStdString();
 
     while(query.next()){
-        cout << query.value(0).toString().toStdString() << " : " << query.value(1).toString().toStdString() << endl;
+        string s = query.value(1).toString().toStdString();
+        values[s]++;
+        //cout << query.value(0).toString().toStdString() << " : " << query.value(1).toString().toStdString() << endl;
     }
 
 }
 
-
+////////////
+/// \brief Repository::getComponents
+/// \param coll
+/// Revrieves all components in the database, and creates  pointers in the collection
 void Repository::getComponents(vector<Component*>& coll){
     QSqlQuery query;
     //database.open();
@@ -101,11 +107,13 @@ void Repository::getComponents(vector<Component*>& coll){
 
         coll.push_back(newComp);
     }
-
-    //database.close();
-
 }
 
+///////////
+/// \brief Repository::getTechDictionary
+/// \param techdict
+/// \return
+/// Maps the technical dictionary of strings to material-article type
 int Repository::getTechDictionary(map<string,string>* techdict){
     QSqlQuery query;
     //database.open();
@@ -247,6 +255,11 @@ int Repository::getTopicCounts(map<string, int>& counts, enum enums::TOPIC topic
     return 0;
 }
 
+//////////
+/// \brief Repository::getTopicsByNumber
+/// \param counts
+/// \return
+/// Counts the number of times each document type appears
 int Repository::getTopicsByNumber(map<enums::TOPIC, int>& counts){
     QSqlQuery query;
     QString queryString = "SELECT DISTINCT docType, COUNT(docType) FROM topicAnalysis GROUP BY docType;";
@@ -272,6 +285,12 @@ int Repository::getTopicsByNumber(map<enums::TOPIC, int>& counts){
     return 0;
 }
 
+////////////
+/// \brief Repository::countOfStringGivenTopic
+/// \param txt
+/// \param topic
+/// \return
+/// Counts the number of documents by topic that a string appears in
 int Repository::countOfStringGivenTopic(string txt, enums::TOPIC topic){
     QSqlQuery query;
     QString queryString = "SELECT topicAnalysis.docType, count(docType) from topicAnalysis JOIN text ON text.file = topicAnalysis.filename WHERE topicAnalysis.docType = ";
@@ -324,6 +343,12 @@ int Repository::countOfStringGivenTopic(string txt, enums::TOPIC topic){
 
 }
 
+
+////////////
+/// \brief Repository::getContractsComponentsDescriptionsFromDB
+/// \param coll
+/// \return
+/// Retrieves the non-null description text from compoents in the database (in ContactsComponents table)
 int Repository::getContractsComponentsDescriptionsFromDB(vector<string>& coll){
     QSqlQuery query;
 
@@ -340,6 +365,11 @@ int Repository::getContractsComponentsDescriptionsFromDB(vector<string>& coll){
     return 0;
 }
 
+/////////////
+/// \brief Repository::getSupplierNames
+/// \param coll
+/// \return
+/// Retrieves the collecction of suppleir names from the database
 int Repository::getSupplierNames(vector<string>& coll){
     QSqlQuery query;
 
@@ -356,6 +386,9 @@ int Repository::getSupplierNames(vector<string>& coll){
     return 0;
 }
 
+/////////
+/// \brief Repository::getWordsFromMaterialDictionary
+/// One-of function, used to retrieve single words from the material dictionary (for manual inspection)
 void Repository::getWordsFromMaterialDictionary(){
     QSqlQuery query;
 
@@ -385,4 +418,14 @@ void Repository::getWordsFromMaterialDictionary(){
         }
     myfile.close();
 
+}
+
+
+////////
+/// \brief Repository::getDatabase
+/// \return
+///Getter for a reference to the database
+/// I don't remmber what this was for.
+QSqlDatabase& Repository::getDatabase(){
+    return database;
 }

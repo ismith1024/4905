@@ -28,7 +28,7 @@ private:
     TopicAnalyzer top;
 
 public:
-    Controller() : repo(&tok), top(repo){cout << "Controller ctor";}
+    Controller() : repo(&tok), top(repo){}
     void handleTokenizeRequest();
     int getTextFromFile(vector<string>&, Tokenizer&);
     int getTestCase1(vector<string>&, Tokenizer&);
