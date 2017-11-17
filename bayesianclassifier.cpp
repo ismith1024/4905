@@ -333,6 +333,75 @@ map<string, float>* BayesianClassifier::classifySupplier(string& mpn, vector<Com
         cout << entry << endl;
     }
 
+
+    map<string, float> prTrigs = map<string, float>();
+
+    for(auto& trig: tragrams){
+
+        prTrigs = map<string,float>();
+
+        //Pr(supplier | trigram)
+        int count = 0;
+        map<string, float> prSuppGivenTrig = map<string, float>();
+
+        //prTrigs
+        for(auto& comp: comps){
+            std::size_t found = e2->mpn.find(entry);
+            if(found != string::npos)
+               prTrigs[trig]++;
+        }
+
+        int sz = components.size();
+
+        for(auto& entry: prTrigs){
+            entry.second /= sz;
+        }
+
+        //pr supp | trig
+        for(auto& e2: components){
+
+            std::size_t found = e2->mpn.find(entry);
+            if(found != string::npos){
+               prSuppGivenTrig[e2->mfr]++;
+               count++;
+           }
+        }
+
+
+
+        for(auto& entry: prSuppGivenTrig){
+            entry.second /= count;
+
+            //if the working return map doesn't contain the supplier, set it to 1.0
+            map<string,float>::iterator it = ret->find(entry.first);
+            if(it != ret->end()) ret->operator[](entry.first) = 1.0;
+
+            //conjjugate probability multiplied by the conjugate of the trigram
+            ret->operator[](entry.first) *= (1.0 - entry.second) / (prTrigs[trig]);
+        }
+
+        //pr(supplier)
+        map<string, float> prSupp = map<string, float>();
+        for(auto& entry: components){
+            prSupp[entry->mfr]++;
+        }
+
+        int sz = components.size();
+
+        for(auto& entry: prSupp){
+            entry.second /= sz;
+        }
+
+        //complete bayes theorem
+        //not right
+        for(auto& entry: (*ret)){
+            entry.second *= prSupp[entry.first];
+        }
+
+    }
+
+    return ret;
+
 }
 
 
