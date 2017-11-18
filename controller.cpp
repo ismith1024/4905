@@ -830,47 +830,50 @@ int Controller::tokenize(string fileName){
 /// Used when performing cross-validation to test the Bayesian component classifier
 ///
 void Controller::crossValidateType(BayesianClassifier& bayes, vector<Component*>& collection){
-    Component* testComp = new Component("Bob's bolts", "CRCW040222R0FKED", "Some widget", "");
-    vector<Component*> testing = vector<Component*>();
+    //Component* testComp = new Component("Bob's bolts", "CRCW040222R0FKED", "Some widget", "");
     vector<Component*>::iterator it;
     int right = 0;
     int wrong = 0;
     int i = 0;
 
-    list<Component*> training = list<Component*>();
+    for(int fourfold = 0; fourfold < 4; ++fourfold ){
 
-    for(it = collection.begin(); it != collection.end(); ++i ,++it){
-        if(i % 4 == 0){
-            testing.push_back(*it);
-        } else training.push_back(*it);
-    }
+        list<Component*> training = list<Component*>();
+        vector<Component*> testing = vector<Component*>();
 
-    vector<Component*> training2;
-    training2.reserve(training.size());
-    copy(begin(training), end(training), back_inserter(training2));
+        for(it = collection.begin(); it != collection.end(); ++i ,++it){
+            if(i % 4 == fourfold){
+                testing.push_back(*it);
+            } else training.push_back(*it);
+        }
 
-    cout << "Size of training: " << collection.size() << "  Testing: " << testing.size() << endl;
+        vector<Component*> training2;
+        training2.reserve(training.size());
+        copy(begin(training), end(training), back_inserter(training2));
 
-    bayes.learn(training2);
+        cout << "Size of training: " << collection.size() << "  Testing: " << testing.size() << endl;
 
-    cout << "Learning" << endl;
+        bayes.learn(training2);
+
+        cout << "Learning" << endl;
 
 
-    for(Component* c: testing){
-        map<string, float>* results = bayes.classifyType(c, collection);
-        auto choice = std::max_element(results->begin(), results->end(),
-            [](const pair<string, float>& p1, const pair<string, float>& p2) {
-                return p1.second < p2.second; });
-        if((*choice).first.compare(c->type) == 0) right++; else wrong++;
-            cout << "Right: " << right << " Wrong: " << wrong << endl;
-        delete results;
+        for(Component* c: testing){
+            map<string, float>* results = bayes.classifyType(c, collection);
+            auto choice = std::max_element(results->begin(), results->end(),
+                [](const pair<string, float>& p1, const pair<string, float>& p2) {
+                    return p1.second < p2.second; });
+            if((*choice).first.compare(c->type) == 0) right++; else wrong++;
+                cout << "Right: " << right << " Wrong: " << wrong << endl;
+            delete results;
+        }
     }
 
     float res = (float) right / (float) (right + wrong);
 
     cout << "Accuracy: %" << (res * 100) << endl;
 
-    delete testComp;
+    //delete testComp;
 }
 
 ///////////////
@@ -880,47 +883,51 @@ void Controller::crossValidateType(BayesianClassifier& bayes, vector<Component*>
 /// Used when performing cross-validation to test the Bayesian component classifier
 ///
 void Controller::crossValidateSupp(BayesianClassifier& bayes, vector<Component*>& collection){
-    Component* testComp = new Component("Bob's bolts", "CRCW040222R0FKED", "Some widget", "");
-    vector<Component*> testing = vector<Component*>();
+    //Component* testComp = new Component("Bob's bolts", "CRCW040222R0FKED", "Some widget", "");
+
     vector<Component*>::iterator it;
     int right = 0;
     int wrong = 0;
     int i = 0;
 
-    list<Component*> training = list<Component*>();
+    for(int fourfold = 0; fourfold < 4; ++fourfold ){
+        vector<Component*> testing = vector<Component*>();
+        list<Component*> training = list<Component*>();
 
-    for(it = collection.begin(); it != collection.end(); ++i ,++it){
-        if(i % 4 == 0){
-            testing.push_back(*it);
-        } else training.push_back(*it);
-    }
+        for(it = collection.begin(); it != collection.end(); ++i ,++it){
+            if(i % 4 == fourfold){
+                testing.push_back(*it);
+            } else training.push_back(*it);
+        }
 
-    vector<Component*> training2;
-    training2.reserve(training.size());
-    copy(begin(training), end(training), back_inserter(training2));
+        vector<Component*> training2;
+        training2.reserve(training.size());
+        copy(begin(training), end(training), back_inserter(training2));
 
-    cout << "Size of training: " << collection.size() << "  Testing: " << testing.size() << endl;
+        cout << "Size of training: " << collection.size() << "  Testing: " << testing.size() << endl;
 
-    bayes.learn(training2);
+        bayes.learn(training2);
 
-    cout << "Learning" << endl;
+        cout << "Learning" << endl;
 
 
-    for(Component* c: testing){
-        map<int, float>* results = bayes.classifySupplier(c, collection);
-        auto choice = std::max_element(results->begin(), results->end(),
-            [](const pair<int, float>& p1, const pair<int, float>& p2) {
-                return p1.second < p2.second; });
-        if((*choice).first == c->supplierNumber) right++; else wrong++;
-            cout << "Right: " << right << " Wrong: " << wrong << endl;
-        delete results;
+        for(Component* c: testing){
+            map<int, float>* results = bayes.classifySupplier(c, collection);
+            auto choice = std::max_element(results->begin(), results->end(),
+                [](const pair<int, float>& p1, const pair<int, float>& p2) {
+                    return p1.second < p2.second; });
+            if((*choice).first == c->supplierNumber) right++; else wrong++;
+                cout << "Right: " << right << " Wrong: " << wrong << endl;
+            delete results;
+        }
+
     }
 
     float res = (float) right / (float) (right + wrong);
 
     cout << "Accuracy: %" << (res * 100) << endl;
 
-    delete testComp;
+    //delete testComp;
 }
 
 
