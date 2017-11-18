@@ -1,13 +1,15 @@
 #include "bayesianclassifier.h"
 
 BayesianClassifier::BayesianClassifier(){
-    frequencies = new map<string, StringRecord>();
+    substringFrequencies = new map<string, StringRecord>();
+
 }
 
 
 BayesianClassifier::~BayesianClassifier(){
 
-    delete frequencies;
+    delete substringFrequencies;
+
 }
 
 
@@ -111,8 +113,8 @@ void BayesianClassifier::learn(vector<Component*>& comps){
         if(c->mpn.size() < 3) continue;
         for(int i = 0; i < c->mpn.size() -2; ++i){
             string s = c->mpn.substr(i, i+2);
-            (*frequencies)[s].count++;
-            (*(*frequencies)[s].entries)[c->mpn]++;
+            (*substringFrequencies)[s].count++;
+            (*(*substringFrequencies)[s].entries)[c->mpn]++;
         }
     }
 
@@ -120,21 +122,10 @@ void BayesianClassifier::learn(vector<Component*>& comps){
 }
 
 
-/*
-    To Bayesian classify a string on substrings:
-
-    Pr(type given substring) = Pr(substring given type) * Pr(type) / Pr(substring)
-
-    Here, probability of the type given the substring is
-
-    For all substrings:
-
-*/
-
 ////////////
 /// \brief BayesianClassifier::classify
-/// \param comp
-/// \param components
+/// \param comp - the Component object we are trying to classify
+/// \param components - the training set
 /// \return
 ///
 map<string, float>* BayesianClassifier::classifyType(Component* comp, vector<Component*>& components){
@@ -218,9 +209,9 @@ map<string, float>* BayesianClassifier::classifyType(Component* comp, vector<Com
 }
 
 //////////////////////
-/// \brief BayesianClassifier::classify
-/// \param comp
-/// \param components
+/// \brief BayesianClassifier::classifyType
+/// \param comp - the part number of the component weare trying to classify
+/// \param components - the training set
 /// \return
 ///
 map<string, float>* BayesianClassifier::classifyType(string& comp, vector<Component*>& components){

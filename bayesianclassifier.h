@@ -27,7 +27,8 @@ class BayesianClassifier{
 private:
     static const int MIN_SUPPORT = 10;
     static const int MNI_CONF = 5;
-    map<string, StringRecord>* frequencies;
+    map<string, StringRecord>* substringFrequencies;
+
 
 public:
     void learn(vector<Component*>&);
