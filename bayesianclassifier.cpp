@@ -96,13 +96,13 @@ map<string, float>* BayesianClassifier::classifyCollocation(pair<string,string>&
 }
 
 //////////////////
-/*
-This learning will:
-    - iterate a three-character window over the part number of all components
-    - increment the frequencies map as follows:
-        - <C1C2C3: <classification: count++> >
-
-*/
+///
+///This learning will:
+///    - iterate a three-character window over the part number of all components
+///    - increment the frequencies map as follows:
+///        - <C1C2C3: <classification: count++> >
+///
+///
 void BayesianClassifier::learn(vector<Component*>& comps){
 
     //map<string, StringRecord>& freq = *frequencies;
@@ -137,7 +137,7 @@ void BayesianClassifier::learn(vector<Component*>& comps){
 /// \param components
 /// \return
 ///
-map<string, float>* BayesianClassifier::classify(Component* comp, vector<Component*>& components){
+map<string, float>* BayesianClassifier::classifyType(Component* comp, vector<Component*>& components){
     map<string, float>* ret = new map<string, float>();
 
     //find the substrings in the component's part number
@@ -223,7 +223,7 @@ map<string, float>* BayesianClassifier::classify(Component* comp, vector<Compone
 /// \param components
 /// \return
 ///
-map<string, float>* BayesianClassifier::classify(string& comp, vector<Component*>& components){
+map<string, float>* BayesianClassifier::classifyType(string& comp, vector<Component*>& components){
 
     map<string, float>* ret = new map<string, float>();
     if(comp.size() < 3) return ret;
@@ -301,12 +301,187 @@ map<string, float>* BayesianClassifier::classify(string& comp, vector<Component*
              (*ret)[entry.first] = 1.0 - entry.second;
          }
 
+    return ret;
+}
+
+////////////
+/// \brief BayesianClassifier::classifySupplier
+/// \param comp - the component we are trying to classify
+/// \param components - the training set
+/// \return
+///
+map<string, float>* BayesianClassifier::classifySupplier(Component* comp, vector<Component*>& components){
+    map<string, float>* ret = new map<string, float>();
+
+    //find the substrings in the component's part number
+        vector<string> substrings = vector<string>();
+        for(int i = 0; i < comp->mpn.size() -2; ++i){
+            substrings.push_back(comp->mpn.substr(i, i+2));
+        }
+
+    //count the components
+        map<string, int> typeCounts = map<string, int>();
+        for(Component* c: components){
+            typeCounts[c->mfr]++;
+        }
+
+    //Determine the probability of each class
+        map<string, float> probSupp = map<string, float>();
+
+        for(Component* c: components){
+            probSupp[c->mfr]++;
+        }
+
+        for(const auto& entry: probSupp){
+            probSupp[entry.first] = entry.second / probSupp.size();
+        }
+
+    //probability of substring
+
+         map<string, float> probSubs = map<string, float>();
+         for(Component* c: components){
+             for(string str: substrings){
+                 if(c->mpn.find(str) != string::npos) probSubs[str]++;
+             }
+         }
+
+         for(auto& entry: probSubs){
+             probSubs[entry.first] = entry.second / probSubs.size();
+         }
+
+     //Probability of the substring given type
+         map<pair<string, string>, float> probSubsGivenSupp = map<pair<string, string>, float>(); //first is mfr and second is substring
+
+         for(Component* c: components){
+             for(auto& entry: probSubs){
+                 std::size_t found = c->mpn.find(entry.first);
+                if(found != string::npos){
+                    probSubsGivenSupp[make_pair(c->mfr, entry.first)]++;
+                }
+             }
+         }
+
+         //divide by the number of components with that type
+         for(auto& entry: probSubsGivenType){
+             probSubsGivenSupp[entry.first] = probSubsGivenSupp[entry.first] / typeCounts[entry.first.first];
+         }
+
+     //Determine the probability of type given substring
+
+         //first, determine the probability it is not a type -- start with 1.0
+         map<string, float> complementProbs = map<string, float>();
+         for(auto& entry: probSupp){
+             complementProbs[entry.first] = 1.0;
+         }
+
+         //second, multiply this by the probability that the substring implies a type
+         for(string subs: substrings){
+             if(probSubs[subs] == 0) continue;
+             else for(auto& cSupp: probSupp){
+                 complementProbs[cSupp.first] = complementProbs[cSupp.first] * (1.0 - (probSubsGivenSupp[make_pair(cSupp.first, subs)] * probSupp[cSupp.first] / probSubs[subs] ));
+             }
+         }
+
+         for(auto& entry: complementProbs){
+             (*ret)[entry.first] = 1.0 - entry.second;
+         }
+
 
     return ret;
 }
 
-/////////////////
+//////////////////////
 /// \brief BayesianClassifier::classifySupplier
+/// \param comp - the part number of the component we are trying to classify
+/// \param components - the training set
+/// \return
+///
+map<string, float>* BayesianClassifier::classifySupplier(string& comp, vector<Component*>& components){
+
+    map<string, float>* ret = new map<string, float>();
+    if(comp.size() < 3) return ret;
+
+    //find the substrings in the component's part number
+        vector<string> substrings = vector<string>();
+        for(int i = 0; i < comp.size() -2; ++i){
+            substrings.push_back(comp.substr(i, i+2));
+        }
+
+    //count the components
+        map<string, int> suppCounts = map<string, int>();
+        for(Component* c: components){
+            suppCounts[c->mfr]++;
+        }
+
+    //Determine the probability of each class
+        map<string, float> probSupp = map<string, float>();
+
+        for(Component* c: components){
+            probSupp[c->mfr]++;
+        }
+
+        for(const auto& entry: probSupp){
+            probSupp[entry.first] = entry.second / probSupp.size();
+        }
+
+    //probability of substring
+
+         map<string, float> probSubs = map<string, float>();
+         for(Component* c: components){
+             for(string str: substrings){
+                 if(c->mpn.find(str) != string::npos) probSubs[str]++;
+             }
+         }
+
+         for(auto& entry: probSubs){
+             probSubs[entry.first] = entry.second / probSubs.size();
+         }
+
+     //Probability of the substring given type
+         map<pair<string, string>, float> probSubsGivenSupp = map<pair<string, string>, float>(); //first is type and second is substring
+
+         for(Component* c: components){
+             for(auto& entry: probSubs){
+                 std::size_t found = c->mpn.find(entry.first);
+                if(found != string::npos){
+                    probSubsGivenSupp[make_pair(c->mfr, entry.first)]++;
+                }
+             }
+         }
+
+         //divide by the number of components with that type
+         for(auto& entry: probSubsGivenSupp){
+             probSubsGivenSupp[entry.first] = probSubsGivenSupp[entry.first] / suppCounts[entry.first.first];
+         }
+
+     //Determine the probability of type given substring
+
+         //first, determine the probability it is not a type -- start with 1.0
+         map<string, float> complementProbs = map<string, float>();
+         for(auto& entry: probSupp){
+             complementProbs[entry.first] = 1.0;
+         }
+
+         //second, multiply this by the probability that the substring implies a type
+         for(string subs: substrings){
+             if(probSubs[subs] == 0) continue;
+             else for(auto& cSupp: probSupp){
+                 complementProbs[cSupp.first] = complementProbs[cSupp.first] * (1.0 - (probSubsGivenSupp[make_pair(cSupp.first, subs)] * probSupp[cSupp.first] / probSubs[subs] ));
+             }
+         }
+
+         for(auto& entry: complementProbs){
+             (*ret)[entry.first] = 1.0 - entry.second;
+         }
+
+
+    return ret;
+}
+
+
+
+/////////////////
+/// \brief BayesianClassifier::classifySupplierOld
 /// \return
 /// Similar to matieral-article classifier:
 /// Determines the probability of a manufacturer for an arbitrary alphanumeric string
@@ -314,7 +489,7 @@ map<string, float>* BayesianClassifier::classify(string& comp, vector<Component*
 /// Pr(supplier | trigram) = Pr(trigram | supplier) * Pr(supplier) / Pr(trigram)
 /// RETURNS NULL IF INVALID WHICH MUST BE HANDLED
 ///
-map<string, float>* BayesianClassifier::classifySupplier(string& mpn, vector<Component*>& components){
+map<string, float>* BayesianClassifier::classifySupplier_Old(string& mpn, vector<Component*>& components){
 
     if(mpn.length() < 3) return 0;
 

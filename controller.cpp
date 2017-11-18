@@ -251,7 +251,7 @@ void Controller::runTestCase(int tcNum){
         for(auto& e2: e1->tags){
             if(e2.second == "???"){
                 map<string, float>* results = new map<string,float>();
-                results = bayes.classify(e2.first, collection);
+                results = bayes.classifyType(e2.first, collection);
                 if(results->size() > 0){
                     auto choice = std::max_element(results->begin(), results->end(),
                         [](const pair<string, float>& p1, const pair<string, float>& p2) {
@@ -598,7 +598,7 @@ int Controller::testClassifySupplier(){
 
     BayesianClassifier bayes = BayesianClassifier();
     string testComp = "CRCW060312K0JNEA";
-    map<string, float>* results = bayes.classifySupplier(testComp, comps);
+    map<string, float>* results = bayes.classifySupplier_Old(testComp, comps);
 
     if(results = 0) return -1;
 
@@ -805,7 +805,7 @@ void Controller::crossValidate(BayesianClassifier& bayes, vector<Component*>& co
 
 
     for(Component* c: testing){
-        map<string, float>* results = bayes.classify(c, collection);
+        map<string, float>* results = bayes.classifyType(c, collection);
         auto choice = std::max_element(results->begin(), results->end(),
             [](const pair<string, float>& p1, const pair<string, float>& p2) {
                 return p1.second < p2.second; });
