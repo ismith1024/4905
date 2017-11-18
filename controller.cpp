@@ -29,7 +29,7 @@
  *               for untagged words:
  *                   if candidate part number
  *                       associate with most likely material-article type based on bayesian classifier --done
- *                       associate with most likely suppleir based on Bayesian classifier --TODO: start (but can adapt the classifier)
+ *                       associate with most likely suppleir based on Bayesian classifier --done
  *               for each association:
  *                   collapse based on:
  *                       deduplication                                               --TODO: start
@@ -299,15 +299,6 @@ void Controller::runTestCase(int tcNum){
 
     }
 
-    /*for(auto& entry: files){
-        cout << "..........." << endl << entry->filename << endl << "................" << endl;
-        for(auto& e2: entry->tags){
-            if(e2.second == "DOT") cout << endl;
-            else cout << e2.first << " " << e2.second << " | ";
-        }
-    }*/
-
-
     //shutdown
     for(auto& entry: files) delete entry;
 
@@ -390,12 +381,6 @@ int Controller::testTopicExtraction(){
 
 }
 
-///// NOT THE TEST CASE -- placeholder
-int Controller::testClassifyingString(){
-    cout << "Words from material dictionary -- not the test case" << endl;
-    repo.getWordsFromMaterialDictionary();
-
-}
 
  // Finding quasi-word collocations
 
@@ -420,8 +405,6 @@ int Controller::testFindCollocations(){
         } else cout << "Not found in corpus" << endl;
 
     }
-
-
 }
 
 //////
@@ -588,6 +571,91 @@ int Controller::testVerbPhrases(){
 
 }
 
+
+//////////////////////////////////
+/// This code gets the compoents and uses Baysian learning to classify their Material-Article Type
+///
+int Controller::classifyMatArtType(string val){
+
+    //Repository repo = Repository();
+    /*vector<Component*> collection = vector<Component*>();
+    repo.getComponents(collection);
+
+    BayesianClassifier bayes = BayesianClassifier();
+    bayes.learn(collection);
+
+    string testComp = "CRCW060312K0JNEA";
+    map<string,float>* results = bayes.classifySupplier(testComp, collection);
+
+    if(results == 0) return -1;
+
+    cout << endl << endl << "CLASSIFY " << testComp << endl;
+
+    float tot = 0.0;
+
+    for(auto& entry: (*results)){
+        if(entry.second != 0) cout << entry.first << " : " << entry.second << endl;
+        tot += entry.second;
+    }
+
+    cout << "Tot " << tot << endl;*/
+    cout << "Wrong function" << endl;
+
+
+    //delete results;
+    return 0;
+
+
+    /////// Cross Validation
+    //crossValidate(bayes, collection);
+
+    //map<string, float>* results = bayes.classify(testComp, collection);
+
+    //int i = 0;
+
+    /*for(auto& entry: *results){
+        cout << entry.first << " .. " << entry.second << endl;
+    }*/
+
+    return 0;
+
+}
+
+
+/////////
+/// \brief Controller::testClassifyingString
+/// \return
+/// Test classifier for classifying a Component's material or article type given its part number
+int Controller::testClassifyingString(){
+    vector<Component*> comps = vector<Component*>();
+    repo.getComponents(comps);
+
+    BayesianClassifier bayes = BayesianClassifier();
+    bayes.learn(comps);
+
+    string testComp = "CRCW060312K0JNEA";
+    map<string,float>* results = bayes.classifyType(testComp, comps);
+
+    if(results == 0) return -1;
+
+    cout << endl << endl << "CLASSIFY " << testComp << endl;
+
+    float tot = 0.0;
+
+    for(auto& entry: (*results)){
+        if(entry.second != 0) cout << entry.first << " : " << entry.second << endl;
+        tot += entry.second;
+    }
+
+    cout << "Tot " << tot << endl;
+
+
+    delete results;
+    return 0;
+
+}
+
+
 /////////
 /// \brief Controller::testClassifySupplier
 /// \return
@@ -597,20 +665,31 @@ int Controller::testClassifySupplier(){
     repo.getComponents(comps);
 
     BayesianClassifier bayes = BayesianClassifier();
-    string testComp = "CRCW060312K0JNEA";
-    map<string, float>* results = bayes.classifySupplier_Old(testComp, comps);
+    bayes.learn(comps);
 
-    if(results = 0) return -1;
+    string testComp = "CRCW060312K0JNEA";
+    map<string,float>* results = bayes.classifySupplier(testComp, comps);
+
+    if(results == 0) return -1;
 
     cout << endl << endl << "CLASSIFY " << testComp << endl;
+
+    cout << "Result address" << results;
+    cout << "Results size : " << results->size();
+
+    float tot = 0.0;
+
     for(auto& entry: (*results)){
-        cout << entry.first << " : " << entry.second << endl;
+        if(entry.second != 0) cout << entry.first << " : " << entry.second << endl;
+        tot += entry.second;
     }
+
+    cout << "Tot " << tot << endl;
 
 
     delete results;
     return 0;
-} // Classifying the supplier of an identified part number
+}
 
 int Controller::testEntityDeduplication(){return 0;} //Entity deduplication
 
@@ -636,32 +715,6 @@ void Controller::testParent(){
     //repo.getParentTypes(res, t);
 }
 
-
-//////////////////////////////////
-/// This code gets the compoents and uses Baysian learning to classify them
-///
-int Controller::classifyAlpha(string val){
-
-    //Repository repo = Repository();
-    vector<Component*> collection = vector<Component*>();
-
-    int i = 0;
-    repo.getComponents(collection);
-
-    BayesianClassifier bayes = BayesianClassifier();
-
-    /////// For testing
-    //crossValidate(bayes, collection);
-
-    //map<string, float>* results = bayes.classify(testComp, collection);
-
-    /*for(auto& entry: *results){
-        cout << entry.first << " .. " << entry.second << endl;
-    }*/
-
-    return 0;
-
-}
 
 
 //////////
@@ -849,400 +902,3 @@ void Controller::getCollocationsFromDBDescriptions(vector<pair<string, string>>&
 }
 
 
-////////////////////////////////////////////////////////////////
-///LEGACY CODE BELOW HERE
-////////////////////////////////////////////////////////////////
-
-/*
-/////////
-/// \brief LanguageProcessir::findCollocationMetrics
-/// \param inStrings - collection of space-delimited words  -- ["Hi there", "It's a nice day", ... "Bye for now!"]
-/// \param singles   - occurrances of single words : <foo, x>
-/// \param pairs     - occurrances of word pairs: <<bar, baz>, y>
-/// Finds the metrics that will be used by Mutula Information Measure to identify word collocations
-void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<string, int>& singles, map<pair<string,string>, int>& pairs){*/
-
-
-////////////////
-//// \brief Controller::obtainUntaggedWords
-//// \param tegResults
-/// Legacy function to idenify the untagged words in the training set
-/// Used to build technical corpus
-/*void Controller::obtainUntaggedWords(vector<string>& tegResults){
-        vector<string> myWords = vector<string>();
-        vector<QString> myWords2 = vector<QString>();
-
-        for(auto& entry: dwgText){
-            QStringList pieces = QString::fromStdString(entry).split(' ');
-            for(auto& e2: pieces){
-                if(!processor.containsNumbers(e2)){
-                    e2.replace('/', ',');
-                    QStringList p2 = e2.split(", _+");
-                    for(auto& e3: p2) {
-                        //cout << "Split: " << e3.toStdString() << endl;
-                        myWords2.push_back(e3);
-                    }
-                } else {
-                    tok.removeStopCharacters(e2);
-                    myWords.push_back(e2.toLower().toStdString());
-                }
-            }
-        }
-
-        for(auto& entry: myWords2){
-             tok.removeStopCharacters(entry);
-             myWords.push_back(entry.toLower().toStdString());
-        }
-
-        tagResults = vector<pair<string,string>>();
-        processor.tag(myWords, tagResults);
-
-        unordered_set<string> unknownWords = unordered_set<string>();
-        unordered_set<string> knownWords = unordered_set<string>();
-
-        for(auto& entry: tagResults){
-            //cout << entry.first << " : " << entry.second << endl;
-
-            if(entry.second == "???"){
-                //cout << entry.first << endl;
-                unknownWords.insert(entry.first);
-            } else{
-                knownWords.insert(entry.first + " : " + entry.second);
-            }
-        }
-
-        ofstream outfile;
-        outfile.open ("/home/ian/Data/unknownFromDBDescField.txt");
-        outfile << " --------------- UNKNOWN WORDS --------------- " << endl;
-        for(auto& entry: unknownWords){
-            outfile << entry << endl;
-        }
-        outfile << " --------------- KNOWN WORDS --------------- " << endl;
-        for(auto& entry: knownWords){
-            outfile << entry << endl;
-        }
-        outfile.close();
-
-} */
-
-
-///////////////
-/// CLUSTERING
-/// Legacy code for now
-/*
- *
- *     /*int INCLUSION_CRITERION = 4;
-    int MAX_VARIANCE = 6;
-
-    int MIN_SS = 3;
-
-    float INCLUSION_RATIO = 0.33333;
-    * /
- *
- *
-int i = 0;
-for(Component* c: collection){
-    ++i;
-    //if(i == 100) break;
-    bool added = false;
-    if(c->mfr.compare("ANY SUPPLIER") == 0) continue;
-
-    for(HCluster* clust: clusters){
-        if(clust->checkForAdd(c, MAX_VARIANCE, INCLUSION_CRITERION)){
-            clust->add(c);
-            added = true;
-            //cout << "Found cluster for " << c->mfr << " : " << c->mpn << endl;
-        }
-        if(added) break;
-    }
-
-    if(!added){
-        HCluster* newClust = new HCluster();
-        newClust->add(c);
-        clusters.push_back(newClust);
-        //cout << "Create new cluster " << c->mfr << " : " << c->mpn << endl;
-    }
-}
-
-int totalComps = 0;
-int minorityComps = 0;
-int singletonComps = 0;
-int majoritycomps = 0;
-
-for(HCluster* clus: clusters){
-
-    int sz = clus->numCategories();
-    cout << "Cluster -- size: " << clus->numEntries() << "   Number of categories: " << sz << endl;
-    if(sz >= 10){
-        cout << "Large category:" << endl;
-        clus->dumpComponents();
-    }
-
-    totalComps += clus->data->size();
-
-    if(clus->data->size() == 1){
-        singletonComps++;
-    } else{
-        map<string, int> counts;
-
-        for(Component* comp: *(clus->data)){
-            counts[comp->type]++;
-        }
-
-        int max = 0;
-        for(auto& item: counts){
-            if(item.second > max) max = item.second;
-        }
-
-        minorityComps += clus->data->size() - max;
-        majoritycomps += max;
-    }
-
-
-}
-
-cout << "---------------------" << endl << "Opened " << collection.size() << " components." << endl;
-cout << "Found " << clusters.size() << " clusters." << endl;
-
-cout << "Total components: " << totalComps << endl << "Singleton components: " << singletonComps << endl << "Minority Components: " << minorityComps << endl << "Majority components: " << majoritycomps << endl;
-cout << "---------------------" << endl << endl;
-//cout<< "TEST" << endl << "593D476X9020D2TE3" << " " << "BLM18PG181SH1D" << endl;
-//cout << UtilityAlgorithms::levDist("593D476X9020D2TE3", "BLM18PG181SH1D");
-*/
-
-
-/* Code for testing out the strign distance
- * string s1 = "Kittens"; << endl
-string s2 = "Mittens";
-string s3 = "Mitts";
-
-int test = UtilityAlgorithms::longestCommonSS(s1, s2);
-
-cout << "LCSS -- " << s1 << ", " << s2 << " " << test << endl;
-
-test = UtilityAlgorithms::levDist(s1, s2);
-
-cout << "Levenshtein -- " << s1 << ", " << s2 << " " << test << endl;
-
-test = UtilityAlgorithms::longestCommonSS(s2, s3);
-
-cout << "LCSS -- " << s2 << ", " << s3 << " " << test << endl;
-
-test = UtilityAlgorithms::levDist(s2, s3);
-
-cout << "Levenshtein -- " << s2 << ", " << s3 << " " << test << endl;
-*/
-
-///////////////////// DEMO TAGGED TEXT
-/*vector<pair<string,string>> demo = vector<pair<string,string>>();
-demo.push_back(make_pair("awesome","JJ"));
-demo.push_back(make_pair("far","NN"));
-demo.push_back(make_pair("out","IN"));
-demo.push_back(make_pair("group","NN"));
-demo.push_back(make_pair("is","VV"));
-demo.push_back(make_pair("a","DT???"));
-demo.push_back(make_pair("super","JJ"));
-demo.push_back(make_pair("nice","JJ"));
-demo.push_back(make_pair("noun","NN"));
-demo.push_back(make_pair("phrase","NN"));
-demo.push_back(make_pair("also","CC"));
-demo.push_back(make_pair("I","PRP"));
-demo.push_back(make_pair("like","VB"));
-demo.push_back(make_pair("climbing","VBG"));
-demo.push_back(make_pair("on","IN"));
-demo.push_back(make_pair("red","JJ"));
-demo.push_back(make_pair("stairs","NN"));*/
-
-
-// Outline of control flow
-/* Open a text case
-vector<testFile*> inputText = vector<testFile*>();
-getTestCase(inputText);
-
-//*   for each file:
-//*       determine the topic                                                        --TODO: optimize
-top.findTopic(inputText, repo);
-
-//*       scan for parents                                                           --TODO: start
-for(auto& current: inputText){
-    for(auto& other: inputText){
-        if(other != current && find(*current->text.begin(), *current->text.end(), *other->filename) != *current->text.end()){
-            current->parent = other->filename;
-        }
-    }
-}
-//*   for each line:
-//*       tokenize (remove stop characters, split into words, fix capitalization)    -- done
-//*       extract noun and verb phrases, put each into a collection                  -- done
-for(auto& entry: inputText){
-    processor.getNounPhrases(
-}
-
-//*       for each phrase:
-//*           identify collocations based on augmented corpus                        -- TODO: optimize parms, compile stop-words
-//*               for each collocation:
-//*                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic) --TODO: start
-//*               for each remaining word:
-//*                   associate with most likely material-article type in augmented corpus (subject to MIN_SUPPORT) (given the topic) --TODO: Bayesian not working
-//*               for untagged words:
-//*                   if candidate part number
-//*                       associate with most likely material-article type based on bayesian classifier --done
-//*                       associate with most likely suppleir based on Bayesian classifier --TODO: start (but can adapt the classifier)
-//*               for each association:
-//*                   collapse based on:
-//*                       deduplication                                               --TODO: start
-//*                       taxonomy                                                    --TODO: start
-//*       for each association:
-//*           determine a parent based on probability of material-article type having the parent in:
-//*                   the file                                                        --TODO: start
-//*                   the parent file                                                 --TODO: start
-//*
-//* Output:
-//* ||Filename||Line item||Parent||MFR||MPN||Description||Material-article type|| * /
-
-
-
-
-}*/
-
-//////////////////////
-/// Controller::run
-/// This was the driver prior to implementation of GUI panel
-///
-void Controller::run(){
-
-    /////obtain the text ..............................................
-    ////tokenize the text .............................................
-    //This collection is intended for use by fully implemented application
-    vector<vector<string>*> testingSet = vector<vector<string>*>();
-
-    //temporary text to test functions
-    vector<string> text = vector<string>();
-    //TODO: get a full test case
-    // For now:
-    vector<string>* forNow1 = new vector<string>();
-    forNow1->push_back("Placeholder");
-    forNow1->push_back("Text");
-    vector<string>* forNow2 = new vector<string>();
-    forNow2->push_back("More");
-    forNow2->push_back("Placeholder");
-    forNow2->push_back("Text");
-    testingSet.push_back(forNow1);
-    testingSet.push_back(forNow2);
-
-
-    cout << "Get test case" << endl;
-
-    //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
-    if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
-    //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
-
-    //cout << "TEXT:" << endl;
-    //for(auto& entry: text) cout << entry << endl;
-
-    ////tag the text .................................................
-    cout << "Tagging words" << endl;
-
-    processor.getXML();
-    processor.countTags();
-    vector<pair<string,string>> tagResults = vector<pair<string,string>>();
-    processor.tag(text, tagResults);
-
-    ////topic analysis ..............................................
-
-    cout << "TOPIC ANLYSIS..." << endl;
-    cout << "Print topic words" << endl;
-    //top.printTopicWords();
-    enum enums::TOPIC topic = top.findTopic(text, repo);
-    cout << "Topic: " << topic << endl;
-
-    /*
-    for(auto& entry: testingSet){
-        currentTopic = top.findTopic(*entry);
-        //do some stuff
-    }*/
-
-    exit(0);
-
-/////////////////////////// SQL ERROR AFTER HERE  ----> /////////////////////////////////
-
-    ////TODO: run the text through the technical dictionary ..........
-    ///     This will idenify numbers, etc. that weare interested in.
-    ///     Needs to run after the tagging from corpus -- will include special tags
-    //processor.openTechDictionary(repo);
-    //processor.applyTechDictionary(tagResults);
-
-
-    //////classify the unidentified alphanumeric strings ..............
-    //classifyAlpha("hi");
-
-///////////////////////////// <---- SQL ERROR BEFORE HERE
-
-
-    ////Parse the noun and verb phrases ......................
-    vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
-    vector<vector<pair<string, string>>*> vPhrases = vector<vector<pair<string, string>>*>();
-
-    //this collection will hold the words we are analyzing
-    vector<string> dwgText = vector<string>();
-
-    //function htat retrieves the test case
-    getTestCase2(dwgText, tok);
-
-////////// Code that can be used to open training text for testing instead
-    //repo.getAllDwgTextFromDB(dwgText);
-    //repo.getAllDescriptionsFromDB(dwgText);
-
-/////////// Legacy code that was used to obtain untagged words from the training set
-    //obtainUntaggedWords(tagResults);
-
-
-////// Extracts noun and verb phrases from the free text in dwgText
-
-    //for(auto& item: dwgText){ //int i = 0; i < dwgText.size(); ++i){
-
-        //cout << "-----------------" << endl << dwgText.at(i) << endl << "-----------------" << endl << endl;
-
-        //cout << *dwgText.at(i) << endl;
-
-        processor.tag(dwgText, tagResults);
-
-        processor.dumpUnknownWords(tagResults, "unknown");
-
-        processor.getNounPhrases(tagResults, nPhrases);
-        processor.getVerbPhrases(tagResults, vPhrases);
-
-        for(auto& entry: nPhrases){
-            cout << "NOUN PHRASE : " << endl;
-            for(auto& e2: (*entry)){
-                cout << e2.first << endl;
-            }
-            cout << endl;
-        }
-
-        for(auto& entry: vPhrases){
-            cout << "VERB PHRASE : " << endl;
-            for(auto& e2: (*entry)){
-                cout << e2.first << endl;
-            }
-            cout << endl;
-        }
-    //}
-
-    ////TODO: scan noun and verb phrases for word collocations ........
-
-
-    ////TODO: consolidate duplicate material-article types ............
-
-
-    ////TODO: establish parent-child relationships ....................
-
-
-    ////TODO: write the findings ......................................
-    //for now, just print the final collection.
-    //print text for debug
-    /*for(auto& entry: tagResults){
-        cout << entry.first << " : " << entry.second << endl;
-    }*/
-
-}

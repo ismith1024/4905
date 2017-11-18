@@ -38,7 +38,7 @@ public:
 
     int tokenize(string);
 
-    int classifyAlpha(string);
+    int classifyMatArtType(string);
 
     void getCollocationsFromDBDescriptions(vector<pair<string, string>>&);
 
