@@ -37,6 +37,7 @@ public:
     int getTopicsByNumber(map<enums::TOPIC, int>&);
     int countOfStringGivenTopic(string, enums::TOPIC);
     int getSupplierNames(vector<string>&);
+    int getSupplierNumbers(map<string, int>&);
     void getWordsFromMaterialDictionary();
     void getParentTypes(map<string, float>&, string);
 

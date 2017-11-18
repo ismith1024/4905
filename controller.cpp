@@ -649,6 +649,9 @@ int Controller::testClassifyMatType(){
     cout << "Choice : " << choice.first << endl;
 
     delete results;
+
+    crossValidateType(bayes, comps);
+
     return 0;
 
 }
@@ -666,7 +669,7 @@ int Controller::testClassifySupplier(){
     bayes.learn(comps);
 
     string testComp = "CRCW060312K0JNEA";
-    map<string,float>* results = bayes.classifySupplier(testComp, comps);
+    map<int,float>* results = bayes.classifySupplier(testComp, comps);
 
     if(results == 0) return -1;
 
@@ -676,12 +679,14 @@ int Controller::testClassifySupplier(){
         if(entry.second != 0) cout << entry.first << " : " << entry.second << endl;
     }
 
-    pair<string, float> choice = UtilityAlgorithms::argmax(results);
+    pair<int, float> choice = UtilityAlgorithms::argmax(results);
 
     cout << "Choice : " << choice.first << endl;
 
-
     delete results;
+
+    crossValidateSupp(bayes, comps);
+
     return 0;
 }
 
@@ -819,12 +824,12 @@ int Controller::tokenize(string fileName){
 }
 
 ///////////////
-/// \brief Controller::crossValidate
+/// \brief Controller::crossValidateType
 /// \param bayes
 /// \param collection
 /// Used when performing cross-validation to test the Bayesian component classifier
 ///
-void Controller::crossValidate(BayesianClassifier& bayes, vector<Component*>& collection){
+void Controller::crossValidateType(BayesianClassifier& bayes, vector<Component*>& collection){
     Component* testComp = new Component("Bob's bolts", "CRCW040222R0FKED", "Some widget", "");
     vector<Component*> testing = vector<Component*>();
     vector<Component*>::iterator it;
@@ -861,8 +866,63 @@ void Controller::crossValidate(BayesianClassifier& bayes, vector<Component*>& co
         delete results;
     }
 
+    float res = (float) right / (float) (right + wrong);
+
+    cout << "Accuracy: %" << (res * 100) << endl;
+
     delete testComp;
 }
+
+///////////////
+/// \brief Controller::crossValidateSupp
+/// \param bayes
+/// \param collection
+/// Used when performing cross-validation to test the Bayesian component classifier
+///
+void Controller::crossValidateSupp(BayesianClassifier& bayes, vector<Component*>& collection){
+    Component* testComp = new Component("Bob's bolts", "CRCW040222R0FKED", "Some widget", "");
+    vector<Component*> testing = vector<Component*>();
+    vector<Component*>::iterator it;
+    int right = 0;
+    int wrong = 0;
+    int i = 0;
+
+    list<Component*> training = list<Component*>();
+
+    for(it = collection.begin(); it != collection.end(); ++i ,++it){
+        if(i % 4 == 0){
+            testing.push_back(*it);
+        } else training.push_back(*it);
+    }
+
+    vector<Component*> training2;
+    training2.reserve(training.size());
+    copy(begin(training), end(training), back_inserter(training2));
+
+    cout << "Size of training: " << collection.size() << "  Testing: " << testing.size() << endl;
+
+    bayes.learn(training2);
+
+    cout << "Learning" << endl;
+
+
+    for(Component* c: testing){
+        map<int, float>* results = bayes.classifySupplier(c, collection);
+        auto choice = std::max_element(results->begin(), results->end(),
+            [](const pair<int, float>& p1, const pair<int, float>& p2) {
+                return p1.second < p2.second; });
+        if((*choice).first == c->supplierNumber) right++; else wrong++;
+            cout << "Right: " << right << " Wrong: " << wrong << endl;
+        delete results;
+    }
+
+    float res = (float) right / (float) (right + wrong);
+
+    cout << "Accuracy: %" << (res * 100) << endl;
+
+    delete testComp;
+}
+
 
 /////////
 /// \brief Controller::getCollocationsFromDBDescriptions

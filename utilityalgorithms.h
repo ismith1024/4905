@@ -18,6 +18,7 @@ public:
     static int longestCommonSS(Component&, Component&);
     static int levDist(Component&, Component&);
     static pair<string,float> argmax(map<string,float>*);
+    static pair<int,float> argmax(map<int,float>*);
 
 };
 

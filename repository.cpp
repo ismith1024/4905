@@ -86,7 +86,11 @@ void Repository::getParentTypes(map<string, float>& values, string material){
 /// Revrieves all components in the database, and creates  pointers in the collection
 void Repository::getComponents(vector<Component*>& coll){
     QSqlQuery query;
-    //database.open();
+
+    map<string, int> aliases = map<string, int>();
+
+    getSupplierNumbers(aliases);
+
 
     if (!query.exec("SELECT * FROM comps;")){
          qDebug() << "getComponents SQL error: "<< query.lastError().text() << endl;
@@ -104,6 +108,7 @@ void Repository::getComponents(vector<Component*>& coll){
         string type = query.value(3).toString().toStdString();
 
         newComp = new Component(mfr, mpn, desc, type);
+        newComp->supplierNumber = aliases[newComp->mfr];
 
         coll.push_back(newComp);
     }
@@ -197,6 +202,31 @@ int Repository::getAllDescriptionsFromDB(vector<string>& coll){
 
     return 0;
 }
+
+//////////
+/// \brief Repository::getSupplierNumbers
+/// \param numbers
+/// \return success or failure
+///  Populates the collection with <supplier, supplier number> pairs
+int Repository::getSupplierNumbers(map<string, int>& numbers){
+
+    QSqlQuery query;
+
+    if (!query.exec("SELECT * FROM suppliers;")){
+         qDebug() << "getSupplierNumbers SQL error: "<< query.lastError().text() << endl;
+         return -1;
+    }
+
+    while(query.next()){
+        string s1 = query.value(0).toString().toStdString();
+        int s2 = query.value(1).toInt();
+        numbers[s1] = s2;
+    }
+
+    return 0;
+
+}
+
 
 /////////
 /// \brief repository::getTopicCounts

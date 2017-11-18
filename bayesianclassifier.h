@@ -37,8 +37,8 @@ public:
     map<string, float>*  classifyType(Component*, vector<Component*>&);
     map<string, float>*  classifyType(string&, vector<Component*>&);
 
-    map<string, float>*  classifySupplier(Component*, vector<Component*>&);
-    map<string, float>*  classifySupplier(string&, vector<Component*>&);
+    map<int, float>*  classifySupplier(Component*, vector<Component*>&);
+    map<int, float>*  classifySupplier(string&, vector<Component*>&);
 
     map<string,float>* classifyCollocation(pair<string,string>&, vector<Component*>&);
     map<string, float>* classifySupplier_Old(string&, vector<Component*>&);

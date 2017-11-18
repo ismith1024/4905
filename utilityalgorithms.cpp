@@ -141,3 +141,17 @@ pair<string,float> UtilityAlgorithms::argmax(map<string,float>* theMap){
     }
     return make_pair("",0.0);
 }
+
+////////////
+/// \brief UtilityAlgorithms::argmax
+/// \return the <string, float> values of the largest element in the map
+///
+pair<int,float> UtilityAlgorithms::argmax(map<int,float>* theMap){
+    if(theMap->size() > 0){
+        auto choice = std::max_element(theMap->begin(), theMap->end(),
+            [](const pair<int, float>& p1, const pair<int, float>& p2) {
+                return p1.second < p2.second; });
+    return *choice;
+    }
+    return make_pair(0,0.0);
+}

@@ -35,7 +35,8 @@ public:
     int getTestCase1(vector<string>&, Tokenizer&);
     int getTestCase2(vector<string>&, Tokenizer&);
     int getTestCase3(vector<string>&, Tokenizer&);
-    void crossValidate(BayesianClassifier&, vector<Component*>&);
+    void crossValidateType(BayesianClassifier&, vector<Component*>&);
+    void crossValidateSupp(BayesianClassifier&, vector<Component*>&);
 
     int tokenize(string);
 

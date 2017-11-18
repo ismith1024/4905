@@ -1,8 +1,6 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
-
-
 #include<string>
 #include<iostream>
 
@@ -16,6 +14,7 @@ public:
     string mpn;
     string description;
     string type;
+    int supplierNumber;
     Component* parent;
 
 
