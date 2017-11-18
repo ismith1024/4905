@@ -626,7 +626,7 @@ int Controller::classifyMatArtType(string val){
 /// \brief Controller::testClassifyingString
 /// \return
 /// Test classifier for classifying a Component's material or article type given its part number
-int Controller::testClassifyingString(){
+int Controller::testClassifyMatType(){
     vector<Component*> comps = vector<Component*>();
     repo.getComponents(comps);
 
@@ -640,15 +640,13 @@ int Controller::testClassifyingString(){
 
     cout << endl << endl << "CLASSIFY " << testComp << endl;
 
-    float tot = 0.0;
-
     for(auto& entry: (*results)){
         if(entry.second != 0) cout << entry.first << " : " << entry.second << endl;
-        tot += entry.second;
     }
 
-    cout << "Tot " << tot << endl;
+    pair<string, float> choice = UtilityAlgorithms::argmax(results);
 
+    cout << "Choice : " << choice.first << endl;
 
     delete results;
     return 0;
@@ -674,17 +672,13 @@ int Controller::testClassifySupplier(){
 
     cout << endl << endl << "CLASSIFY " << testComp << endl;
 
-    cout << "Result address" << results;
-    cout << "Results size : " << results->size();
-
-    float tot = 0.0;
-
     for(auto& entry: (*results)){
         if(entry.second != 0) cout << entry.first << " : " << entry.second << endl;
-        tot += entry.second;
     }
 
-    cout << "Tot " << tot << endl;
+    pair<string, float> choice = UtilityAlgorithms::argmax(results);
+
+    cout << "Choice : " << choice.first << endl;
 
 
     delete results;

@@ -35,7 +35,7 @@ void MainWindow::on_pushButton_2_clicked(){
 
 void MainWindow::on_pushButton_3_clicked(){
     cout << "Testing string classification" << endl;
-    control.testClassifyingString();
+    control.testClassifyMatType();
 }
 
 void MainWindow::on_pushButton_4_clicked(){

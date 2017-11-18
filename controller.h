@@ -15,6 +15,7 @@
 #include "topicanalyzer.h"
 #include "languageprocessor.h"
 #include "testfile.h"
+#include "utilityalgorithms.h"
 
 using namespace std;
 
@@ -50,7 +51,7 @@ public:
 
     ////Unit Testing
     int testTopicExtraction();
-    int testClassifyingString();
+    int testClassifyMatType();
     int testFindCollocations(); // Finding quasi-word collocations
     int testClassifyCollocations(); //Classifying a quasi-word collocation
     int testNounPhrases(); // Finding noun phrases in free text

@@ -1,11 +1,13 @@
 #ifndef UTILITYALGORITHMS_H
 #define UTILITYALGORITHMS_H
 
-#endif // UTILITYALGORITHMS_H
+
 
 #include <string>
 #include "component.h"
 #include<iostream>
+#include <map>
+#include<algorithm>
 
 using namespace std;
 
@@ -15,6 +17,7 @@ public:
     static int levDist(string, string);
     static int longestCommonSS(Component&, Component&);
     static int levDist(Component&, Component&);
+    static pair<string,float> argmax(map<string,float>*);
 
 };
 
@@ -24,3 +27,4 @@ TBD:
 https://en.wikipedia.org/wiki/Hierarchical_clustering
 
 */
+#endif // UTILITYALGORITHMS_H

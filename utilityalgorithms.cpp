@@ -122,7 +122,22 @@ int UtilityAlgorithms::longestCommonSS(Component& c1, Component& c2){
     return UtilityAlgorithms::longestCommonSS(c1.mpn, c2.mpn);
 }
 
+
 int UtilityAlgorithms::levDist(Component& c1, Component& c2){
     //cout << "Compare: " <<  c1.mpn << " , " << c2.mpn << " dist: " << levDist(c1.mpn, c2.mpn) << endl;
     return UtilityAlgorithms::levDist(c1.mpn, c2.mpn);
+}
+
+////////////
+/// \brief UtilityAlgorithms::argmax
+/// \return the <string, float> values of the largest element in the map
+///
+pair<string,float> UtilityAlgorithms::argmax(map<string,float>* theMap){
+    if(theMap->size() > 0){
+        auto choice = std::max_element(theMap->begin(), theMap->end(),
+            [](const pair<string, float>& p1, const pair<string, float>& p2) {
+                return p1.second < p2.second; });
+    return *choice;
+    }
+    return make_pair("",0.0);
 }
