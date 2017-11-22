@@ -451,6 +451,38 @@ void Repository::getWordsFromMaterialDictionary(){
 }
 
 
+void Repository::getFunctionalTestComponents(vector<Component*>& comps){
+
+    //Component construction signature:
+    //Component(string mfr, string mpn, string description, string type
+
+    /*  LineItem	MFR	MPN	Desc	Type*/
+        comps.push_back(new Component("FabCo", "1341534", "Final Assembly", "Subassembly"));
+        comps.push_back(new Component("PCBCo", "625623", "PCBA", "PWB substrate - laminate, other"));
+        comps.push_back(new Component("AMP", "822275-1", "SKT PLCC-44 SMT", "Connector, other"));
+        comps.push_back(new Component("AVX", "CR21-102J-T", "RES 1K 5% 0805 REV B", "Resistor, chip-type"));
+        comps.push_back(new Component("DIODES_INC", "MMBD914-7", "DIODE MMBD914 SMT REV A", "Diode, other"));
+        comps.push_back(new Component("HUBER&SUHNER", "85SMB-50-0-1/133N", "CONN 90DEG PC MOUNT CRIMP SMB REV B", "Connector, other"));
+        comps.push_back(new Component("MAXIM", "MAX3430CSA", "IC MAX3430 RS-485 TRANSCEIVER 3.3V SOIC-8 REV C",	"IC or BGA"));
+        comps.push_back(new Component("NSC", "LM324M", "IC LM324 OP-AMP SMT SO14 REV B", "IC or BGA"));
+        comps.push_back(new Component("ON SEMI", "BAV70LT1", "DIODE BAV70LT1 SOT23 SMT REV B", "Diode, other"));
+        comps.push_back(new Component("PANASONIC", "ERJ-6ENF1783V", "RES 178K 1% 0805 SMT", "Resistor, chip-type"));
+        comps.push_back(new Component("VISHAY", "CRCW0805-102J", "RES 1K 5% 0805 REV B", "Resistor, chip-type"));
+        comps.push_back(new Component("MetalCo", "SAE 1020", "CRS 1020", "Steel, known alloy"));
+        comps.push_back(new Component("ANY SUPPLIER", "Galvanized",	"Galvanized", "Galvanized"));
+        comps.push_back(new Component("ANY SUPPLIER", "Cardinal",	"PMS Blue", "Powder Coat"));
+        comps.push_back(new Component("ANY SUPPLIER", "Aluminum 2011",	"AL 2011", "Aluminum, known alloy"));
+        comps.push_back(new Component("ANY SUPPLIER", "BRASS 36000", "BRASS 360", "Copper, known alloy"));
+        comps.push_back(new Component("ANY SUPPLIER", "Nylon washer", "NYLON", "Nylon"));
+        comps.push_back(new Component("SABIC",	"LEXAN", "LEXAN FMR604", "Polycarbonate"));
+        comps.push_back(new Component("ANY SUPPLIER", "Green", "COLORANT GREEN", "Colorant, green"));
+        comps.push_back(new Component("ANY SUPPLIER", "Flame Retardant", "UL 94", "Flame retardant"));
+        comps.push_back(new Component("ANY SUPPLIER", "UV Stabilizer", "UV 202", "UV Stabilizer"));
+    /**/
+
+
+}
+
 ////////
 /// \brief Repository::getDatabase
 /// \return
@@ -458,4 +490,164 @@ void Repository::getWordsFromMaterialDictionary(){
 /// I don't remmber what this was for.
 QSqlDatabase& Repository::getDatabase(){
     return database;
+}
+
+////////
+/// \brief Repository::replaceParents
+/// SQLite does not support UPDATE on a joined table -- will do this programatically
+/// Fixes some parent-child issues in the database
+void Repository::replaceParents(){
+    vector<pair<string,string>> contractParents = vector<pair<string,string>>();
+    vector<string> types = vector<string>();
+
+    types.push_back("Capacitor, chip-type");
+    types.push_back("Capacitor, electrolytic");
+    types.push_back("Capacitor, variable");
+    types.push_back("Connector, Military - aerospace type");
+    types.push_back("Connector, molded, RF");
+    types.push_back("Connector, other");
+    types.push_back("Connector, red, orange or yellow plastic");
+    types.push_back("Connector, Zn or Al contacts ");
+    types.push_back("Diode, other");
+    types.push_back("Flame sensor");
+    types.push_back("Fuse");
+    types.push_back("IC or BGA");
+    types.push_back("Inductor, coil");
+    types.push_back("Inductor, ferrite");
+    types.push_back("Laser diode");
+    types.push_back("Optical filter");
+    types.push_back("Oscillator, ceramic");
+    types.push_back("Oscillator, metal");
+    types.push_back("Oscillator, plastic");
+    types.push_back("Phororesistor");
+    types.push_back("Photodiode");
+    types.push_back("Phototransistor");
+    types.push_back("Photovoltaic cell");
+    types.push_back("Piezoelectric transducer");
+    types.push_back("Potentiometer");
+    types.push_back("Relay, electromagnetic");
+    types.push_back("Resistor, chip-type");
+    types.push_back("Resistor, other");
+    types.push_back("Solder, non-RoHS");
+    types.push_back("Solder, RoHS");
+    types.push_back("Solenoid valve");
+    types.push_back("Surge protection device");
+    types.push_back("Switch, mechanical");
+    types.push_back("Thermal cut-off");
+    types.push_back("Thermal imaging semiconductor");
+    types.push_back("Thermistor");
+    types.push_back("Thermocouple");
+    types.push_back("Thermostat");
+    types.push_back("Transformer");
+    types.push_back("Transistor");
+
+    contractParents.push_back(make_pair("CA-160308A-02","318096G208"));
+    contractParents.push_back(make_pair("CA-160223C-01","SNP00033482-100"));
+    contractParents.push_back(make_pair("CA-160223C-02","SNP00033895-100"));
+    contractParents.push_back(make_pair("BA-50821C-01","150-0156-01"));
+    contractParents.push_back(make_pair("BA-50821C-02","150-0152-01"));
+    contractParents.push_back(make_pair("BA-50821C-03","150-0155-01"));
+    contractParents.push_back(make_pair("CA-160223C-02B","SNP00033895-100"));
+    contractParents.push_back(make_pair("CA-160420A-01","655505-0001"));
+    contractParents.push_back(make_pair("CA-160420A-02","655212-0001"));
+    contractParents.push_back(make_pair("BA-160412C","690253-01"));
+    contractParents.push_back(make_pair("CP-160609B-05","LRB2-PR_A_1"));
+    contractParents.push_back(make_pair("CA-160624A","10740-001"));
+    contractParents.push_back(make_pair("CP-161007I","5002-1307D-01"));
+    contractParents.push_back(make_pair("CA-160407A","2727006"));
+    contractParents.push_back(make_pair("CP-160622C","174-10000-03"));
+    contractParents.push_back(make_pair("CA-160422B-Full","XCU010A-M04-166806G5"));
+    contractParents.push_back(make_pair("CA-160308A-Full-2","DA150DP1MT755S-182954G54"));
+    contractParents.push_back(make_pair("BA-160726A","5002-1307D-01"));
+    contractParents.push_back(make_pair("CA-160505D","105321"));
+    contractParents.push_back(make_pair("BA-160524A-001","A000001-77"));
+    contractParents.push_back(make_pair("BA-160524A-002","A000070-01-2"));
+    contractParents.push_back(make_pair("BA-160524A-003","A000029-01-2"));
+    contractParents.push_back(make_pair("CT-51203A","690253-01"));
+    contractParents.push_back(make_pair("CA-160909C","1000015"));
+    contractParents.push_back(make_pair(" BA-160218A-01","009-9369-001"));
+    contractParents.push_back(make_pair("BA-160601D","DWG-0500"));
+    contractParents.push_back(make_pair("CA-160304A","062MEA00108"));
+    contractParents.push_back(make_pair("CA-160530C-01","11175E"));
+    contractParents.push_back(make_pair("CA-160530C-02","11024B"));
+    contractParents.push_back(make_pair("CA-160530C-03","11097E"));
+    contractParents.push_back(make_pair("CA-160530C-04","11159B"));
+    contractParents.push_back(make_pair("CA-160530C-05","10630"));
+    contractParents.push_back(make_pair("CA-160530C-06","11037D"));
+    contractParents.push_back(make_pair("CA-160530C-07","11171B"));
+    contractParents.push_back(make_pair("CA-160530C-08","10626B"));
+    contractParents.push_back(make_pair("CA-160530C-09","05329I"));
+    contractParents.push_back(make_pair("CA-160530C-10","11154C"));
+    contractParents.push_back(make_pair("CA-160530C-11","11262"));
+    contractParents.push_back(make_pair("CA-160530C-12","11281B"));
+    contractParents.push_back(make_pair("CA-160530C-13","11132B"));
+    contractParents.push_back(make_pair("CA-160530C-14","11028B"));
+    contractParents.push_back(make_pair("CA-160126A-02","1030443"));
+    contractParents.push_back(make_pair("CA-160126A-03","1027700"));
+    contractParents.push_back(make_pair("RH-170113A","MTD03"));
+    contractParents.push_back(make_pair("BA-160921A","PC8000R4"));
+    contractParents.push_back(make_pair("BA-160902B","410-10002-01"));
+    contractParents.push_back(make_pair("BA-161125B-01","EP120-LSI00194"));
+    contractParents.push_back(make_pair("BA-161125B-02","EP120-LSI00194"));
+    contractParents.push_back(make_pair("BA-170216A","04650-005"));
+    contractParents.push_back(make_pair("BA-170418B-INTERIM","104189"));
+    contractParents.push_back(make_pair("BA-170109A-01","10791"));
+    contractParents.push_back(make_pair("BA-170109A-02","10390"));
+    contractParents.push_back(make_pair("BA-170109A-03","10390"));
+    contractParents.push_back(make_pair("RH-161101B","2-SL-02-300000-21"));
+    contractParents.push_back(make_pair("CA-160608A-01","2-51-10391-0"));
+    contractParents.push_back(make_pair("CA-160608A-02","3-80-00200-4"));
+    contractParents.push_back(make_pair("CA-160505D-01","106835"));
+    contractParents.push_back(make_pair("CA-160505D-02","106836"));
+    contractParents.push_back(make_pair("CA-160505D-03","105321"));
+    contractParents.push_back(make_pair("BA-170418B","104189"));
+    contractParents.push_back(make_pair("BA-170308B","X-311052"));
+    contractParents.push_back(make_pair("BA-170308B-03","9A-50160002"));
+    contractParents.push_back(make_pair("BA-170308B-04","9A-30160010"));
+    contractParents.push_back(make_pair("BA-170308B-05","X-370239"));
+    contractParents.push_back(make_pair("BA-170308B-06","X-370249"));
+    contractParents.push_back(make_pair("BA-170125A","11-534-104-GEN-30"));
+    contractParents.push_back(make_pair("BA-161205A-01","E166202-1"));
+
+    QSqlQuery readQuery;
+    QSqlQuery writeQuery;
+    QString rQstring;
+    QString wQstring;
+
+    for(auto& e1: contractParents){
+        for(auto& e2: types){
+            string s = "SELECT MFR, MPN, contractTitle FROM ContractsComponents NATURAL JOIN Components ";
+            s += "WHERE ContractsComponents.contractTitle = '";
+            s += e1.first;
+            s += "' AND Components.MaterialType = '";
+            s += e2;
+            s += "';";
+            rQstring = QString::fromStdString(s);
+
+            if (!readQuery.exec(rQstring)){
+                 qDebug() << "updateParents READ SQL error: "<< readQuery.lastError().text() << endl;
+                 return;
+            }
+
+            while(readQuery.next()){
+                wQstring = QString::fromStdString("UPDATE ContractsComponents SET Parent = '" + e1.second + "' WHERE "
+                        + "MFR = '" + readQuery.value(0).toString().toStdString() + "' AND "
+                        + "MPN = '" + readQuery.value(1).toString().toStdString() + "' AND "
+                        + "contractTitle = '" + readQuery.value(2).toString().toStdString() + "';");
+                qDebug() << wQstring;
+
+                if(!writeQuery.exec(wQstring)){
+                    qDebug() << "updateParents write SQL error: "<< writeQuery.lastError().text() << endl;
+                    return;
+                }
+
+            }
+
+        }
+    }
+
+
+
+
+
 }

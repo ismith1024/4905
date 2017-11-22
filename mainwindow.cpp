@@ -84,3 +84,8 @@ void MainWindow::on_pushButton_7_clicked()
 {
     control.testParent();
 }
+
+void MainWindow::on_pushButton_8_clicked()
+{
+    control.runOneOf();
+}

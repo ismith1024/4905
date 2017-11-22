@@ -61,6 +61,8 @@ public:
     int testEntityDeduplication(); //Entity deduplication
     void testParent();
 
+    void runOneOf();
+
 };
 
 #endif // CONTROLLER_H

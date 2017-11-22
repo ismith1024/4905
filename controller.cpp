@@ -696,8 +696,9 @@ void Controller::testParent(){
     map<string, float> res = map<string, float>();
     cout << "Test parents" << endl;
     vector<Component*> comps = vector<Component*>();
-    repo.getComponents(comps);
-    random_shuffle(comps.begin(), comps.end());
+
+    repo.getFunctionalTestComponents(comps);
+
     vector<Component*>::iterator it;
     for(it = comps.begin(); it <= comps.begin() + 10; ++it){
         auto res = map<string, float>();
@@ -962,4 +963,10 @@ void Controller::getCollocationsFromDBDescriptions(vector<pair<string, string>>&
 
 }
 
+/////////
+/// \brief Controller::runOneOf
+/// Set this handler to whatever one-of function needs to be run for test or data cleaning
+void Controller::runOneOf(){
+    repo.replaceParents();
+}
 

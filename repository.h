@@ -41,6 +41,10 @@ public:
     void getWordsFromMaterialDictionary();
     void getParentTypes(map<string, float>&, string);
 
+    void getFunctionalTestComponents(vector<Component*>&);
+
+    void replaceParents();
+
 private:
     QSqlDatabase database;
     Tokenizer* tok;
