@@ -146,18 +146,27 @@ void Controller::runTestCase(int tcNum){
                 QStringList pieces = QString::fromStdString(e2).split('\t');
                 for(auto& e3: pieces){
                     QStringList words = e3.split(' ');
+                    for(auto& i: words) i = i.toLower();
                     vector<pair<string,string>>* phrase = new vector<pair<string,string>>();
                     for(auto& e4: words){
-                        string st = e4.toStdString();
+                        string st = e4.toLower().toStdString();
                         //phrase->push_back(make_pair(st, "NN"));
                         allWords.push_back(st);
                     }
                     //    void tag(vector<string>&, vector<pair<string, string>>&);
                     processor.tag(words, *phrase);
+                    processor.applyTechDictionary(*phrase);
+                    cout << "Tagging phrase: ";
+                    for(auto& i: words) cout << i.toStdString() << " ";
+                    cout << "....." << endl;
+                    for(auto& i: *phrase) cout << i.first << "-" << i.second << "...";
+                    cout << endl << endl;
                     entry->nounPhrases.push_back(phrase);
                 }
 
                 //put all the words onto the words and tags collections
+
+                cout << "Debug Point 1" << endl;
 
             } else {
                 //tokenize the line
@@ -171,33 +180,37 @@ void Controller::runTestCase(int tcNum){
                     }
                 }
             }
-
+        }
             //tag the words
-            processor.tag(entry->words, entry->tags);
+            if(entry->words.size() != 0) processor.tag(entry->words, entry->tags);
+
+cout << "Debug Point 2" << endl;
 
             //get the noun phrases
-            processor.getNounPhrases(entry->tags, entry->nounPhrases);
+cout << "Last tags: ";
+for(auto& j: entry->tags) cout << j.first << "," << j.second << "..";
+            if(entry->tags.size() != 0) processor.getNounPhrases(entry->tags, entry->nounPhrases);
+
+cout << "Debug Point 3" << endl;
+
             //get the verb phrases
-            processor.getVerbPhrases(entry->tags, entry->verbPhrases);
+            if(entry->tags.size() != 0) processor.getVerbPhrases(entry->tags, entry->verbPhrases);
+
+cout << "Debug Point 4" << endl;
 
             //put the orphan words in the word collection
             vector<pair<string, string>> tags = vector<pair<string, string>>();
             processor.tag(allWords, tags);
 
+cout << "Debug Point 5" << endl;
+
             for(auto& e3: allWords) entry->words.push_back(e3);
             for(auto& e3: tags) entry->tags.push_back(e3);
 
-        }
     }
 
     //Print the findings
-    //print the phrases
-    for(auto& entry: files){
-        for(auto& e2: entry->nounPhrases){
-            for(auto& e4: *e2) cout << e4.first << " : " << e4.second << " | ";
-            cout << endl;
-        }
-    }
+    for(auto& entry: files) cout << *entry << endl;
 
 
 
