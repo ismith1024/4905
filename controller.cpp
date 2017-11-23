@@ -44,28 +44,6 @@
  *
  ******************************************************/
 
-//Controller::Controller(){
-
-    //processor = LanguageProcessor();
-    //tok = Tokenizer();
-    //repo = Repository(tok);
-    //top = TopicAnalyzer(repo);
-
-//}
-
-/*class testFile{
-public:
-    string filename;
-    string text;
-    vector<string> words;
-    vector<string, string> tags;
-    enum enums::TOPIC topic;
-    testFile* parent;
-    vector<string> nounPhrases;
-    vector<string> verbPhrases;
-};*/
-
-
 ///////////////
 /// \brief Controller::runTestCase
 /// \param tcNum - the test case number
@@ -107,11 +85,14 @@ void Controller::runTestCase(int tcNum){
     string dir = "/home/ian/Data/Testcases/";
     dir += to_string(tcNum) + "/testcase.txt";
 
-    vector<testFile*> files = vector<testFile*>();
+    vector<TestFile*> files = vector<TestFile*>();
     vector<string> text = vector<string>();
 
     vector<Component*> results = vector<Component*>();
     BayesianClassifier bayes = BayesianClassifier();
+
+    processor.getXML();
+    processor.countTags();
 
     vector<string>::iterator it;
 
@@ -125,179 +106,100 @@ void Controller::runTestCase(int tcNum){
     //else do the work
     //This part fills in the filename, <words collection>
     while ( getline (thefile,line) ) {
+
+        TestFile* testFile = new TestFile();
+
         text = vector<string>();
         QString theLine = QString::fromStdString(line);
-        QStringList pieces = theLine.split(' ');
+
+        //cout << "Read line: " << line << endl;
+
+        QStringList pieces = theLine.split('~');
+
+        testFile->filename = pieces.at(0).toStdString();
+        pieces.pop_front();
 
         for(auto& entry: pieces){
-            tok.removeStopCharacters(entry);
-            string s = entry.toLower().toStdString();
-            text.push_back(s);//QString::toStdString(entry));
+            if(line.size() > 0)
+            testFile->lines.push_back(entry.toStdString());
         }
-        //text.push_back(".");
-        testFile* tf = new testFile();
-        tf->filename = text.front();
-        for(it = text.begin() +1; it != text.end(); ++it){
-            tf->words.push_back(*it);        }
-        files.push_back(tf);
+
+        files.push_back(testFile);
+
     }
     thefile.close();
 
-    //determine the topic
     for(auto& entry: files){
-        entry->topic = top.findTopic(entry->words, repo);
-    }
+        cout << endl << "FILE: " << entry->filename << endl << ".............." << endl;
+        for(auto& e2: entry->lines) cout << e2 << endl;
+        cout << "....... " << endl;
 
-    //scan for parents
-    //if another file's f1 name is found in the text of a file f2, then f1's parent is f2
-    for(auto& e1: files){
-        for(auto& e2: e1->words){
-            for(auto& e3: files){
-                //TODO: strip off "txt" and ".pdf" from filenames
-                if(e3 != e1 && e3->filename == e2){
-                    e3->parent = e1;
+        //obtain "phrases" :
+        //  - for a table, a "phrase" is a table cell. These are all noun phrases.  A table is encoded as tab-delimited text.
+        //  - for free text, noun and verb phrases are parsed by the LanguageProcessor module
+        vector<string> allWords;
+
+        for(auto& e2: entry->lines){
+            string tab = "\t";
+            if(UtilityAlgorithms::containsSubst(e2, tab)){
+
+                QStringList pieces = QString::fromStdString(e2).split('\t');
+                for(auto& e3: pieces){
+                    QStringList words = e3.split(' ');
+                    vector<pair<string,string>>* phrase = new vector<pair<string,string>>();
+                    for(auto& e4: words){
+                        string st = e4.toStdString();
+                        //phrase->push_back(make_pair(st, "NN"));
+                        allWords.push_back(st);
+                    }
+                    //    void tag(vector<string>&, vector<pair<string, string>>&);
+                    processor.tag(words, *phrase);
+                    entry->nounPhrases.push_back(phrase);
                 }
-            }
-        }
-    }
 
-    //tag the words
-    processor.getXML();
-    processor.countTags();
-    for(auto& entry: files){
-        processor.tag(entry->words, entry->tags);
-    }
+                //put all the words onto the words and tags collections
 
+            } else {
+                //tokenize the line
+                QStringList pieces = QString::fromStdString(e2).split(' ');
+                for(auto& word: pieces) tok.removeStopCharacters(word);
 
-    //look for collocations
-    const int SEARCHDIST = 4;
-    vector<pair<string,string>> colls = vector<pair<string, string>>();
-    //processor.findCollocationMetrics();
-    getCollocationsFromDBDescriptions(colls);
-    vector<string>::iterator it3, it4;
-    for(auto& entry: files){
-        for(it3 = entry->words.begin(); it3 != entry->words.end(); ++it3){
-            if(*it3 != "~"){
-                for(it4 = it3+1; it4 != entry->words.end() && it4 <= it3 + SEARCHDIST && *it4 != "~"; ++it4){
-                    for(auto& e3: colls){
-                        if(e3.first == *it3 && e3.second == *it4){
-                            (*entry).collocations[e3] = "0";
-                        }
+                //store the words to be tagged
+                for(auto& word: pieces){
+                    if(word.size() > 0){
+                        entry->words.push_back(word.toStdString());
                     }
                 }
             }
+
+            //tag the words
+            processor.tag(entry->words, entry->tags);
+
+            //get the noun phrases
+            processor.getNounPhrases(entry->tags, entry->nounPhrases);
+            //get the verb phrases
+            processor.getVerbPhrases(entry->tags, entry->verbPhrases);
+
+            //put the orphan words in the word collection
+            vector<pair<string, string>> tags = vector<pair<string, string>>();
+            processor.tag(allWords, tags);
+
+            for(auto& e3: allWords) entry->words.push_back(e3);
+            for(auto& e3: tags) entry->tags.push_back(e3);
+
         }
     }
 
-    //classify collocations
-    vector<Component*> components = vector<Component*>();
-    repo.getComponentsIncludingGenerics(components);
-    getCollocationsFromDBDescriptions(colls);
-    vector<Component*> compsIncGenerics = vector<Component*>();
-    repo.getComponentsIncludingGenerics(compsIncGenerics);
-
-    vector<string> supplierNames = vector<string>();
-    repo.getSupplierNames(supplierNames);
-
+    //Print the findings
+    //print the phrases
     for(auto& entry: files){
-        for(auto& e2: entry->collocations){
-            pair<string,string> coll = make_pair(e2.first.first, e2.first.second);
-            map<string, float>* results = bayes.classifyCollocation(coll, compsIncGenerics);
-            cout << endl << endl << "CLASSIFY COLLOCATION: <" << coll.first << ", " << coll.second << ">" << endl;
-            if(results != 0){
-
-                for(auto& e3: (*results)){
-                    if(e3.second > 0) cout << e3.first << " : " << e3.second << endl;
-                }
-                delete results;
-
-            } else cout << "Not found in corpus" << endl;
-
-        }
-    }
-
-
-    //Tag manufacturer names
-    for(auto& e1:files){
-        for(auto& e2: e1->tags){
-            if(e2.first == "~") e2.second = "DOT";
-            else
-            for(auto& e3: supplierNames){
-                if(e3 == e2.first){
-                    e2.second = "NNP type=MFR";
-                }
-            }
-        }
-    }
-
-    //build noun phrases
-    //build verb phrases
-    for(auto& entry: files){
-        processor.getNounPhrases(entry->tags, entry->nounPhrases);
-        processor.getVerbPhrases(entry->tags, entry->verbPhrases);
-    }
-
-
-    //lookup mixed alphanumerics
-
-    vector<Component*> collection = vector<Component*>();
-    repo.getComponents(collection);
-    bayes.learn(collection);
-
-
-    //classify untagged words
-    //TODO: remove words in collocations
-    for(auto& e1: files){
-        for(auto& e2: e1->tags){
-            if(e2.second == "???"){
-                map<string, float>* results = new map<string,float>();
-                results = bayes.classifyType(e2.first, collection);
-                if(results->size() > 0){
-                    auto choice = std::max_element(results->begin(), results->end(),
-                        [](const pair<string, float>& p1, const pair<string, float>& p2) {
-                            return p1.second < p2.second; });
-                    if(choice->second > 0.1)
-                        e2.second = "NN type=" + choice->first;
-                    else e2.second = "UNCLASSIFIED";
-                }
-                delete results;
-            }
-        }
-    }
-
-    //classify remaining mixed alphanumerics
-    //match MPN and MFR and MFR - MPN matches
-    //Deduplicate generics
-    //build component hierarchy
-
-    ////// Display results for testing purposes
-    for(auto& entry: files){
-        cout << endl << "FILE: " << entry->filename << "       TOPIC: " << enums::topicStrings[entry->topic] << " ....... " << endl;
-        cout << "PARENT: " << (entry->parent == 0 ? "ROOT" : entry->parent->filename) << endl;
-        for(auto& e2: entry->tags){
-            cout << e2.first << "   " << e2.second << endl;
-        }
-        cout << "Collocations..." << endl;
-        for(auto& e2: entry->collocations){
-            cout << "<" << e2.first.first << ", " << e2.first.second << ">" << endl;
-        }
-        cout << "Noun Phrases..." << endl;
         for(auto& e2: entry->nounPhrases){
-            for(auto& e3: (*e2)){
-                cout << e3.first << "..";
-            }
+            for(auto& e4: *e2) cout << e4.first << " : " << e4.second << " | ";
             cout << endl;
         }
-
-        cout << "Verb Phrases..." << endl;
-        for(auto& e2: entry->verbPhrases){
-            for(auto& e3: (*e2)){
-                cout << e3.first << "..";
-            }
-            cout << endl;
-        }
-
     }
+
+
 
     //shutdown
     for(auto& entry: files) delete entry;
@@ -970,3 +872,160 @@ void Controller::runOneOf(){
     repo.replaceParents();
 }
 
+/*
+    //determine the topic
+    for(auto& entry: files){
+        entry->topic = top.findTopic(entry->words, repo);
+    }
+
+    //scan for parents
+    //if another file's f1 name is found in the text of a file f2, then f1's parent is f2
+    for(auto& e1: files){
+        for(auto& e2: e1->words){
+            for(auto& e3: files){
+                //TODO: strip off "txt" and ".pdf" from filenames
+                if(e3 != e1 && e3->filename == e2){
+                    e3->parent = e1;
+                }
+            }
+        }
+    }
+
+    //tag the words
+    processor.getXML();
+    processor.countTags();
+    for(auto& entry: files){
+        processor.tag(entry->words, entry->tags);
+    }
+
+
+    //look for collocations
+    const int SEARCHDIST = 4;
+    vector<pair<string,string>> colls = vector<pair<string, string>>();
+    //processor.findCollocationMetrics();
+    getCollocationsFromDBDescriptions(colls);
+    vector<string>::iterator it3, it4;
+    for(auto& entry: files){
+        for(it3 = entry->words.begin(); it3 != entry->words.end(); ++it3){
+            if(*it3 != "~"){
+                for(it4 = it3+1; it4 != entry->words.end() && it4 <= it3 + SEARCHDIST && *it4 != "~"; ++it4){
+                    for(auto& e3: colls){
+                        if(e3.first == *it3 && e3.second == *it4){
+                            (*entry).collocations[e3] = "0";
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //classify collocations
+    vector<Component*> components = vector<Component*>();
+    repo.getComponentsIncludingGenerics(components);
+    getCollocationsFromDBDescriptions(colls);
+    vector<Component*> compsIncGenerics = vector<Component*>();
+    repo.getComponentsIncludingGenerics(compsIncGenerics);
+
+    vector<string> supplierNames = vector<string>();
+    repo.getSupplierNames(supplierNames);
+
+    for(auto& entry: files){
+        for(auto& e2: entry->collocations){
+            pair<string,string> coll = make_pair(e2.first.first, e2.first.second);
+            map<string, float>* results = bayes.classifyCollocation(coll, compsIncGenerics);
+            cout << endl << endl << "CLASSIFY COLLOCATION: <" << coll.first << ", " << coll.second << ">" << endl;
+            if(results != 0){
+
+                for(auto& e3: (*results)){
+                    if(e3.second > 0) cout << e3.first << " : " << e3.second << endl;
+                }
+                delete results;
+
+            } else cout << "Not found in corpus" << endl;
+
+        }
+    }
+
+
+    //Tag manufacturer names
+    for(auto& e1:files){
+        for(auto& e2: e1->tags){
+            if(e2.first == "~") e2.second = "DOT";
+            else
+            for(auto& e3: supplierNames){
+                if(e3 == e2.first){
+                    e2.second = "NNP type=MFR";
+                }
+            }
+        }
+    }
+
+    //build noun phrases
+    //build verb phrases
+    for(auto& entry: files){
+        processor.getNounPhrases(entry->tags, entry->nounPhrases);
+        processor.getVerbPhrases(entry->tags, entry->verbPhrases);
+    }
+
+
+    //lookup mixed alphanumerics
+
+    vector<Component*> collection = vector<Component*>();
+    repo.getComponents(collection);
+    bayes.learn(collection);
+
+
+    //classify untagged words
+    //TODO: remove words in collocations
+    for(auto& e1: files){
+        for(auto& e2: e1->tags){
+            if(e2.second == "???"){
+                map<string, float>* results = new map<string,float>();
+                results = bayes.classifyType(e2.first, collection);
+                if(results->size() > 0){
+                    auto choice = std::max_element(results->begin(), results->end(),
+                        [](const pair<string, float>& p1, const pair<string, float>& p2) {
+                            return p1.second < p2.second; });
+                    if(choice->second > 0.1)
+                        e2.second = "NN type=" + choice->first;
+                    else e2.second = "UNCLASSIFIED";
+                }
+                delete results;
+            }
+        }
+    }
+
+    //classify remaining mixed alphanumerics
+    //match MPN and MFR and MFR - MPN matches
+    //Deduplicate generics
+    //build component hierarchy
+
+    ////// Display results for testing purposes
+    for(auto& entry: files){
+        cout << endl << "FILE: " << entry->filename << "       TOPIC: " << enums::topicStrings[entry->topic] << " ....... " << endl;
+        cout << "PARENT: " << (entry->parent == 0 ? "ROOT" : entry->parent->filename) << endl;
+        for(auto& e2: entry->tags){
+            cout << e2.first << "   " << e2.second << endl;
+        }
+        cout << "Collocations..." << endl;
+        for(auto& e2: entry->collocations){
+            cout << "<" << e2.first.first << ", " << e2.first.second << ">" << endl;
+        }
+        cout << "Noun Phrases..." << endl;
+        for(auto& e2: entry->nounPhrases){
+            for(auto& e3: (*e2)){
+                cout << e3.first << "..";
+            }
+            cout << endl;
+        }
+
+        cout << "Verb Phrases..." << endl;
+        for(auto& e2: entry->verbPhrases){
+            for(auto& e3: (*e2)){
+                cout << e3.first << "..";
+            }
+            cout << endl;
+        }
+
+    }
+*/

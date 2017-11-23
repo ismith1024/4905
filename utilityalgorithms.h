@@ -20,6 +20,8 @@ public:
     static pair<string,float> argmax(map<string,float>*);
     static pair<int,float> argmax(map<int,float>*);
 
+    static bool containsSubst(string&, string&);
+
 };
 
 

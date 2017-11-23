@@ -71,6 +71,17 @@ void LanguageProcessor::tag(vector<string>& inputText, vector<pair<string, strin
 }
 
 ///////
+/// \brief tag
+/// QStringlist version of tag()
+void LanguageProcessor::tag(QStringList& inputText, vector<pair<string, string>>& outText){
+    for(auto& word: inputText){
+        string s = word.toStdString();
+        string str = getTag(s); //toupper(word)
+        outText.push_back(make_pair(s, str));
+    }
+}
+
+///////
 /// \brief LanguageProcessor::getXML
 /// \return Error code
 /// Opens the Brown Corpus XML file, parses the XML, and populates the dict collection

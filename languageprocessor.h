@@ -37,6 +37,7 @@ public:
     int getXML();
     vector<pair<string,string>>& getDict();
     void tag(vector<string>&, vector<pair<string, string>>&);
+    void tag(QStringList&, vector<pair<string, string>>&);
     void countTags();
     //int getTestCase(vector<string>&);
     int openTechDictionary(Repository&);

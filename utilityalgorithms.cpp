@@ -128,6 +128,14 @@ int UtilityAlgorithms::levDist(Component& c1, Component& c2){
     return UtilityAlgorithms::levDist(c1.mpn, c2.mpn);
 }
 
+
+bool UtilityAlgorithms::containsSubst(string& str, string& subs){
+
+    size_t found = str.find(subs);
+    return (found!=std::string::npos);
+
+}
+
 ////////////
 /// \brief UtilityAlgorithms::argmax
 /// \return the <string, float> values of the largest element in the map
