@@ -44,6 +44,10 @@ public:
         }
         os << endl;
 
+        os << "   " << tf.collocations.size() << "  collocations: " << endl;
+        for(auto& entry: tf.collocations) os << "(" << entry.first.first << "," << entry.first.second <<") -" << entry.second << ", ";
+        os << endl;
+
         return os;
     }
 

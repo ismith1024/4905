@@ -218,7 +218,7 @@ int Repository::getSupplierNumbers(map<string, int>& numbers){
     }
 
     while(query.next()){
-        string s1 = query.value(0).toString().toStdString();
+        string s1 = query.value(0).toString().toLower().toStdString();
         int s2 = query.value(1).toInt();
         numbers[s1] = s2;
     }

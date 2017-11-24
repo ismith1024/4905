@@ -81,7 +81,7 @@
 ///
 void Controller::runTestCase(int tcNum){
 
-
+    ///////////// Setup
     string dir = "/home/ian/Data/Testcases/";
     dir += to_string(tcNum) + "/testcase.txt";
 
@@ -91,9 +91,23 @@ void Controller::runTestCase(int tcNum){
     vector<Component*> results = vector<Component*>();
     BayesianClassifier bayes = BayesianClassifier();
 
+    //Open the corpus
     processor.getXML();
     processor.countTags();
 
+    //Train collocation classifier
+    vector<pair<string,string>> colls = vector<pair<string,string>>();
+    vector<Component*> components = vector<Component*>();
+    repo.getComponentsIncludingGenerics(components);
+    getCollocationsFromDBDescriptions(colls);
+    //cout << "OBTAIN COLLOCATIONS:" << endl;
+    //for(auto& entry: colls) cout << entry.first << ", " << entry.second << endl;
+
+    //Get the supplier aliases
+    map<string, int> supplierNumbers = map<string, int>();
+    repo.getSupplierNumbers(supplierNumbers);
+
+    ///////////// Open test case file
     vector<string>::iterator it;
 
     ifstream thefile(dir);
@@ -159,6 +173,17 @@ void Controller::runTestCase(int tcNum){
                     //    void tag(vector<string>&, vector<pair<string, string>>&);
                     processor.tag(words, *phrase);
                     processor.applyTechDictionary(*phrase);
+
+                    for(auto& i: *phrase){
+                            if(UtilityAlgorithms::mapContainsKey(supplierNumbers, i.first)){
+                            int n = supplierNumbers[i.first];
+                            i.second = "NNP subtype=supp" + to_string(n);
+                        }
+                    }
+///////////////////////////////////TODO: bayesian classifier on all untagged alphanumerics
+/// 1.  Check the files to see if the number matches a filename
+/// 2.  Use the bayesian classifier
+
                     cout << "Tagging phrase: ";
                     for(auto& i: words) cout << i.toStdString() << " ";
                     cout << "....." << endl;
@@ -192,12 +217,19 @@ void Controller::runTestCase(int tcNum){
         processor.applyTechDictionary(entry->tags);
 
         for(auto& i: entry->tags){
+            cout << "Check Supplier: " << i.first << endl;
+            if(UtilityAlgorithms::mapContainsKey(supplierNumbers, i.first)){
+                int n = supplierNumbers[i.first];
+                i.second = "NNP subtype=supp" + to_string(n);
+            }
+        }
+
+
+        for(auto& i: entry->tags){
             cout << "(" << i.first << ", " << i.second << ") ";
         }
 
         cout << "END OF TAGS" << endl;
-
-        cout << *entry;
 
         //get the noun phrases
         processor.getNounPhrases(entry->tags, entry->nounPhrases);
@@ -213,16 +245,94 @@ void Controller::runTestCase(int tcNum){
             for(auto& e3: tags) entry->tags.push_back(e3);
         }
 
-        cout << *entry;
+        //search the phrases for collocations:
+        //if found, remove the phrase and add to collocations
+        //<vector<pair<string,string>>*>::iterator it;
+
+        cout << "Checking collocations for file" << entry->filename << endl;
+
+        for(auto& i: entry->nounPhrases){
+            for(auto& j: colls){
+                bool word1 = false;
+                bool word2 = false;
+                for(auto& k: *i){
+                    if(k.first == j.first) word1 = true;
+                    if(k.first == j.second) word2 = true;
+                }
+                if(word1 && word2){
+                    entry->collocations[make_pair(j.first, j.second)] = "";
+                }
+            }
+        }
+
+        for(auto& i: entry->verbPhrases){
+            for(auto& j: colls){
+                bool word1 = false;
+                bool word2 = false;
+                for(auto& k: *i){
+                    if(k.first == j.first) word1 = true;
+                    if(k.first == j.second) word2 = true;
+                }
+                if(word1 && word2){
+                     entry->collocations[make_pair(j.first, j.second)] = "";
+                }
+            }
+        }
 
     } //end for: entry in files
 
-    //for(auto& entry: files) cout << entry;
+    for(auto& entry: files) cout << *entry;
 
     //shutdown
     for(auto& entry: files) delete entry;
 
 }
+
+///////////////
+/// \brief Controller::buildComponentsFromPhrase
+/// \return
+/// Takes a phrase and builds Component objects from it
+int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair<string, string>>& tags, vector<pair<string,string>>& colls, vector<Component*>& compsIn){
+
+    //check for collocation
+    vector<Component*> ret = vector<Component*>();
+
+    for(auto& entry: tags){
+        //check for a supplier
+        if(UtilityAlgorithms::containsSubst(entry.second, "NNP subtype=supp")){
+            Component* c = new Component();
+            c->mfr = entry.first;
+            for(auto& str: tags){
+                c->description += " " + str.first;
+            }
+            ret.push_back(c);
+        }
+        //check for a part number
+        if(UtilityAlgorithms::isAlphanumeric(entry.first)){
+            map<string, float>* results = bayes.classifyType(entry.first, compsIn);
+            pair<string, float> choice = UtilityAlgorithms::argmax(results);
+
+            if(choice.second > BayesianClassifier::MIN_BAYES_CONF){
+                Component* c = new Component();
+                c->mpn = entry.first;
+                map<string, float> res2 = bayes.classifySupplier(entry.first, compsIn);
+                pair<string, float> mfr = UtilityAlgorithms::argmax(res2);
+                c->mfr = mfr.first;
+                for(auto& str: tags){
+                    c->description += " " + str.first;
+                }
+                ret.push_back(c);
+            }
+        }
+        //check collocations
+        //else, check technical keywords
+
+    }
+
+
+
+}
+
 
 ///////////////
 /// \brief Controller::cleanTestCase
@@ -260,6 +370,15 @@ void Controller::handleTokenizeRequest(){
 ///             - Entity deduplication
 /////
 ///////////////////////////////////////////////////////////////
+
+
+////////////////
+/// \brief Controller::testBuildComponents
+/// \return
+///
+int Controller::testBuildComponents(){
+    return 0;
+}
 
 //TODO: broken
 int Controller::testTopicExtraction(){

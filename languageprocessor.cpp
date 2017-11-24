@@ -210,7 +210,7 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
     vector<vector<pair<string, string>>*> workingPhrases = vector<vector<pair<string, string>>*>();
     vector<pair<string,string>> cp2  = vector<pair<string,string>>();
 
-    cout << "Start of getNounPhrases" << endl;
+    //cout << "Start of getNounPhrases" << endl;
 
     while (it != text.rend()){
 
@@ -312,7 +312,7 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
     vector<vector<pair<string, string>>*> workingPhrases = vector<vector<pair<string, string>>*>();
     vector<pair<string,string>> cp2  = vector<pair<string,string>>();
 
-    cout << "Start of getVerbPhrases" << endl;
+    //cout << "Start of getVerbPhrases" << endl;
 
     while(it != text.end()){
 
@@ -644,6 +644,8 @@ bool LanguageProcessor::containsNumbers(QString& str){
 
     return false;
 }
+
+
 
 
 ///////// SCRAP BELOW HERE

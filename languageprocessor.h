@@ -65,6 +65,8 @@ public:
     void mimForCollocations(map<string, int>&, map<pair<string,string>, int>&, vector<pair<string, string>>&);
 
 
+
+
 };
 
 #endif // LANGUAGEPROCESSOR_H

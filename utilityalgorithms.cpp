@@ -58,7 +58,30 @@ int UtilityAlgorithms::longestCommonSS(string s1, string s2){
     return z;
 }
 
+//////////
+/// \brief UtilityAlgorithms::isAlphanumeric
+/// \param str
+/// \return
+/// checks if a letter and a number are in the string
+bool UtilityAlgorithms::isAlphanumeric(string& str){
+    bool letter = false;
+    bool number = false;
+    for(auto& c: str){
+        if(c >= 65 && c <= 90) letter = true;
+        if(c >= 97 && c <= 122) letter = true;
+        if(c >= 48 && c <= 57) number = true;
+    }
 
+    return(letter && number);
+}
+
+bool UtilityAlgorithms::mapContainsKey(map<string, int>& m, string& s){
+
+    map<string, int>::iterator it = m.find(s);
+    if(it != m.end()) return true;
+    return false;
+
+}
 
 /*
 Implements the Levenshtein Dstance by means of the Wagner-Fischer algorithm, defined as follows:

@@ -59,7 +59,10 @@ public:
     int testVerbPhrases(); // Finding verb phrase fragments in free text
     int testClassifySupplier(); // Classifying the supplier of an identified part number
     int testEntityDeduplication(); //Entity deduplication
+    int testBuildComponents();
     void testParent();
+
+    void buildComponentsFromPhrase(vector<pair<string,string>>&, vector<pair<string,string>>&, vector<Component*>&);
 
     void runOneOf();
 

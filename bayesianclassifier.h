@@ -27,6 +27,9 @@ class BayesianClassifier{
 private:
     static const int MIN_SUPPORT = 10;
     static const int MNI_CONF = 5;
+
+    static const float MIN_BAYES_CONF = 0.1;
+
     map<string, StringRecord>* substringFrequencies;
 
 

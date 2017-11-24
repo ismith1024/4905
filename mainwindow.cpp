@@ -89,3 +89,8 @@ void MainWindow::on_pushButton_8_clicked()
 {
     control.runOneOf();
 }
+
+void MainWindow::on_pushButton_9_clicked()
+{
+    control.testBuildComponents();
+}
