@@ -210,29 +210,36 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
     vector<vector<pair<string, string>>*> workingPhrases = vector<vector<pair<string, string>>*>();
     vector<pair<string,string>> cp2  = vector<pair<string,string>>();
 
-    while (it < text.rend()){
+    cout << "Start of getNounPhrases" << endl;
+
+    while (it != text.rend()){
+
+        //cout << "Check - " << it->first << "," << it->second << endl;
 
         //starts with the terminal noun
         if(isNoun(*it)){
+            //cout << "Terminal noun found" << endl;
             cp2.push_back(*it);
 
             //search backwards from the terminal noun
+            //cout << "Start back search" << endl;
             it2 = it;
             it2++;
             if(it2 != text.rend()){
 
                 //search backwards for adjectives or nouns
-                while(isAdjective(*it2) || isNoun(*it2)){
+                while( it2 != text.rend() && (isAdjective(*it2) || isNoun(*it2))){
+                    //cout << "Push adj or noun : " << it2->first << endl;
                     cp2.push_back(*it2);
                     ++it2;
                 }
 
                 //option group of noun and preposition
-                if(it2 != text.rend()){
+                if(it2 < text.rend() - 1 ){
                     if(isPreposition(*it2) && isNoun(*(it2+1))){
                         cp2.push_back(*it2);
-                         cp2.push_back(*(it2+1));
                         ++it2;
+                        cp2.push_back(*it2);
                         ++it2;
                     }
                 }
@@ -247,14 +254,15 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
 
             //this is the end of the phrase.  Move the outer iterator backwards.
 
-            workingPhrases.push_back(new vector<pair<string,string>>());
+            vector<pair<string,string>>* curr = new vector<pair<string,string>>();
 
-            vector<pair<string,string>>* curr = workingPhrases.back();
+            workingPhrases.push_back(curr);
+
             for(auto& entry: cp2){
                 curr->insert(curr->begin(), entry);
             }
 
-            cp2 = vector<pair<string,string>>();
+            cp2.clear();
             it = it2;
         }
 
@@ -262,7 +270,7 @@ int LanguageProcessor::getNounPhrases(vector<pair<string,string>>& text, vector<
 
         if(it >= text.rend()) {
             for(auto& e2: workingPhrases){
-                phrases.push_back(e2);
+                phrases.insert(phrases.begin(), e2);
             }
             return 0;
         }
@@ -304,7 +312,7 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
     vector<vector<pair<string, string>>*> workingPhrases = vector<vector<pair<string, string>>*>();
     vector<pair<string,string>> cp2  = vector<pair<string,string>>();
 
-
+    cout << "Start of getVerbPhrases" << endl;
 
     while(it != text.end()){
 
@@ -385,6 +393,7 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
         cp2 = vector<pair<string,string>>();
 
         if(it >= text.end()) {
+            //for(it2 = workingPhrases.rbegin(); it2 != workingPhrases.rend(); ++ it2){
             for(auto& e2: workingPhrases){
                 if(e2->size() > 0) phrases.push_back(e2);
             }

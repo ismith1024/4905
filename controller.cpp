@@ -140,13 +140,16 @@ void Controller::runTestCase(int tcNum){
         vector<string> allWords;
 
         for(auto& e2: entry->lines){
+
             string tab = "\t";
             if(UtilityAlgorithms::containsSubst(e2, tab)){
 
                 QStringList pieces = QString::fromStdString(e2).split('\t');
                 for(auto& e3: pieces){
                     QStringList words = e3.split(' ');
-                    for(auto& i: words) i = i.toLower();
+                    for(auto& i: words){
+                        i = i.toLower();
+                    }
                     vector<pair<string,string>>* phrase = new vector<pair<string,string>>();
                     for(auto& e4: words){
                         string st = e4.toLower().toStdString();
@@ -166,11 +169,10 @@ void Controller::runTestCase(int tcNum){
 
                 //put all the words onto the words and tags collections
 
-                cout << "Debug Point 1" << endl;
 
             } else {
                 //tokenize the line
-                QStringList pieces = QString::fromStdString(e2).split(' ');
+                QStringList pieces = QString::fromStdString(e2).toLower().split(' ');
                 for(auto& word: pieces) tok.removeStopCharacters(word);
 
                 //store the words to be tagged
@@ -179,40 +181,43 @@ void Controller::runTestCase(int tcNum){
                         entry->words.push_back(word.toStdString());
                     }
                 }
-            }
+
+
+            } // end if contains tabs
+
+        } // end for: e2 in lines
+
+        //tag the words
+        if(entry->words.size() != 0) processor.tag(entry->words, entry->tags);
+        processor.applyTechDictionary(entry->tags);
+
+        for(auto& i: entry->tags){
+            cout << "(" << i.first << ", " << i.second << ") ";
         }
-            //tag the words
-            if(entry->words.size() != 0) processor.tag(entry->words, entry->tags);
 
-cout << "Debug Point 2" << endl;
+        cout << "END OF TAGS" << endl;
 
-            //get the noun phrases
-cout << "Last tags: ";
-for(auto& j: entry->tags) cout << j.first << "," << j.second << "..";
-            if(entry->tags.size() != 0) processor.getNounPhrases(entry->tags, entry->nounPhrases);
+        cout << *entry;
 
-cout << "Debug Point 3" << endl;
+        //get the noun phrases
+        processor.getNounPhrases(entry->tags, entry->nounPhrases);
 
-            //get the verb phrases
-            if(entry->tags.size() != 0) processor.getVerbPhrases(entry->tags, entry->verbPhrases);
+        //get the verb phrases
+        processor.getVerbPhrases(entry->tags, entry->verbPhrases);
 
-cout << "Debug Point 4" << endl;
-
-            //put the orphan words in the word collection
+        //put the orphan words in the word collection
+        if(allWords.size() > 0){
             vector<pair<string, string>> tags = vector<pair<string, string>>();
             processor.tag(allWords, tags);
-
-cout << "Debug Point 5" << endl;
-
             for(auto& e3: allWords) entry->words.push_back(e3);
             for(auto& e3: tags) entry->tags.push_back(e3);
+        }
 
-    }
+        cout << *entry;
 
-    //Print the findings
-    for(auto& entry: files) cout << *entry << endl;
+    } //end for: entry in files
 
-
+    //for(auto& entry: files) cout << entry;
 
     //shutdown
     for(auto& entry: files) delete entry;

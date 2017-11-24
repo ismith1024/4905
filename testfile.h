@@ -29,14 +29,14 @@ public:
         os << "  collocations: " << endl << "    ";
         for(auto& entry: tf.collocations) os << "(" << entry.first.first << ", " << entry.first.second <<") - " << entry.second << "..";
         os << endl;
-        os << "  noun phrases: " << endl;
+        os << "   " << tf.nounPhrases.size() << "  noun phrases: " << endl;
         for(auto& entry: tf.nounPhrases) {
             os << "<";
             for(auto& e1: *entry) os << e1.first << ": " << e1.second << "...";
             os << ">" << endl;
         }
         os << endl;
-        os << "  verb phrases: " << endl;
+        os << "   " << tf.verbPhrases.size() << "  verb phrases: " << endl;
         for(auto& entry: tf.verbPhrases) {
             os << "<";
             for(auto& e1: *entry) os << e1.first << ": " << e1.second << "...";
