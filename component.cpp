@@ -27,6 +27,18 @@ Component::Component(){
 
 }
 
+bool Component::operator==(Component& c){
+    return(mpn == c.mpn &&
+           mfr == c.mfr &&
+           type == c.type);
+}
+
+/*
+    string mfr;
+    string mpn;
+    string description;
+    string type;*/
+
 void Component::setParent(Component* par){
     parent = par;
 }

@@ -24,6 +24,8 @@ public:
         return os;
     }
 
+    bool operator==(Component&);
+
     void setParent(Component*);
 
 };

@@ -399,7 +399,7 @@ int Repository::getContractsComponentsDescriptionsFromDB(vector<string>& coll){
 int Repository::getTechKeywords(vector<pair<string,string>>& words){
     QSqlQuery query;
 
-    const float MIN_CONF = 0.6;
+    const float MIN_CONF = 0.51;
     const int MIN_SUPP = 3;
 
     if (!query.exec("SELECT * from keywords;")){

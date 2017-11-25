@@ -300,6 +300,14 @@ void Controller::runTestCase(int tcNum){
 
     //vector<vector<pair<string,string>>*> nounPhrases
 
+    consolidateCollection(finalResults);
+
+    cout << " ----------------------" << endl;
+    consolidateCollection(finalResults);
+
+    cout << "FINAL RESULTS: " << endl;
+    for(auto& entry: finalResults) cout << *entry << endl;;
+
     //shutdown
     for(auto& entry: files) delete entry;
 
@@ -333,15 +341,23 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
             for(auto& str: tags){
                 c->description += " " + str.first;
             }
+            //classify based on description
+            map<string, float>* results = bayes.classifyType(entry.first, compsIn);
+            pair<string, float> choice = UtilityAlgorithms::argmax(results);
+            //cout << "Identified: " << choice.first << ".." << choice.second << endl;
+            delete results;
+            c->type = choice.first;
             ret.push_back(c);
         }
         //check for a part number
         //cout << "check for mpn" << endl;
         if(UtilityAlgorithms::isAlphanumeric(entry.first)){
-            cout << "Check alphanumeric - " << entry.first << endl;
-            map<string, float>* results = bayes.classifyType(entry.first, compsIn);
+            //cout << "Check alphanumeric - " << entry.first << endl;
+            string cleanStr = entry.first;
+            tok.removeStopCharacters(cleanStr);
+            map<string, float>* results = bayes.classifyType(cleanStr, compsIn);
             pair<string, float> choice = UtilityAlgorithms::argmax(results);
-            cout << "Identified: " << choice.first << ".." << choice.second << endl;
+            //cout << "Identified: " << choice.first << ".." << choice.second << endl;
             delete results;
 
             if(choice.second > MIN_BAYES_CONF){
@@ -349,7 +365,7 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
                 c->mpn = entry.first;
                 string cleanMpn = entry.first;
                 tok.removeStopCharacters(cleanMpn);
-                cout << "Old mpn: " << entry.first << " Clean: " << cleanMpn << endl;
+                //cout << "Old mpn: " << entry.first << " Clean: " << cleanMpn << endl;
                 map<string, float>* res2 = bayes.classifySupplier(cleanMpn, compsIn);
                 pair<string, float> mfr = UtilityAlgorithms::argmax(res2);
 
@@ -382,13 +398,14 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
         }
         if(first != "" && second != "") {
             foundColls.push_back(make_pair(first,second));
-            cout << "Collocation: <" << first << "," << second << ">" << endl;
+            //cout << "Collocation: <" << first << "," << second << ">" << endl;
         }
     }
 
     //identify the collocations
     if(foundColls.size() > 0){
         for(auto& entry: foundColls){
+            cout << "Collocation: <" << entry.first << "," << entry.second << ">";
             Component* c = new Component();
             map<string, float>* results = bayes.classifyCollocation(entry, compsIn);
 
@@ -396,6 +413,8 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
                 pair<string, float> c1 = UtilityAlgorithms::argmax(results);
 
                 string choice = c1.first;
+                cout << " -- classified as: " << choice << endl;
+
                  if(results != 0) delete results;
                 c->type = choice;
                 c->mfr = "GENERIC";
@@ -409,7 +428,7 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
     }
     //else, check technical keywords
 
-    else{
+    /*else*/{
         //cout << "Check keywords" << endl;
         for(auto& e2: keywords){
 
@@ -429,11 +448,31 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
     }
 
     for(auto& entry: ret){
-        cout << *entry << "..";
+        //cout << *entry << "..";
         compsOut.push_back(entry);
     }
 
     cout << " ...complete" << endl;
+
+}
+
+void Controller::consolidateCollection(vector<Component*>& comps){
+    //vector<Component*> cleanCollection = vector<Component*>();
+    //vector<Component*> scrap = vector<Component*>();
+
+    vector<Component*>::iterator it1, it2;
+
+    for(it1 = comps.begin(); it1 != comps.end()-1; ++it1){
+        for(it2 = it1+1; it2 != comps.end(); ++it2){
+
+            if(**it1 == **it2){
+                delete *it2;
+                it2 = comps.erase(it2);
+            }
+            //todo: deduplicate parital records
+        }
+    }
+
 
 }
 

@@ -67,6 +67,8 @@ public:
 
     void runOneOf();
 
+    void consolidateCollection(vector<Component*>&);
+
 };
 
 #endif // CONTROLLER_H
