@@ -23,6 +23,10 @@ Component::Component(string mf, string mp, string de, string ty){
 
 }
 
+Component::Component(){
+
+}
+
 void Component::setParent(Component* par){
     parent = par;
 }

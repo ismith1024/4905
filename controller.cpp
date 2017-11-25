@@ -167,7 +167,6 @@ void Controller::runTestCase(int tcNum){
                     vector<pair<string,string>>* phrase = new vector<pair<string,string>>();
                     for(auto& e4: words){
                         string st = e4.toLower().toStdString();
-                        //phrase->push_back(make_pair(st, "NN"));
                         allWords.push_back(st);
                     }
                     //    void tag(vector<string>&, vector<pair<string, string>>&);
@@ -195,7 +194,7 @@ void Controller::runTestCase(int tcNum){
                 //put all the words onto the words and tags collections
 
 
-            } else {
+            } else {  // if it does not contain tabs
                 //tokenize the line
                 QStringList pieces = QString::fromStdString(e2).toLower().split(' ');
                 for(auto& word: pieces) tok.removeStopCharacters(word);
@@ -281,7 +280,25 @@ void Controller::runTestCase(int tcNum){
 
     } //end for: entry in files
 
-    for(auto& entry: files) cout << *entry;
+    ///// Print the input files
+    //for(auto& entry: files) cout << *entry;
+
+    vector<Component*> finalResults = vector<Component*>();
+
+    ////Create components.......................
+    cout << "=====GENERATE FINAL RESULTS=====" << endl;
+    for(auto& entry: files){
+        cout << "Identify components from " << entry->filename << endl;
+        for(auto& e2: entry->nounPhrases){
+            buildComponentsFromPhrase(bayes, *e2, colls, components, finalResults);
+        }
+        for(auto& e2: entry->verbPhrases){
+            buildComponentsFromPhrase(bayes, *e2, colls, components, finalResults);
+        }
+        for(auto& entry: finalResults) cout << *entry << endl;
+    }
+
+    //vector<vector<pair<string,string>>*> nounPhrases
 
     //shutdown
     for(auto& entry: files) delete entry;
@@ -292,14 +309,25 @@ void Controller::runTestCase(int tcNum){
 /// \brief Controller::buildComponentsFromPhrase
 /// \return
 /// Takes a phrase and builds Component objects from it
-int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair<string, string>>& tags, vector<pair<string,string>>& colls, vector<Component*>& compsIn){
+int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair<string, string>>& tags, vector<pair<string,string>>& colls, vector<Component*>& compsIn, vector<Component*>& compsOut){
+
+    vector<Component*> ret = vector<Component*>();
+
+    string phrase = "";
+    for(auto& entry: tags) phrase += " " + entry.first;
+    cout << "Checking phrase: " + phrase;
 
     //check for collocation
-    vector<Component*> ret = vector<Component*>();
+    vector<pair<string,string>> keywords = vector<pair<string,string>>();
+    repo.getTechKeywords(keywords);
+
+    float MIN_BAYES_CONF = 0.001;
 
     for(auto& entry: tags){
         //check for a supplier
-        if(UtilityAlgorithms::containsSubst(entry.second, "NNP subtype=supp")){
+        //cout << "Check for supplier" << endl;
+        string s = "NNP subtype=supp";
+        if(UtilityAlgorithms::containsSubst(entry.second, s)){
             Component* c = new Component();
             c->mfr = entry.first;
             for(auto& str: tags){
@@ -308,28 +336,104 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
             ret.push_back(c);
         }
         //check for a part number
+        //cout << "check for mpn" << endl;
         if(UtilityAlgorithms::isAlphanumeric(entry.first)){
+            cout << "Check alphanumeric - " << entry.first << endl;
             map<string, float>* results = bayes.classifyType(entry.first, compsIn);
             pair<string, float> choice = UtilityAlgorithms::argmax(results);
+            cout << "Identified: " << choice.first << ".." << choice.second << endl;
+            delete results;
 
-            if(choice.second > BayesianClassifier::MIN_BAYES_CONF){
+            if(choice.second > MIN_BAYES_CONF){
                 Component* c = new Component();
                 c->mpn = entry.first;
-                map<string, float> res2 = bayes.classifySupplier(entry.first, compsIn);
+                string cleanMpn = entry.first;
+                tok.removeStopCharacters(cleanMpn);
+                cout << "Old mpn: " << entry.first << " Clean: " << cleanMpn << endl;
+                map<string, float>* res2 = bayes.classifySupplier(cleanMpn, compsIn);
                 pair<string, float> mfr = UtilityAlgorithms::argmax(res2);
+
+                cout << "Found mfr: " << mfr.first << endl;
+
                 c->mfr = mfr.first;
                 for(auto& str: tags){
                     c->description += " " + str.first;
                 }
                 ret.push_back(c);
+                delete res2;
             }
         }
-        //check collocations
-        //else, check technical keywords
+    }
+    //check collocations
 
+    //get the collocations from repository
+    vector<pair<string,string>> foundColls = vector<pair<string,string>>();
+    string first = "";
+    string second = "";
+
+    //cout << "Check colls" << endl;
+
+    for(auto& e2: colls){
+        first = "";
+        second = "";
+        for(auto& e3: tags){
+            if(e3.first == e2.first && e3.first != "") first = e3.first;
+            if(e3.first == e2.second && e3.second != "") second = e3.first;
+        }
+        if(first != "" && second != "") {
+            foundColls.push_back(make_pair(first,second));
+            cout << "Collocation: <" << first << "," << second << ">" << endl;
+        }
     }
 
+    //identify the collocations
+    if(foundColls.size() > 0){
+        for(auto& entry: foundColls){
+            Component* c = new Component();
+            map<string, float>* results = bayes.classifyCollocation(entry, compsIn);
 
+            if(results!= 0){
+                pair<string, float> c1 = UtilityAlgorithms::argmax(results);
+
+                string choice = c1.first;
+                 if(results != 0) delete results;
+                c->type = choice;
+                c->mfr = "GENERIC";
+                for(auto& str: tags){
+                    c->description += " " + str.first;
+                }
+                c->mpn = c->description;
+                ret.push_back(c);
+            }
+        }
+    }
+    //else, check technical keywords
+
+    else{
+        //cout << "Check keywords" << endl;
+        for(auto& e2: keywords){
+
+            for(auto& entry: tags){
+                if(e2.first == entry.first){
+                    Component* c = new Component();
+                    c->type = e2.second;
+                    c->mfr = "GENERIC";
+                    for(auto& str: tags){
+                        c->description += " " + str.first;
+                    }
+                    c->mpn = c->description;
+                    ret.push_back(c);
+                }
+            }
+        }
+    }
+
+    for(auto& entry: ret){
+        cout << *entry << "..";
+        compsOut.push_back(entry);
+    }
+
+    cout << " ...complete" << endl;
 
 }
 
@@ -345,6 +449,39 @@ void Controller::cleanTestCase(int tcNum){
     */
 }
 
+
+/////////
+/// \brief Controller::getCollocationsFromDBDescriptions
+/// Used during development to find the word collocations from the training set
+void Controller::getCollocationsFromDBDescriptions(vector<pair<string, string>>& coll){
+
+    vector<string> allDescriptions = vector<string>();
+    map<string, int> singles = map<string, int>();
+    map<pair<string,string>, int> pairs = map<pair<string,string>, int>();
+    vector<pair<string,string>> collocations = vector<pair<string,string>>();
+
+    //repo.getAllDescriptionsFromDB(allDescriptions);
+    repo.getContractsComponentsDescriptionsFromDB(allDescriptions);
+
+    //for(auto& entry: allDescriptions) cout << entry << endl;
+
+    processor.findCollocationMetrics(allDescriptions, singles, pairs, tok);
+
+    //for(auto& entry: singles) cout << entry.first << endl;
+    //for(auto& entry: pairs) cout << entry.first.first << " , " << entry.first.second << endl;
+
+    processor.mimForCollocations(singles, pairs, collocations);
+
+    cout << "Getting Collocations From DB ............" << endl;
+    for(auto& entry: collocations){
+        //cout << "<" << entry.first << "," << entry.second << ">" << endl;
+        if(entry.first != entry.second){
+            coll.push_back(entry);
+        }
+    }
+
+
+}
 
 
 void Controller::handleTokenizeRequest(){
@@ -393,7 +530,7 @@ int Controller::testTopicExtraction(){
     cout << "Get test case" << endl;
 
     //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
-    if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
+    //if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
     //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
 
     ////tag the text .................................................
@@ -496,7 +633,7 @@ int Controller::testNounPhrases(){
     cout << "Get test case" << endl;
 
     //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
-    if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
+    //if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
     //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
 
     ////tag the text .................................................
@@ -525,7 +662,7 @@ int Controller::testNounPhrases(){
     vector<string> dwgText = vector<string>();
 
     //function that retrieves the test case
-    getTestCase2(dwgText, tok);
+    //getTestCase2(dwgText, tok);
 
     ////////// Code that can be used to open training text for testing instead
     //repo.getAllDwgTextFromDB(dwgText);
@@ -554,7 +691,7 @@ int Controller::testVerbPhrases(){
     vector<string> text = vector<string>();
 
     //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
-    if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
+    //if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
     //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
 
 
@@ -584,7 +721,7 @@ int Controller::testVerbPhrases(){
     vector<string> dwgText = vector<string>();
 
     //function htat retrieves the test case
-    getTestCase2(dwgText, tok);
+    //getTestCase2(dwgText, tok);
 
     ////////// Code that can be used to open training text for testing instead
     //repo.getAllDwgTextFromDB(dwgText);
@@ -708,7 +845,7 @@ int Controller::testClassifySupplier(){
     bayes.learn(comps);
 
     string testComp = "CRCW060312K0JNEA";
-    map<int,float>* results = bayes.classifySupplier(testComp, comps);
+    map<string,float>* results = bayes.classifySupplier(testComp, comps);
 
     if(results == 0) return -1;
 
@@ -718,7 +855,7 @@ int Controller::testClassifySupplier(){
         if(entry.second != 0) cout << entry.first << " : " << entry.second << endl;
     }
 
-    pair<int, float> choice = UtilityAlgorithms::argmax(results);
+    pair<string, float> choice = UtilityAlgorithms::argmax(results);
 
     cout << "Choice : " << choice.first << endl;
 
@@ -756,67 +893,7 @@ void Controller::testParent(){
 
 
 
-//////////
-/// \brief Controller::getTestCase2
-/// \param text
-/// \return gets all the text from a big test case
-///
-int Controller::getTestCase2(vector<string>& text, Tokenizer& tok){
-    ifstream thefile("/home/ian/Data/tc2.txt");
-    string line = "";
-    string s = "";
-    if (thefile.is_open()) {
-      while ( getline (thefile,line) ) {
-          QString theLine = QString::fromStdString(line);
-          QStringList pieces = theLine.split(' ');
-          for(auto& entry: pieces){
-              tok.removeStopCharacters(entry);
-              string s = entry.toLower().toStdString();
-              /*if(s.length() > 0 && (s.at(0) >= 'a' && s.at(0) <= 'z') || (s.at(0) >= 'A' && s.at(0) <= 'Z') || (s.at(0) >= '1' && s.at(0) <= '0') )*/
-              //cout << "String " << s << " length: " << s.length() << endl;
-              if(s.length() != 0) text.push_back(s);
-          }
-      }
 
-
-      text.push_back(s);
-
-      thefile.close();
-      return 0;
-    }
-    return -1;
-}
-
-
-//////////
-/// \brief Controller::getTestCase3
-/// \param text
-/// \return gets all the text from a big test case
-///
-int Controller::getTestCase3(vector<string>& text, Tokenizer& tok){
-    ifstream thefile("/home/ian/Data/tc3.txt");
-    string line = "";
-    string s = "";
-    if (thefile.is_open()) {
-      while ( getline (thefile,line) ) {
-          QString theLine = QString::fromStdString(line);
-          QStringList pieces = theLine.split(' ');
-          for(auto& entry: pieces){
-              tok.removeStopCharacters(entry);
-              string s = entry.toLower().toStdString();
-              /*if(s.length() > 0 && (s.at(0) >= 'a' && s.at(0) <= 'z') || (s.at(0) >= 'A' && s.at(0) <= 'Z') || (s.at(0) >= '1' && s.at(0) <= '0') )*/
-              cout << "String " << s << " length: " << s.length() << endl;
-              if(s.length() != 0) text.push_back(s);
-          }
-      }
-
-      text.push_back(s);
-
-      thefile.close();
-      return 0;
-    }
-    return -1;
-}
 
 
 /////////////
@@ -952,11 +1029,11 @@ void Controller::crossValidateSupp(BayesianClassifier& bayes, vector<Component*>
 
 
         for(Component* c: testing){
-            map<int, float>* results = bayes.classifySupplier(c, collection);
+            map<string, float>* results = bayes.classifySupplier(c, collection);
             auto choice = std::max_element(results->begin(), results->end(),
-                [](const pair<int, float>& p1, const pair<int, float>& p2) {
+                [](const pair<string, float>& p1, const pair<string, float>& p2) {
                     return p1.second < p2.second; });
-            if((*choice).first == c->supplierNumber) right++; else wrong++;
+            if((*choice).first == /*c->supplierNumber*/ c->mfr) right++; else wrong++;
                 cout << "Right: " << right << " Wrong: " << wrong << endl;
             delete results;
         }
@@ -971,42 +1048,21 @@ void Controller::crossValidateSupp(BayesianClassifier& bayes, vector<Component*>
 }
 
 
-/////////
-/// \brief Controller::getCollocationsFromDBDescriptions
-/// Used during development to find the word collocations from the training set
-void Controller::getCollocationsFromDBDescriptions(vector<pair<string, string>>& coll){
 
-    vector<string> allDescriptions = vector<string>();
-    map<string, int> singles = map<string, int>();
-    map<pair<string,string>, int> pairs = map<pair<string,string>, int>();
-    vector<pair<string,string>> collocations = vector<pair<string,string>>();
-
-    //repo.getAllDescriptionsFromDB(allDescriptions);
-    repo.getContractsComponentsDescriptionsFromDB(allDescriptions);
-
-    //for(auto& entry: allDescriptions) cout << entry << endl;
-
-    processor.findCollocationMetrics(allDescriptions, singles, pairs, tok);
-
-    //for(auto& entry: singles) cout << entry.first << endl;
-    //for(auto& entry: pairs) cout << entry.first.first << " , " << entry.first.second << endl;
-
-    processor.mimForCollocations(singles, pairs, collocations);
-
-    cout << "Getting Collocations From DB ............" << endl;
-    for(auto& entry: collocations){
-        //cout << "<" << entry.first << "," << entry.second << ">" << endl;
-        coll.push_back(entry);
-    }
-
-
-}
 
 /////////
 /// \brief Controller::runOneOf
 /// Set this handler to whatever one-of function needs to be run for test or data cleaning
 void Controller::runOneOf(){
-    repo.replaceParents();
+    vector<pair<string,string>> terms = vector<pair<string,string>>();
+
+    repo.getTechKeywords(terms);
+
+    for(auto& entry: terms){
+        cout << entry.first << " : " << entry.second << endl;
+    }
+
+    //repo.replaceParents();
 }
 
 /*

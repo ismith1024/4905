@@ -100,6 +100,29 @@ void Tokenizer::tokenize(){
 
 }
 
+void Tokenizer::removeStopCharacters(string& str){
+    str.erase(remove(str.begin(), str.end(), '!'), str.end());
+    str.erase(remove(str.begin(), str.end(), '-'), str.end());
+    str.erase(remove(str.begin(), str.end(), ','), str.end());
+    str.erase(remove(str.begin(), str.end(), ':'), str.end());
+    str.erase(remove(str.begin(), str.end(), '('), str.end());
+    str.erase(remove(str.begin(), str.end(), ')'), str.end());
+    str.erase(remove(str.begin(), str.end(), '`'), str.end());
+    str.erase(remove(str.begin(), str.end(), '<'), str.end());
+    str.erase(remove(str.begin(), str.end(), '>'), str.end());
+    str.erase(remove(str.begin(), str.end(), ':'), str.end());
+    str.erase(remove(str.begin(), str.end(), '“'), str.end());
+    str.erase(remove(str.begin(), str.end(), '”'), str.end());
+    str.erase(remove(str.begin(), str.end(), '#'), str.end());
+    str.erase(remove(str.begin(), str.end(), '$'), str.end());
+    str.erase(remove(str.begin(), str.end(), '*'), str.end());
+    str.erase(remove(str.begin(), str.end(), '['), str.end());
+    str.erase(remove(str.begin(), str.end(), ']'), str.end());
+    str.erase(remove(str.begin(), str.end(), '?'), str.end());
+    str.erase(remove(str.begin(), str.end(), '/'), str.end());
+
+}
+
 void Tokenizer::removeStopCharacters(QString& line){
     line.remove(QChar('!'));
     line.remove(QChar(','));

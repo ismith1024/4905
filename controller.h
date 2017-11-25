@@ -62,7 +62,8 @@ public:
     int testBuildComponents();
     void testParent();
 
-    void buildComponentsFromPhrase(vector<pair<string,string>>&, vector<pair<string,string>>&, vector<Component*>&);
+    int buildComponentsFromPhrase(BayesianClassifier&, vector<pair<string, string>>&, vector<pair<string,string>>&, vector<Component*>&, vector<Component*>&);
+    //void buildComponentsFromPhrase(vector<pair<string,string>>&, vector<pair<string,string>>&, vector<Component*>&);
 
     void runOneOf();
 

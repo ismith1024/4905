@@ -45,6 +45,8 @@ public:
 
     void getFunctionalTestComponents(vector<Component*>&);
 
+    int getTechKeywords(vector<pair<string,string>>&);
+
     void replaceParents();
 
 private:

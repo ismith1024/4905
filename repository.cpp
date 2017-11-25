@@ -395,6 +395,46 @@ int Repository::getContractsComponentsDescriptionsFromDB(vector<string>& coll){
     return 0;
 }
 
+
+int Repository::getTechKeywords(vector<pair<string,string>>& words){
+    QSqlQuery query;
+
+    const float MIN_CONF = 0.6;
+    const int MIN_SUPP = 3;
+
+    if (!query.exec("SELECT * from keywords;")){
+         qDebug() << "getTechKeywords SQL error: "<< query.lastError().text() << endl;
+         return -1;
+    }
+
+    map<string, int> counts = map<string, int>();
+    map<pair<string,string>, int> relationCounts = map<pair<string,string>,int>();
+
+    while(query.next()){
+        QStringList pieces = query.value(0).toString().split(' ');
+        for(auto& entry: pieces){
+            QString s = entry.toLower().trimmed();
+            tok->removeStopCharacters(s);
+            string s1 = s.toStdString();
+            string s2 = query.value(1).toString().toStdString();
+            counts[s1]++;
+            relationCounts[make_pair(s1,s2)]++;
+        }
+    }
+
+    for(auto& entry: relationCounts){
+        if(    (entry.second / counts[entry.first.first]) >= MIN_CONF
+                && counts[entry.first.first] > MIN_SUPP
+                && entry.first.second != "Complex article"
+                && entry.first.second != "Not identified" ){
+            words.push_back(make_pair(entry.first.first, entry.first.second));
+        }
+    }
+
+    return 0;
+}
+
+
 /////////////
 /// \brief Repository::getSupplierNames
 /// \param coll

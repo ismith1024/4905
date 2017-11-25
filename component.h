@@ -10,6 +10,7 @@ class Component{
 
 public:
     Component(string, string, string, string);
+    Component();
     string mfr;
     string mpn;
     string description;
@@ -19,7 +20,7 @@ public:
 
 
     friend std::ostream& operator<< (std::ostream& os, const Component& obj){
-        os << "MFR: " << obj.mfr << " .. MPN: " << obj.mpn << " .. " << obj.description;
+        os << "MFR: " << obj.mfr << " .. MPN: " << obj.mpn << " .. Type: " << obj.type << " .. DESC: " << obj.description;
         return os;
     }
 

@@ -405,7 +405,7 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
 }
 
 ///////////////
-/// \brief LanguageProcessir::findCollocationMetrics
+/// \brief LanguageProcessor::findCollocationMetrics
 /// \param inStrings - collection of space-delimited words  -- ["Hi there", "It's a nice day", ... "Bye for now!"]
 /// \param singles   - occurrances of single words : <foo, x>
 /// \param pairs     - occurrances of word pairs: <<bar, baz>, y>
@@ -489,7 +489,7 @@ void LanguageProcessor::mimForCollocations(map<string, int>& singles, map<pair<s
 bool LanguageProcessor::isNoun(pair<string,string>& word){
 
     if(word.second.size() >= 2 && word.second.at(0) == 'N' && word.second.at(1) == 'N') return true;
-    if(word.second == "CD") return true;
+    if(word.second.size() >= 2 && word.second.at(0) == 'C' && word.second.at(1) == 'D') return true;
     if(word.second.size() >= 2 && word.second.at(0) == 'n' && word.second.at(1) == 'n') return true;
 
 

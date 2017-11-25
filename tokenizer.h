@@ -24,9 +24,7 @@ public:
     void writeToSQL();
     void replaceStopCharacters(string&);
     void removeStopCharacters(QString&);
-
-
-
+    void removeStopCharacters(string&);
 };
 
 #endif // TOKENIZER_H

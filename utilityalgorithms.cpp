@@ -83,6 +83,14 @@ bool UtilityAlgorithms::mapContainsKey(map<string, int>& m, string& s){
 
 }
 
+bool UtilityAlgorithms::mapContainsKey(map<string, string>& m, string& s){
+
+    map<string, string>::iterator it = m.find(s);
+    if(it != m.end()) return true;
+    return false;
+
+}
+
 /*
 Implements the Levenshtein Dstance by means of the Wagner-Fischer algorithm, defined as follows:
 

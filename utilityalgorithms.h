@@ -23,6 +23,7 @@ public:
     static bool containsSubst(string&, string&);
 
     static bool mapContainsKey(map<string, int>&, string&);
+    static bool mapContainsKey(map<string, string>&, string&);
     static bool isAlphanumeric(string&);
 
 };

@@ -19,6 +19,70 @@
 ///
 ///
 
+/*
+
+//////////
+/// \brief Controller::getTestCase2
+/// \param text
+/// \return gets all the text from a big test case
+///
+int Controller::getTestCase2(vector<string>& text, Tokenizer& tok){
+    ifstream thefile("/home/ian/Data/tc2.txt");
+    string line = "";
+    string s = "";
+    if (thefile.is_open()) {
+      while ( getline (thefile,line) ) {
+          QString theLine = QString::fromStdString(line);
+          QStringList pieces = theLine.split(' ');
+          for(auto& entry: pieces){
+              tok.removeStopCharacters(entry);
+              string s = entry.toLower().toStdString();
+              /*if(s.length() > 0 && (s.at(0) >= 'a' && s.at(0) <= 'z') || (s.at(0) >= 'A' && s.at(0) <= 'Z') || (s.at(0) >= '1' && s.at(0) <= '0') )* /
+              //cout << "String " << s << " length: " << s.length() << endl;
+              if(s.length() != 0) text.push_back(s);
+          }
+      }
+
+
+      text.push_back(s);
+
+      thefile.close();
+      return 0;
+    }
+    return -1;
+}
+
+
+//////////
+/// \brief Controller::getTestCase3
+/// \param text
+/// \return gets all the text from a big test case
+///
+int Controller::getTestCase3(vector<string>& text, Tokenizer& tok){
+    ifstream thefile("/home/ian/Data/tc3.txt");
+    string line = "";
+    string s = "";
+    if (thefile.is_open()) {
+      while ( getline (thefile,line) ) {
+          QString theLine = QString::fromStdString(line);
+          QStringList pieces = theLine.split(' ');
+          for(auto& entry: pieces){
+              tok.removeStopCharacters(entry);
+              string s = entry.toLower().toStdString();
+              /*if(s.length() > 0 && (s.at(0) >= 'a' && s.at(0) <= 'z') || (s.at(0) >= 'A' && s.at(0) <= 'Z') || (s.at(0) >= '1' && s.at(0) <= '0') )* /
+              cout << "String " << s << " length: " << s.length() << endl;
+              if(s.length() != 0) text.push_back(s);
+          }
+      }
+
+      text.push_back(s);
+
+      thefile.close();
+      return 0;
+    }
+    return -1;
+}*/
+
 
 /////////////////
 /// \brief BayesianClassifier::classifySupplierOld
@@ -478,7 +542,7 @@ void Controller::run(){
     cout << "Get test case" << endl;
 
     //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
-    if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
+    //if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
     //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
 
     //cout << "TEXT:" << endl;
