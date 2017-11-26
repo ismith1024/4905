@@ -448,8 +448,10 @@ void LanguageProcessor::findCollocationMetrics(vector<string>& inStrings, map<st
             for(it2 = it+1; it2 <= it+SEARCH_DIST && it2 != entry.end(); it2++){
                 if(find(stopWords.begin(), stopWords.end(), it->toLower().toStdString()) == stopWords.end() &&
                         find(stopWords.begin(), stopWords.end(), it2->toLower().toStdString()) == stopWords.end()){
-                    pair<string, string> pr = make_pair(it->toLower().toStdString(), it2->toLower().toStdString());
-                    pairs[pr]++;
+                    if(it->length() > 1 || it2->length() > 1){
+                        pair<string, string> pr = make_pair(it->toLower().toStdString(), it2->toLower().toStdString());
+                        pairs[pr]++;
+                    }
                 }
             }
         }

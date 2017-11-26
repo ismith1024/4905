@@ -72,7 +72,7 @@ bool UtilityAlgorithms::isAlphanumeric(string& str){
         if(c >= 48 && c <= 57) number = true;
     }
 
-    return(letter && number);
+    return((letter && number) ||(number && str.length() >= 5));
 }
 
 bool UtilityAlgorithms::mapContainsKey(map<string, int>& m, string& s){

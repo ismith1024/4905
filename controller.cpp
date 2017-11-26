@@ -286,7 +286,7 @@ void Controller::runTestCase(int tcNum){
     vector<Component*> finalResults = vector<Component*>();
 
     ////Create components.......................
-    cout << "=====GENERATE FINAL RESULTS=====" << endl;
+    cout << "=====GENERATE COMPONENTS=====" << endl;
     for(auto& entry: files){
         cout << "Identify components from " << entry->filename << endl;
         for(auto& e2: entry->nounPhrases){
@@ -295,7 +295,7 @@ void Controller::runTestCase(int tcNum){
         for(auto& e2: entry->verbPhrases){
             buildComponentsFromPhrase(bayes, *e2, colls, components, finalResults);
         }
-        for(auto& entry: finalResults) cout << *entry << endl;
+        //for(auto& entry: finalResults) cout << *entry << endl;
     }
 
     //vector<vector<pair<string,string>>*> nounPhrases
@@ -334,7 +334,7 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
     for(auto& entry: tags){
         //check for a supplier
         //cout << "Check for supplier" << endl;
-        string s = "NNP subtype=supp";
+        /*string s = "NNP subtype=supp";
         if(UtilityAlgorithms::containsSubst(entry.second, s)){
             Component* c = new Component();
             c->mfr = entry.first;
@@ -342,13 +342,13 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
                 c->description += " " + str.first;
             }
             //classify based on description
-            map<string, float>* results = bayes.classifyType(entry.first, compsIn);
+            map<string, float>* results = bayes.classifyType(c->description, compsIn);
             pair<string, float> choice = UtilityAlgorithms::argmax(results);
             //cout << "Identified: " << choice.first << ".." << choice.second << endl;
             delete results;
             c->type = choice.first;
             ret.push_back(c);
-        }
+        }*/
         //check for a part number
         //cout << "check for mpn" << endl;
         if(UtilityAlgorithms::isAlphanumeric(entry.first)){
@@ -363,6 +363,7 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
             if(choice.second > MIN_BAYES_CONF){
                 Component* c = new Component();
                 c->mpn = entry.first;
+                c->type = choice.first;
                 string cleanMpn = entry.first;
                 tok.removeStopCharacters(cleanMpn);
                 //cout << "Old mpn: " << entry.first << " Clean: " << cleanMpn << endl;
@@ -462,16 +463,37 @@ void Controller::consolidateCollection(vector<Component*>& comps){
 
     vector<Component*>::iterator it1, it2;
 
-    for(it1 = comps.begin(); it1 != comps.end()-1; ++it1){
-        for(it2 = it1+1; it2 != comps.end(); ++it2){
+    for(it1 = comps.begin(); it1 < comps.end()-1; ++it1){
+        for(it2 = it1+1; it2 < comps.end(); ++it2){
 
             if(**it1 == **it2){
                 delete *it2;
                 it2 = comps.erase(it2);
-            }
-            //todo: deduplicate parital records
-        }
-    }
+            } else {
+                //remove a generic with the same type as an identified component
+                if((*it1)->mfr == "GENERIC" && (*it1)->type == (*it2)->type){
+                    if((*it2)->description  == "") (*it2)->description = (*it1)->description;
+                    delete *it2;
+                    it2 = comps.erase(it2);
+                } else if((*it2)->mfr == "GENERIC" && (*it2)->type == (*it1)->type){
+                    if((*it1)->description  == "") (*it1)->description = (*it2)->description;
+                    delete *it1;
+                    it1 = comps.erase(it1);
+                } else if((*it2)->mfr == (*it1)->mfr && (*it2)->mpn == (*it1)->mpn){
+                    delete *it2;
+                    it2 = comps.erase(it2);
+                } /*else if(                                                        ){
+
+                }*/
+
+
+                //end if components are similar
+
+
+            } // end if components are equal
+
+        } // end for it2
+    } // end for it1
 
 
 }

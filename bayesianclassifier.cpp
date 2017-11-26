@@ -465,6 +465,7 @@ map<string, float>* BayesianClassifier::classifySupplier(string& comp, vector<Co
          for(auto& entry: complementProbs){
              (*ret)[entry.first] = 1.0 - entry.second;
          }
+         (*ret)["ANY SUPPLIER"] = 0.0;
 
 
     return ret;
