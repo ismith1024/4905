@@ -27,6 +27,50 @@ vector<pair<string,string>>& LanguageProcessor::getDict(){
     return *dict;
 }
 
+
+//////
+/// \brief LanguageProcessor::getVerbStem
+/// \param instr
+/// \return
+/// Removes terminal "ed", "s", or "ing" from a verb and checks of it is still a word
+string LanguageProcessor::getVerbStem(string& instr){
+    string ret = "";
+
+    string s = "s";
+    string es = "es";
+    string ed = "ed";
+    string ing = "ing";
+
+    if(UtilityAlgorithms::endsWith(instr, es)){
+        for(int i = 0; i < instr.length() -2; ++i){
+            ret += instr.at(i);
+        }
+    } else if(UtilityAlgorithms::endsWith(instr, s)){
+        for(int i = 0; i < instr.length() -1; ++i){
+            ret += instr.at(i);
+        }
+    } else if(UtilityAlgorithms::endsWith(instr, ed)){
+        for(int i = 0; i < instr.length() -2; ++i){
+            ret += instr.at(i);
+        }
+    } else if(UtilityAlgorithms::endsWith(instr, ing)){
+        for(int i = 0; i < instr.length() -3; ++i){
+            ret += instr.at(i);
+        }
+    }
+
+    cout << "Verb stem: " << instr << " - " << ret << " " << getTag(ret) << " " << getTag(ret + "e") << endl;
+
+    if(getTag(ret) != "???")
+        return ret;
+    else if(getTag(ret + "e") != "???"){
+        ret += "e";
+        return ret;
+    }
+
+    return instr;
+}
+
 ///////
 /// \brief LanguageProcessor::countTags
 /// \param tagcounts - the counts of the tags in the dictionary
@@ -318,7 +362,8 @@ int LanguageProcessor::getVerbPhrases(vector<pair<string,string>>& text, vector<
 
         if(isVerb(*it)){
             do{
-                cp2.push_back(*it);
+
+                cp2.push_back(make_pair(getVerbStem((*it).first), (*it).second));
                 it++;
             } while(isVerb(*it) || isPreposition(*it));
 

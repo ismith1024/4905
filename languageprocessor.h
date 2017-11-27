@@ -11,6 +11,7 @@
 #include"QStringList"
 #include"repository.h"
 #include"unordered_set"
+#include"utilityalgorithms.h"
 
 using namespace std;
 
@@ -64,7 +65,7 @@ public:
     void findCollocationMetrics(vector<string>&, map<string, int>&, map<pair<string,string>, int>& , Tokenizer&);
     void mimForCollocations(map<string, int>&, map<pair<string,string>, int>&, vector<pair<string, string>>&);
 
-
+    string getVerbStem(string&);
 
 
 };

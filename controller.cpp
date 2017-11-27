@@ -352,12 +352,10 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
         //check for a part number
         //cout << "check for mpn" << endl;
         if(UtilityAlgorithms::isAlphanumeric(entry.first)){
-            //cout << "Check alphanumeric - " << entry.first << endl;
             string cleanStr = entry.first;
             tok.removeStopCharacters(cleanStr);
             map<string, float>* results = bayes.classifyType(cleanStr, compsIn);
             pair<string, float> choice = UtilityAlgorithms::argmax(results);
-            //cout << "Identified: " << choice.first << ".." << choice.second << endl;
             delete results;
 
             if(choice.second > MIN_BAYES_CONF){

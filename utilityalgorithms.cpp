@@ -75,6 +75,23 @@ bool UtilityAlgorithms::isAlphanumeric(string& str){
     return((letter && number) ||(number && str.length() >= 5));
 }
 
+
+////////
+/// \brief UtilityAlgorithms::endsWith
+/// \param str
+/// \param endStr
+/// \return
+///Does the first string end with the second?
+bool UtilityAlgorithms::endsWith(string& str, string& endStr){
+    string::reverse_iterator it1 = str.rbegin();
+    string::reverse_iterator it2 = endStr.rbegin();
+
+    for(; it1 != str.rend() && it2 != endStr.rend(); ++it1, ++it2){
+        if(*it1 != *it2) return false;
+    }
+    return true;
+}
+
 bool UtilityAlgorithms::mapContainsKey(map<string, int>& m, string& s){
 
     map<string, int>::iterator it = m.find(s);

@@ -21,6 +21,7 @@ public:
     static pair<int,float> argmax(map<int,float>*);
 
     static bool containsSubst(string&, string&);
+    static bool endsWith(string&, string&);
 
     static bool mapContainsKey(map<string, int>&, string&);
     static bool mapContainsKey(map<string, string>&, string&);
