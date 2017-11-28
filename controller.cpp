@@ -100,8 +100,6 @@ void Controller::runTestCase(int tcNum){
     vector<Component*> components = vector<Component*>();
     repo.getComponentsIncludingGenerics(components);
     getCollocationsFromDBDescriptions(colls);
-    //cout << "OBTAIN COLLOCATIONS:" << endl;
-    //for(auto& entry: colls) cout << entry.first << ", " << entry.second << endl;
 
     //Get the supplier aliases
     map<string, int> supplierNumbers = map<string, int>();
@@ -158,41 +156,32 @@ void Controller::runTestCase(int tcNum){
             string tab = "\t";
             if(UtilityAlgorithms::containsSubst(e2, tab)){
 
-                QStringList pieces = QString::fromStdString(e2).split('\t');
-                for(auto& e3: pieces){
-                    QStringList words = e3.split(' ');
-                    for(auto& i: words){
-                        i = i.toLower();
-                    }
-                    vector<pair<string,string>>* phrase = new vector<pair<string,string>>();
-                    for(auto& e4: words){
-                        string st = e4.toLower().toStdString();
-                        allWords.push_back(st);
-                    }
-                    //    void tag(vector<string>&, vector<pair<string, string>>&);
-                    processor.tag(words, *phrase);
-                    processor.applyTechDictionary(*phrase);
+                QStringList words = QString::fromStdString(e2).replace('\t',' ').split(' ');
+                for(auto& i: words){
+                    i = i.toLower();
+                }
+                vector<pair<string,string>>* phrase = new vector<pair<string,string>>();
+                for(auto& e4: words){
+                    string st = e4.toLower().toStdString();
+                    allWords.push_back(st);
+                }
+                //    void tag(vector<string>&, vector<pair<string, string>>&);
+                processor.tag(words, *phrase);
+                processor.applyTechDictionary(*phrase);
 
-                    for(auto& i: *phrase){
-                            if(UtilityAlgorithms::mapContainsKey(supplierNumbers, i.first)){
-                            int n = supplierNumbers[i.first];
-                            i.second = "NNP subtype=supp" + to_string(n);
-                        }
+                for(auto& i: *phrase){
+                        if(UtilityAlgorithms::mapContainsKey(supplierNumbers, i.first)){
+                        int n = supplierNumbers[i.first];
+                        i.second = "NNP subtype=supp" + to_string(n);
                     }
-///////////////////////////////////TODO: bayesian classifier on all untagged alphanumerics
-/// 1.  Check the files to see if the number matches a filename
-/// 2.  Use the bayesian classifier
-
-                    cout << "Tagging phrase: ";
-                    for(auto& i: words) cout << i.toStdString() << " ";
-                    cout << "....." << endl;
-                    for(auto& i: *phrase) cout << i.first << "-" << i.second << "...";
-                    cout << endl << endl;
-                    entry->nounPhrases.push_back(phrase);
                 }
 
-                //put all the words onto the words and tags collections
-
+                cout << "Tagging phrase: ";
+                for(auto& i: words) cout << i.toStdString() << " ";
+                cout << "....." << endl;
+                for(auto& i: *phrase) cout << i.first << "-" << i.second << "...";
+                cout << endl << endl;
+                entry->nounPhrases.push_back(phrase);
 
             } else {  // if it does not contain tabs
                 //tokenize the line
@@ -219,6 +208,7 @@ void Controller::runTestCase(int tcNum){
             cout << "Check Supplier: " << i.first << endl;
             if(UtilityAlgorithms::mapContainsKey(supplierNumbers, i.first)){
                 int n = supplierNumbers[i.first];
+                cout << "Tag supplier " << i.first;
                 i.second = "NNP subtype=supp" + to_string(n);
             }
         }
@@ -280,33 +270,30 @@ void Controller::runTestCase(int tcNum){
 
     } //end for: entry in files
 
-    ///// Print the input files
-    //for(auto& entry: files) cout << *entry;
-
     vector<Component*> finalResults = vector<Component*>();
 
     ////Create components.......................
     cout << "=====GENERATE COMPONENTS=====" << endl;
     for(auto& entry: files){
         cout << "Identify components from " << entry->filename << endl;
-        for(auto& e2: entry->nounPhrases){
-            buildComponentsFromPhrase(bayes, *e2, colls, components, finalResults);
+        cout << entry->nounPhrases.size() << " noun phrases" << endl;
+
+        /*for(int i = 0; i < entry->nounPhrases.size()-1; ++i){
+                buildComponentsFromPhrase(bayes, *(entry->nounPhrases.at(i)), colls, components, finalResults);
+        }*/
+
+        for(auto& e3: entry->nounPhrases){
+            buildComponentsFromPhrase(bayes, *e3, colls, components, finalResults);
+
         }
         for(auto& e2: entry->verbPhrases){
             buildComponentsFromPhrase(bayes, *e2, colls, components, finalResults);
         }
-        //for(auto& entry: finalResults) cout << *entry << endl;
     }
 
-    //vector<vector<pair<string,string>>*> nounPhrases
-
-    consolidateCollection(finalResults);
-
-    cout << " ----------------------" << endl;
-    consolidateCollection(finalResults);
-
     cout << "FINAL RESULTS: " << endl;
-    for(auto& entry: finalResults) cout << *entry << endl;;
+    for(auto& entry: finalResults) cout << *entry << endl;
+
 
     //shutdown
     for(auto& entry: files) delete entry;
@@ -319,7 +306,191 @@ void Controller::runTestCase(int tcNum){
 /// Takes a phrase and builds Component objects from it
 int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair<string, string>>& tags, vector<pair<string,string>>& colls, vector<Component*>& compsIn, vector<Component*>& compsOut){
 
+    //to hold the components we are going to send back
     vector<Component*> ret = vector<Component*>();
+
+    //the full text of the phrase
+    string phrase = "";
+    for(auto& entry: tags) phrase += " " + entry.first;
+    cout << "Checking phrase: " + phrase << endl;
+
+    string mfr = "";
+    string mpn = "";
+    vector<string> types = vector<string>();
+
+    //to keep the material types we found from the collocations
+    map<pair<string,string>,string> collTypes = map<pair<string,string>,string>();
+
+    //find keywods in the phrase
+    vector<pair<string,string>> keywords = vector<pair<string,string>>();
+    repo.getTechKeywords(keywords);
+
+    float MIN_BAYES_CONF = 0.001;
+
+    //look for a supplier in the text
+    for(auto& entry: tags){
+        string s = "NNP subtype=supp";
+        if(UtilityAlgorithms::containsSubst(entry.second, s)){
+            mfr = entry.first;
+        }
+    }
+
+    //look for a part number in the text"
+
+    for(auto& entry: tags){
+        if(UtilityAlgorithms::isAlphanumeric(entry.first)){
+            string cleanStr = entry.first;
+            mpn = entry.first;
+            tok.removeStopCharacters(cleanStr);
+            map<string, float>* results = bayes.classifyType(cleanStr, compsIn);
+            pair<string, float> choice = UtilityAlgorithms::argmax(results);
+            delete results;
+
+            if(choice.second > MIN_BAYES_CONF){
+                types.push_back(choice.first);
+            }
+        }
+
+        if(mfr == ""){
+            string cleanStr = entry.first;
+            tok.removeStopCharacters(cleanStr);
+            //map<string, float>* results = bayes.classifySupplier(cleanStr, compsIn);
+            //pair<string, float> choice = UtilityAlgorithms::argmax(results);
+            //delete results;
+
+            //if(choice.second > MIN_BAYES_CONF){
+            //    mfr = choice.first;
+            //} else {
+                mfr = "GENERIC";
+            //}
+
+        }
+    }
+
+    //search the collocations for types
+    //get the collocations from repository
+    vector<pair<string,string>> foundColls = vector<pair<string,string>>();
+    string first = "";
+    string second = "";
+
+    for(auto& e2: colls){
+        first = "";
+        second = "";
+        for(auto& e3: tags){
+            if(e3.first == e2.first && e3.first != "") first = e3.first;
+            if(e3.first == e2.second && e3.second != "") second = e3.first;
+        }
+        if(first != "" && second != "") {
+            foundColls.push_back(make_pair(first,second));
+        }
+    }
+
+    //identify the collocations
+    if(foundColls.size() > 0){
+        for(auto& entry: foundColls){
+
+            map<string, float>* results = bayes.classifyCollocation(entry, compsIn);
+
+            if(results!= 0){
+                pair<string, float> c1 = UtilityAlgorithms::argmax(results);
+                collTypes[make_pair(entry.first, entry.second)] = c1.first;
+            }
+        }
+    }
+    //else, check technical keywords
+    else{
+
+        for(auto& e2: keywords){
+
+            for(auto& entry: tags){
+                if(e2.first == entry.first){
+                    pair<string,string> p = make_pair(e2.first, "");
+                    collTypes[p] = e2.second;
+                }
+            }
+        }
+    }
+
+    map<string, vector<string>> typePhrases = map<string, vector<string>>();
+
+
+    //generics can have more than one material type per phrase -- find them all
+    if(mfr == "GENERIC"){
+
+        for(auto& entry: tags){
+            for(auto& e2: collTypes){
+                if(entry.first == e2.first.first &&(typePhrases[e2.second].size() == 0 || typePhrases[e2.second].back() != entry.first)){ //the tag is in teh phrase and was not already just pushed
+                    typePhrases[e2.second].push_back(entry.first);
+                    types.push_back(e2.second);
+                }
+                if(entry.first == e2.first.second && (typePhrases[e2.second].size() == 0 || typePhrases[e2.second].back() != entry.first)){
+                    typePhrases[e2.second].push_back(entry.first);
+                    types.push_back(e2.second);
+                }
+            }
+        }
+    } else if(typePhrases.size() != 0) {
+
+        //cout << "no tpephrases" << endl;
+
+        map<string, int> typeCounts = map<string, int>();
+        for(auto& entry: collTypes){
+            typeCounts[entry.second]++;
+        }
+
+        auto newType = max_element(typeCounts.begin(), typeCounts.end(),
+            [](const pair<string, int>& p1, const pair<string, int>& p2) {
+                return p1.second < p2.second; });
+
+        types.empty();
+        types.push_back(newType->first);
+        for(auto& i: tags){
+            typePhrases[newType->first].push_back(i.first);
+        }
+    }
+
+    for(auto& entry: types){
+        string des = "";
+        for(auto& e2: typePhrases[entry]) des += " " + e2;
+
+        bool duplicate = false;
+
+        if(mpn == "") mpn = des;
+
+        for(auto& e2: compsOut){
+            if(e2->mfr == mfr && e2->mpn == mpn && e2->description == des){
+                duplicate = true;
+            }
+        }
+
+        if(!duplicate){
+
+            Component* c = new Component();
+            c->mfr = mfr;
+            c->type = entry;
+
+            c->description = des; //typePhrases[entry];
+            if(mpn == "") c->mpn = des; //typePhrases[entry];
+            else c->mpn = mpn;
+            cout << "Got: " << *c << endl;
+            compsOut.push_back(c);
+        }
+    }
+
+}
+
+
+///////////////
+/// \brief Controller::buildComponentsFromPhrase
+/// \return
+/// Takes a phrase and builds Component objects from it
+/*
+int Controller::buildComponentsFromPhrase_(BayesianClassifier& bayes, vector<pair<string, string>>& tags, vector<pair<string,string>>& colls, vector<Component*>& compsIn, vector<Component*>& compsOut){
+
+    vector<Component*> ret = vector<Component*>();
+
+    Component* c;
+    string currentSupp = "";
 
     string phrase = "";
     for(auto& entry: tags) phrase += " " + entry.first;
@@ -334,9 +505,10 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
     for(auto& entry: tags){
         //check for a supplier
         //cout << "Check for supplier" << endl;
-        /*string s = "NNP subtype=supp";
+        string s = "NNP subtype=supp";
         if(UtilityAlgorithms::containsSubst(entry.second, s)){
-            Component* c = new Component();
+            currentSupp = entry.first;
+            /*Component* c = new Component();
             c->mfr = entry.first;
             for(auto& str: tags){
                 c->description += " " + str.first;
@@ -347,8 +519,10 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
             //cout << "Identified: " << choice.first << ".." << choice.second << endl;
             delete results;
             c->type = choice.first;
-            ret.push_back(c);
-        }*/
+            ret.push_back(c);* /
+        }
+    }
+    for(auto& entry: tags){
         //check for a part number
         //cout << "check for mpn" << endl;
         if(UtilityAlgorithms::isAlphanumeric(entry.first)){
@@ -359,23 +533,31 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
             delete results;
 
             if(choice.second > MIN_BAYES_CONF){
-                Component* c = new Component();
+                c = new Component();
                 c->mpn = entry.first;
                 c->type = choice.first;
                 string cleanMpn = entry.first;
                 tok.removeStopCharacters(cleanMpn);
                 //cout << "Old mpn: " << entry.first << " Clean: " << cleanMpn << endl;
-                map<string, float>* res2 = bayes.classifySupplier(cleanMpn, compsIn);
-                pair<string, float> mfr = UtilityAlgorithms::argmax(res2);
+                if(currentSupp == ""){
+                    map<string, float>* res2 = bayes.classifySupplier(cleanMpn, compsIn);
+                    pair<string, float> mfr = UtilityAlgorithms::argmax(res2);
 
-                cout << "Found mfr: " << mfr.first << endl;
+                    cout << endl << "Found mfr: " << mfr.first << endl;
 
-                c->mfr = mfr.first;
-                for(auto& str: tags){
-                    c->description += " " + str.first;
+                    c->mfr = mfr.first;
+                    for(auto& str: tags){
+                        c->description += " " + str.first;
+                    }
+
+                    delete res2;
+                } else {
+                    c->mfr = currentSupp;
+                    currentSupp = "";
                 }
+                //cout << *c << endl;
                 ret.push_back(c);
-                delete res2;
+
             }
         }
     }
@@ -404,38 +586,45 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
     //identify the collocations
     if(foundColls.size() > 0){
         for(auto& entry: foundColls){
-            cout << "Collocation: <" << entry.first << "," << entry.second << ">";
-            Component* c = new Component();
+            //cout << "Collocation: <" << entry.first << "," << entry.second << ">";
+
             map<string, float>* results = bayes.classifyCollocation(entry, compsIn);
 
             if(results!= 0){
+                Component* c2 = new Component();
                 pair<string, float> c1 = UtilityAlgorithms::argmax(results);
 
                 string choice = c1.first;
-                cout << " -- classified as: " << choice << endl;
+                //cout << " -- classified as: " << choice << endl;
 
-                 if(results != 0) delete results;
-                c->type = choice;
-                c->mfr = "GENERIC";
+                delete results;
+                c2->type = choice;
+                if(currentSupp == "")
+                    c2->mfr = "GENERIC";
+                else
+                    c2->mfr = currentSupp;
                 for(auto& str: tags){
-                    c->description += " " + str.first;
+                    c2->description += " " + str.first;
                 }
-                c->mpn = c->description;
-                ret.push_back(c);
+                c2->mpn = c2->description;
+                ret.push_back(c2);
             }
         }
     }
     //else, check technical keywords
 
-    /*else*/{
+    /*else* /{
         //cout << "Check keywords" << endl;
         for(auto& e2: keywords){
 
             for(auto& entry: tags){
                 if(e2.first == entry.first){
-                    Component* c = new Component();
+                    c = new Component();
                     c->type = e2.second;
-                    c->mfr = "GENERIC";
+                    if(currentSupp == "")
+                        c->mfr = "GENERIC";
+                    else
+                        c->mfr = currentSupp;
                     for(auto& str: tags){
                         c->description += " " + str.first;
                     }
@@ -447,7 +636,7 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
     }
 
     for(auto& entry: ret){
-        //cout << *entry << "..";
+        cout << "push: " << *entry << endl;
         compsOut.push_back(entry);
     }
 
@@ -455,6 +644,8 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
 
 }
 
+
+////////////// TODO : DOES NOT WORK PROPERLY
 void Controller::consolidateCollection(vector<Component*>& comps){
     //vector<Component*> cleanCollection = vector<Component*>();
     //vector<Component*> scrap = vector<Component*>();
@@ -482,7 +673,7 @@ void Controller::consolidateCollection(vector<Component*>& comps){
                     it2 = comps.erase(it2);
                 } /*else if(                                                        ){
 
-                }*/
+                }* /
 
 
                 //end if components are similar
@@ -495,7 +686,7 @@ void Controller::consolidateCollection(vector<Component*>& comps){
 
 
 }
-
+*/
 
 ///////////////
 /// \brief Controller::cleanTestCase
@@ -654,6 +845,10 @@ int Controller::testClassifyCollocations(){
     vector<Component*> components = vector<Component*>();
     repo.getComponentsIncludingGenerics(components);
 
+    ofstream of;
+    string ofLocation = "/home/ian/Data/testClassifyCollcoations.txt";
+    of.open (ofLocation);
+
     //the test cases
     testVector.push_back(make_pair("stainless", "steel"));
     testVector.push_back(make_pair("zinc", "blue"));
@@ -668,18 +863,19 @@ int Controller::testClassifyCollocations(){
     for(auto& entry: testVector){
         map<string, float>* results = bayes.classifyCollocation(entry, components);
 
-        cout << endl << endl << "CLASSIFY COLLOCATION: <" << entry.first << ", " << entry.second << ">" << endl;
+        of << endl << endl << "CLASSIFY COLLOCATION: <" << entry.first << ", " << entry.second << ">" << endl;
         if(results != 0){
 
             for(auto& e2: (*results)){
-                if(e2.second > 0) cout << e2.first << " : " << e2.second << endl;
+                if(e2.second > 0) of << e2.first << " : " << e2.second << endl;
             }
             delete results;
 
-        } else cout << "Not found in corpus" << endl;
+        } else of << "Not found in corpus" << endl;
 
     }
 
+    of.close();
 
 }
 
@@ -1012,6 +1208,12 @@ void Controller::crossValidateType(BayesianClassifier& bayes, vector<Component*>
     int wrong = 0;
     int i = 0;
 
+     ofstream of;
+     string ofLocation = "/home/ian/Data/crossValidateType.txt";
+     of.open(ofLocation);
+
+    map <pair<string,string>,int> errors = map<pair<string,string>,int>();
+
     for(int fourfold = 0; fourfold < 4; ++fourfold ){
 
         list<Component*> training = list<Component*>();
@@ -1027,11 +1229,11 @@ void Controller::crossValidateType(BayesianClassifier& bayes, vector<Component*>
         training2.reserve(training.size());
         copy(begin(training), end(training), back_inserter(training2));
 
-        cout << "Size of training: " << collection.size() << "  Testing: " << testing.size() << endl;
+        of << "Size of training: " << collection.size() << "  Testing: " << testing.size() << endl;
 
         bayes.learn(training2);
 
-        cout << "Learning" << endl;
+        of << "Learning" << endl;
 
 
         for(Component* c: testing){
@@ -1039,15 +1241,29 @@ void Controller::crossValidateType(BayesianClassifier& bayes, vector<Component*>
             auto choice = std::max_element(results->begin(), results->end(),
                 [](const pair<string, float>& p1, const pair<string, float>& p2) {
                     return p1.second < p2.second; });
-            if((*choice).first.compare(c->type) == 0) right++; else wrong++;
+            if((*choice).first.compare(c->type) == 0) {
+                right++;
+            } else{
+                wrong++;
+                errors[make_pair((*choice).first, c->type)]++;
+            }
                 cout << "Right: " << right << " Wrong: " << wrong << endl;
             delete results;
         }
+
+    }
+
+    of << "Right: " << right << " Wrong: " << wrong << endl;
+    of << "ERRORS" << endl;
+    for(auto& entry: errors){
+        of << "<" << entry.first.first << "," << entry.first.second << ">, " << entry.second << endl;
     }
 
     float res = (float) right / (float) (right + wrong);
 
-    cout << "Accuracy: %" << (res * 100) << endl;
+    of << "Accuracy: %" << (res * 100) << endl;
+
+    of.close();
 
     //delete testComp;
 }
@@ -1065,6 +1281,14 @@ void Controller::crossValidateSupp(BayesianClassifier& bayes, vector<Component*>
     int right = 0;
     int wrong = 0;
     int i = 0;
+
+    map <pair<string,string>,int> errors = map<pair<string,string>,int>();
+
+    ofstream of;
+    string ofLocation = "/home/ian/Data/xValidateSupplier.txt";
+    of.open (ofLocation);
+
+
 
     for(int fourfold = 0; fourfold < 4; ++fourfold ){
         vector<Component*> testing = vector<Component*>();
@@ -1092,16 +1316,31 @@ void Controller::crossValidateSupp(BayesianClassifier& bayes, vector<Component*>
             auto choice = std::max_element(results->begin(), results->end(),
                 [](const pair<string, float>& p1, const pair<string, float>& p2) {
                     return p1.second < p2.second; });
-            if((*choice).first == /*c->supplierNumber*/ c->mfr) right++; else wrong++;
-                cout << "Right: " << right << " Wrong: " << wrong << endl;
+            if((*choice).first == /*c->supplierNumber*/ c->mfr){
+                right++;
+            }else{
+                wrong++;
+                errors[make_pair((*choice).first, c->mfr)]++;
+            }
+            cout << "Right: " << right << " Wrong: " << wrong << endl;
+
             delete results;
         }
 
     }
 
+    of << "ERRORS" << endl;
+    for(auto& entry: errors){
+        of << "<" << entry.first.first << "," << entry.first.second << ">, " << entry.second << endl;
+    }
+
+    of << "Right: " << right << " Wrong: " << wrong << endl;
+
     float res = (float) right / (float) (right + wrong);
 
-    cout << "Accuracy: %" << (res * 100) << endl;
+    of << "Accuracy: %" << (res * 100) << endl;
+
+    of.close();
 
     //delete testComp;
 }

@@ -25,6 +25,12 @@ function LCSubstr(S[1..m], T[1..n])
                 L[i,j] := 0
     return ret
 */
+//////////
+/// \brief UtilityAlgorithms::longestCommonSS
+/// \param s1
+/// \param s2
+/// \return
+///
 int UtilityAlgorithms::longestCommonSS(string s1, string s2){
 
     int m = s1.length();
