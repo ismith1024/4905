@@ -511,6 +511,7 @@ int BayesianClassifier::createParents(vector<Component*>& comps, string& parentD
                     return a.second < b.second;
         });
 
+
         while(e1->parent == NULL && sortedPars.size() > 0){
             for(auto& e2: comps){
                 if(e2 != e1){
