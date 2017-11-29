@@ -19,12 +19,12 @@ Component::Component(string mf, string mp, string de, string ty){
 
     description = de;
     type = ty;
-    parent = 0;
+    parent = NULL;
 
 }
 
 Component::Component(){
-
+    parent = NULL;
 }
 
 bool Component::operator==(Component& c){

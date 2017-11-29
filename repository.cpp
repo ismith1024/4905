@@ -373,6 +373,28 @@ int Repository::countOfStringGivenTopic(string txt, enums::TOPIC topic){
 
 }
 
+////////////
+/// \brief Repository::getParentPairs
+/// \param coll
+/// \return
+/// counts the number of times a <source, parent> pair appears in the corpus
+int Repository::getParentPairs(map<pair<string,string>,int>& coll){
+    QSqlQuery query;
+
+    if (!query.exec("SELECT s_mat, par_mat FROM parents2 WHERE par_mat != 'Subassembly';")){
+         qDebug() << "getParentPairs SQL error: "<< query.lastError().text() << endl;
+         return -1;
+    }
+
+    while(query.next()){
+        string s1 = query.value(0).toString().toStdString();
+        string s2 = query.value(1).toString().toStdString();
+
+        coll[make_pair(s1,s2)]++;
+    }
+
+    return 0;
+}
 
 ////////////
 /// \brief Repository::getContractsComponentsDescriptionsFromDB

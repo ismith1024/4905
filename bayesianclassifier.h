@@ -9,6 +9,8 @@
 #include "component.h"
 #include"QString"
 #include"QStringList"
+#include"repository.h"
+#include"algorithm"
 
 using namespace std;
 
@@ -54,6 +56,8 @@ public:
 
     BayesianClassifier();
     ~BayesianClassifier();
+
+    int createParents(vector<Component*>&, string&, Repository&);
 
 };
 

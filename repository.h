@@ -49,6 +49,8 @@ public:
 
     void replaceParents();
 
+    int getParentPairs(map<pair<string,string>,int>&);
+
 private:
     QSqlDatabase database;
     Tokenizer* tok;

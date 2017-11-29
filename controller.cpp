@@ -278,10 +278,6 @@ void Controller::runTestCase(int tcNum){
         cout << "Identify components from " << entry->filename << endl;
         cout << entry->nounPhrases.size() << " noun phrases" << endl;
 
-        /*for(int i = 0; i < entry->nounPhrases.size()-1; ++i){
-                buildComponentsFromPhrase(bayes, *(entry->nounPhrases.at(i)), colls, components, finalResults);
-        }*/
-
         for(auto& e3: entry->nounPhrases){
             buildComponentsFromPhrase(bayes, *e3, colls, components, finalResults);
 
@@ -289,6 +285,9 @@ void Controller::runTestCase(int tcNum){
         for(auto& e2: entry->verbPhrases){
             buildComponentsFromPhrase(bayes, *e2, colls, components, finalResults);
         }
+
+        bayes.createParents(finalResults, entry->filename, repo);
+
     }
 
     cout << "FINAL RESULTS: " << endl;

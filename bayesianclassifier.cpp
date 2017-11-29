@@ -20,7 +20,7 @@ BayesianClassifier::~BayesianClassifier(){
 /// <word1, word2>, class
 ///
 /// implements pr(class | coll) = pr(coll | class) * pr(class) / pr(coll)
-/// Requires strings to be in lower case
+/// Requires stringsint createParents(vector<Component*>&, string&, Repository&); to be in lower case
 /// RETURNS NULL POINTER IF THE COLLOCATION DOES NOT EXIST IN THE CORPUS
 ///
 map<string, float>* BayesianClassifier::classifyCollocation(pair<string,string>& collocation, vector<Component*>& comps){
@@ -471,6 +471,69 @@ map<string, float>* BayesianClassifier::classifySupplier(string& comp, vector<Co
     return ret;
 }
 
+////////////
+/// \brief BayesianClassifier::createParents
+/// \param comps
+/// \param parentDrawing
+/// \param repo
+/// \return
+/// puts the Compoents into a tree
+int BayesianClassifier::createParents(vector<Component*>& comps, string& parentDrawing, Repository& repo){
+
+    map<pair<string,string>,int> counts = map<pair<string,string>,int>();
+    repo.getParentPairs(counts);
+
+    for(auto& entry: counts) cout << entry.first.first << " " << entry.first.second << " " << entry.second << endl;
+
+    //parent component for the file
+    Component* c = new Component();
+    c->mfr = "GENERIC";
+    c->mpn = parentDrawing;
+    c->type = "Subassembly";
+    c->description = parentDrawing + " top-level assembly";
+    comps.push_back(c);
+
+    for(auto& e1: comps){
+        map<string, int> parents;
+        for(auto& e2: counts){
+            if(e2.first.first == e1->type){
+                parents[e2.first.second]++;
+            }
+        }
+        vector<pair<string, int>> sortedPars;
+
+        map<string, int>::iterator it;
+        for(it = parents.begin(); it!= parents.end(); ++it) sortedPars.push_back(*it);
+
+        //sort ascending
+        sort(sortedPars.begin(), sortedPars.end(),
+             [=](pair<string, int>& a, pair<string, int>& b){
+                    return a.second < b.second;
+        });
+
+        while(e1->parent == NULL && sortedPars.size() > 0){
+            for(auto& e2: comps){
+                if(e2 != e1){
+                    if(e2->type == sortedPars.back().first){
+                        cout << *e1 << "Parent type: " << sortedPars.back().first << endl;
+                        e1->parent = e2;
+                        goto outOfLoop;
+                    }
+                }
+            }
+            sortedPars.pop_back();
+        }//end while parent not found
+
+        //if parent still not found
+        outOfLoop:
+        if(e1->parent == NULL){
+            cout << *e1;
+            cout << " - Parent was null" << endl;
+            e1->parent = c;
+        }
+    }//end for all components
+    return 0;
+}
 
 StringRecord::StringRecord(){
     count = 0;
