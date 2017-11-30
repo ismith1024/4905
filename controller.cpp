@@ -997,14 +997,16 @@ void Controller::testGetMIM(){
         //cout << "make pieces" << endl;
         QStringList pieces = QString::fromStdString(e1).split(' ');
         for(auto& e2: pieces){
-            if(e2.size() > 1){
-                curr->push_back(e2.toStdString());
+            QString s = e2.toLower();
+            tok.removeStopCharacters(s);
+            if(s.size() > 1){
+                curr->push_back(s.toStdString());
             }
         }
         wordRows.push_back(curr);
     }
 
-    vector<string>::iterator it1, it2;
+    //vector<string>::iterator it1, it2;
 
     for(auto& e1: wordRows){
         //count single words
