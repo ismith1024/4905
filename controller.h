@@ -61,6 +61,7 @@ public:
     int testEntityDeduplication(); //Entity deduplication
     int testBuildComponents();
     void testParent();
+    void testGetMIM();
 
     int buildComponentsFromPhrase(BayesianClassifier&, vector<pair<string, string>>&, vector<pair<string,string>>&, vector<Component*>&, vector<Component*>&);
     //void buildComponentsFromPhrase(vector<pair<string,string>>&, vector<pair<string,string>>&, vector<Component*>&);

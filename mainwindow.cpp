@@ -65,7 +65,7 @@ void MainWindow::on_pushButton_14_clicked(){
 
 void MainWindow::on_pushButton_15_clicked(){
     cout << "Testing entity deduplication" << endl;
-    control.testEntityDeduplication();
+    control.testGetMIM();
 }
 
 void MainWindow::on_pushButton_5_clicked(){

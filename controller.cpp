@@ -808,7 +808,10 @@ int Controller::testTopicExtraction(){
 
 
  // Finding quasi-word collocations
-
+///////////
+/// \brief Controller::testFindCollocations
+/// \return
+/// Tests classifying a component on collocations in its description
 int Controller::testFindCollocations(){
     vector<pair<string,string>> colls = vector<pair<string,string>>();
     BayesianClassifier bayes = BayesianClassifier();
@@ -816,18 +819,115 @@ int Controller::testFindCollocations(){
     repo.getComponentsIncludingGenerics(components);
     getCollocationsFromDBDescriptions(colls);
 
-    for(auto& entry: colls){
-        map<string, float>* results = bayes.classifyCollocation(entry, components);
+    int right = 0;
+    int wrong = 0;
 
-        cout << endl << endl << "CLASSIFY COLLOCATION: <" << entry.first << ", " << entry.second << ">" << endl;
-        if(results != 0){
+    for(int mod = 0; mod <=3; ++mod){
 
-            for(auto& e2: (*results)){
-                if(e2.second > 0) cout << e2.first << " : " << e2.second << endl;
+        int i = 0;
+
+        vector<Component*> testing;
+        vector<Component*> training;
+
+        for(auto& entry: components){
+            if(i++ % 4 == mod) testing.push_back(entry);
+            else training.push_back(entry);
+        }
+
+        for(auto& e1: testing){
+
+            cout << "Test: " << *e1 << endl;
+            vector<string> words;
+            QStringList pieces = QString::fromStdString(e1->description).split(" ");
+
+            for(auto e2: pieces){
+                string s = e2.toLower().toStdString();
+                words.push_back(s);
             }
-            delete results;
+            vector<pair<string,string>> colls2;
 
-        } else cout << "Not found in corpus" << endl;
+            for(auto& e2: colls){
+                bool first = false;
+                bool second = false;
+                for(auto& e3: words){
+                    if(e2.first == e3) first = true;
+                    if(e2.second == e3) second = true;
+                }
+                if(first && second) colls2.push_back(e2);
+            }
+
+            map<string, float> totResults;
+
+            for(auto& e2: colls2){
+                map<string, float>* results = bayes.classifyCollocation(e2, training);
+
+                if(results){
+                    pair<string, float>best;
+                    float bestVal = 0.0;
+                    for(auto& e3: *results){
+
+                        //pair<string, float> best;
+                        //float bestval = 0.0;
+                        //for(auto& e2: (totResults)){
+                        if(e3.second > 0.0) cout << e3.first << " -- " << e3.second << endl;
+                        if(e3.second > bestVal){
+                            best = e3;
+                            bestVal = e3.second;
+                        }
+                        //}
+                    }
+
+               totResults[best.first]++;
+               cout << "Working " << best.first;
+
+                        //if(e3.second > 0) cout << e3.first << " -- " << e3.second << endl;
+                        //string s = e3.first;
+                        //if(!UtilityAlgorithms::mapContainsKey(totResults, s)){
+                        //    totResults[s] = (1.0 - e3.second);
+                        //} else {
+                        //    totResults[s] *= (1.0 - e3.second);
+                        //}
+                    //}
+                }
+                delete results;
+
+            }
+
+            /*
+    static bool mapContainsKey(map<string, int>&, string&);
+    static bool mapContainsKey(map<string, string>&, string&);
+*/
+
+            pair<string, float> best;
+            float bestval = 0.0;
+            for(auto& e2: (totResults)){
+                if(/*(1.0 - e2.second) > bestval*/ e2.second > bestval) best = e2;
+            }
+
+            cout << "Found: " << best.first << "  Was: " << e1->type << endl;
+
+            if(best.first == e1->type) right++;
+            else wrong++;
+
+            cout << "Right: " << right << "  Wrong: " << wrong << endl;
+        }
+
+
+
+        /*for(auto& entry: colls){
+            map<string, float>* results = bayes.classifyCollocation(entry, components);
+
+            cout << endl << endl << "CLASSIFY COLLOCATION: <" << entry.first << ", " << entry.second << ">" << endl;
+            if(results != 0){
+
+                for(auto& e2: (*results)){
+                    if(e2.second > 0) cout << e2.first << " : " << e2.second << endl;
+                }
+                delete results;
+
+            } else cout << "Not found in corpus" << endl;
+
+        }*/
 
     }
 }
@@ -876,6 +976,81 @@ int Controller::testClassifyCollocations(){
 
     of.close();
 
+}
+
+void Controller::testGetMIM(){
+    vector<string> descriptions;
+    //cout << "get descriptions" << endl;
+    repo.getAllDescriptionsFromDB(descriptions);
+
+    int size = descriptions.size();
+    map<string, int> probWord;
+    map<pair<string,string>,int> probColl;
+    vector<pair<pair<string,string>,float>> pmis;
+
+    vector<vector<string>*> wordRows;
+
+    //tokenize the words from the descriptions
+    for(auto& e1: descriptions){
+        //cout << "make curr" << endl;
+        vector<string>* curr = new vector<string>();
+        //cout << "make pieces" << endl;
+        QStringList pieces = QString::fromStdString(e1).split(' ');
+        for(auto& e2: pieces){
+            if(e2.size() > 1){
+                curr->push_back(e2.toStdString());
+            }
+        }
+        wordRows.push_back(curr);
+    }
+
+    vector<string>::iterator it1, it2;
+
+    for(auto& e1: wordRows){
+        //count single words
+        cout << "count words" << endl;
+
+        for(int i = 0; i < e1->size(); ++i){
+            probWord[e1->at(i)]++;
+        }
+
+        for(int i = 0; i < e1->size()-1; ++i){
+            for(int j = i+1; j < e1->size(); ++j){
+                probColl[make_pair(e1->at(i), e1->at(j))]++;
+            }
+        }
+
+    }
+
+
+
+    for(auto& e1: probColl){
+    //cout << "make pmi" << endl;
+        //minimum support for rule = 3
+        if(e1.second > 3){
+            float pmi = (float) e1.second / ((float)probWord[e1.first.first] * (float)probWord[e1.first.second] );
+            pmis.push_back(make_pair(e1.first, pmi));
+        }
+    }
+
+    sort(pmis.begin(), pmis.end(), [=](pair<pair<string,string>, float>& a, pair<pair<string,string>,float>& b){
+        return a.second < b.second;
+    }
+    );
+
+
+    ofstream of;
+    string ofLocation = "/home/ian/Data/collocationMIMs.txt";
+    of.open(ofLocation);
+
+    of << "RESULTS: " << endl;
+    for(auto& e1: pmis){
+        of << e1.first.first << "," << e1.first.second << " : " << e1.second << endl;
+    }
+
+    of.close();
+
+    for(auto& e1: wordRows) delete e1;
 }
 
 //todo: broken

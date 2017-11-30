@@ -154,7 +154,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Test Entity Deduplication</string>
+     <string>Get Collocation PMI</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
