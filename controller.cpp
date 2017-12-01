@@ -979,7 +979,10 @@ int Controller::testClassifyCollocations(){
 }
 
 void Controller::testGetMIM(){
+    BayesianClassifier bayes;
     vector<string> descriptions;
+    vector<Component*> comps;
+    repo.getComponentsIncludingGenerics(comps);
     //cout << "get descriptions" << endl;
     repo.getAllDescriptionsFromDB(descriptions);
 
@@ -1040,6 +1043,7 @@ void Controller::testGetMIM(){
     }
     );
 
+    cout << "Start metrics";
 
     ofstream of;
     string ofLocation = "/home/ian/Data/collocationMIMs.txt";
@@ -1047,12 +1051,29 @@ void Controller::testGetMIM(){
 
     of << "RESULTS: " << endl;
     for(auto& e1: pmis){
-        of << e1.first.first << "," << e1.first.second << " : " << e1.second << endl;
+        cout << "get results" << endl;
+        map<string,float>* results = bayes.classifyCollocation(e1.first, comps);
+        float best = 0.0;
+        float tot = 0.0;
+        float conf = 0.0;
+        if(results){
+            for(auto& e2: (*results)){
+                tot += e2.second;
+                if(e2.second > best) best = e2.second;
+            }
+
+            conf = best / tot;
+
+            cout << "de;ete results" << endl;
+            delete results;
+        }
+        of << e1.first.first << "," << e1.first.second << " : " << e1.second << " : " << conf << endl;
     }
 
     of.close();
 
     for(auto& e1: wordRows) delete e1;
+    cout << "done" << endl;
 }
 
 //todo: broken
@@ -1060,8 +1081,22 @@ int Controller::testNounPhrases(){
 
     //temporary text to test functions
     vector<string> text = vector<string>();
+    string line;
 
     cout << "Get test case" << endl;
+
+    ofstream textFile ("/home/ian/Data/Testcases/Text/text.txt");
+     if (textFile.is_open()){
+         while ( getline (textFile,line) ) {
+             text.push_back(line);
+           }
+         close(textFile);
+     } else {
+        cout << "Unable to open file";
+        return -1;
+     }
+
+
 
     //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
     //if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
