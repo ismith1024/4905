@@ -19,6 +19,94 @@
 ///
 ///
 
+/////////////////// Test case for clustering on Lev Dist
+///
+/*void Controller::runOneOf(){
+int INCLUSION_CRITERION = 2;
+int MAX_VARIANCE = 4;
+int MIN_SS = 3;
+float INCLUSION_RATIO = 0.33333;
+
+vector<Component*> collection;
+vector<HCluster*> clusters;
+repo.getComponents(collection);
+
+int i = 0;
+for(Component* c: collection){
+    ++i;
+    //if(i == 100) break;
+    bool added = false;
+    if(c->mfr.compare("ANY SUPPLIER") == 0) continue;
+
+    for(HCluster* clust: clusters){
+        if(clust->checkForAdd(c, MAX_VARIANCE, INCLUSION_CRITERION)){
+            clust->add(c);
+            added = true;
+            //cout << "Found cluster for " << c->mfr << " : " << c->mpn << endl;
+        }
+        if(added) break;
+    }
+
+    if(!added){
+        HCluster* newClust = new HCluster();
+        newClust->add(c);
+        clusters.push_back(newClust);
+        //cout << "Create new cluster " << c->mfr << " : " << c->mpn << endl;
+    }
+}
+
+float totalComps = 0.0;
+int minorityComps = 0;
+int singletonComps = 0;
+int majoritycomps = 0;
+
+float classCount = 0.0;
+
+for(HCluster* clus: clusters){
+
+    int sz = clus->numCategories();
+    classCount += sz;
+    cout << "Cluster -- size: " << clus->numEntries() << "   Number of categories: " << sz << endl;
+    /*if(sz >= 10){
+        cout << "Large category:" << endl;
+        clus->dumpComponents();
+    }* /
+
+    totalComps += clus->data->size();
+
+    if(clus->data->size() == 1){
+        singletonComps++;
+    } else{
+        map<string, int> counts;
+
+        for(Component* comp: *(clus->data)){
+            counts[comp->type]++;
+        }
+
+        int max = 0;
+        for(auto& item: counts){
+            if(item.second > max) max = item.second;
+        }
+
+        minorityComps += clus->data->size() - max;
+        majoritycomps += max;
+    }
+
+
+}
+
+cout << "---------------------" << endl << "Opened " << collection.size() << " components." << endl;
+cout << "Max dist for inclusion: " << INCLUSION_CRITERION << "    Max Diameter for exclusion: " << MAX_VARIANCE << endl;
+cout << "Found " << clusters.size() << " clusters." << endl;
+cout << "Average classes per cluster: " << classCount / clusters.size() << endl;
+cout << "Average Components per cluster" << totalComps / clusters.size() << endl;
+
+cout << "Total components: " << totalComps << endl << "Singleton components: " << singletonComps << endl << "Minority Components: " << minorityComps << endl << "Majority components: " << majoritycomps << endl;
+cout << "---------------------" << endl << endl;
+//cout<< "TEST" << endl << "593D476X9020D2TE3" << " " << "BLM18PG181SH1D" << endl;
+//cout << UtilityAlgorithms::levDist("593D476X9020D2TE3", "BLM18PG181SH1D");
+}*/
+
 /*
 
 //////////

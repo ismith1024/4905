@@ -26,43 +26,34 @@ function LCSubstr(S[1..m], T[1..n])
     return ret
 */
 //////////
-/// \brief UtilityAlgorithms::longestCommonSS
+/// \brief UtilityAlgorithms::lcs
 /// \param s1
 /// \param s2
 /// \return
 ///
-int UtilityAlgorithms::longestCommonSS(string s1, string s2){
+int UtilityAlgorithms::lcs(string s1, string s2){
 
     int m = s1.length();
     int n = s2.length();
-    int len[m][n];
-
-    int z = 0;
-    string ret = "";
-
-    for(int i = 0; i < m; ++i){
-        for(int j = 0; j < n; ++j){
-            if(s1[i] == s2[j]){
-                if(i == 0 || j == 0){
-                    len[i][j] = 1;
-                }
-                else{
-                    len[i][j] = len[i-1][j-1] + 1;
-                }
-
-                if(len[i][j] > z){
-                     z = len[i][j];
-                     ret = s1.substr(i-z+1,i);
-                }
-                else if (len[i][j] == z){
-                    ret = ret + s1.substr(i-z+1,i);
-                }
-            } // if
-            else len[i][j] = 0;
-        } //for
-    } //for
-    return z;
+    int c[m+1][n+1];
+    for(int i = 0; i < m+1; ++i){
+        c[i][0] = 0;
+    }
+    for(int i = 0; i < n+1; ++i){
+        c[0][i]=0;
+    }
+    for(int i = 1; i <= m; ++i){
+        for(int j = 1; j <= n; ++j){
+            if(s1.at(i-1) == s2.at(j-1)){
+                c[i][j] = 1 + c[i-1][j-1];
+            } else{
+                c[i][j] = max(c[i-1][j], c[i][j-1]);
+            }
+        }
+    }
+    return c[m][n];
 }
+
 
 //////////
 /// \brief UtilityAlgorithms::isAlphanumeric
@@ -178,8 +169,8 @@ int UtilityAlgorithms::levDist(string s1, string s2){
 }
 
 //Function overloads to compare objects
-int UtilityAlgorithms::longestCommonSS(Component& c1, Component& c2){
-    return UtilityAlgorithms::longestCommonSS(c1.mpn, c2.mpn);
+int UtilityAlgorithms::lcs(Component& c1, Component& c2){
+    return UtilityAlgorithms::lcs(c1.mpn, c2.mpn);
 }
 
 

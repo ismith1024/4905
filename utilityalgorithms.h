@@ -13,9 +13,9 @@ using namespace std;
 
 class UtilityAlgorithms{
 public:
-    static int longestCommonSS(string, string);
+    static int lcs(string, string);
     static int levDist(string, string);
-    static int longestCommonSS(Component&, Component&);
+    static int lcs(Component&, Component&);
     static int levDist(Component&, Component&);
     static pair<string,float> argmax(map<string,float>*);
     static pair<int,float> argmax(map<int,float>*);

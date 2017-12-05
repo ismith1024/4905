@@ -1575,8 +1575,8 @@ void Controller::crossValidateSupp(BayesianClassifier& bayes, vector<Component*>
 /// \brief Controller::runOneOf
 /// Set this handler to whatever one-of function needs to be run for test or data cleaning
 void Controller::runOneOf(){
-    int INCLUSION_CRITERION = 2;
-    int MAX_VARIANCE = 4;
+    int INCLUSION_CRITERION = 5;
+    int MAX_VARIANCE = 6;
     int MIN_SS = 3;
     float INCLUSION_RATIO = 0.33333;
 
@@ -1620,10 +1620,6 @@ void Controller::runOneOf(){
         int sz = clus->numCategories();
         classCount += sz;
         cout << "Cluster -- size: " << clus->numEntries() << "   Number of categories: " << sz << endl;
-        /*if(sz >= 10){
-            cout << "Large category:" << endl;
-            clus->dumpComponents();
-        }*/
 
         totalComps += clus->data->size();
 

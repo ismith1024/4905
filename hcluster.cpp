@@ -25,7 +25,8 @@ bool HCluster::checkForAdd(Component* st, int MAX_VARIANCE, int INCLUSION_CRITER
         //int subs = UtilityAlgorithms::longestCommonSS(*st, *s);
 
         //use this to include on basis of Levenshtein distance
-        int dist2 = UtilityAlgorithms::levDist(*st, *s); //also try this with dist - LCSS
+        //int dist2 = UtilityAlgorithms::levDist(*st, *s);
+        int dist2 = UtilityAlgorithms::lcs(*st, *s);
         if(dist2 > dist) dist = dist2;
 
         //use this to reject on excessive Levenshtein distance
@@ -53,7 +54,7 @@ bool HCluster::checkForMerge(HCluster* hc, int MAX_VARIANCE, int INCLUSION_CRITE
     bool ret = false;
     for(Component* s1: *data){
         for(Component* s2: *hc->data){
-            int dist = UtilityAlgorithms::levDist(*s1, *s2);
+            int dist = UtilityAlgorithms::lcs(*s1, *s2); //int dist = UtilityAlgorithms::levDist(*s1, *s2);
             if(dist > MAX_VARIANCE) return false;
 
             //float ratio = float(dist) / float(max(s1->mpn.length(), s2->mpn.length()));
