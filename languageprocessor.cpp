@@ -41,25 +41,34 @@ string LanguageProcessor::getVerbStem(string& instr){
     string ed = "ed";
     string ing = "ing";
 
+    bool stem = false;
+
     if(UtilityAlgorithms::endsWith(instr, es)){
+        stem = true;
         for(int i = 0; i < instr.length() -2; ++i){
             ret += instr.at(i);
         }
     } else if(UtilityAlgorithms::endsWith(instr, s)){
+        stem = true;
         for(int i = 0; i < instr.length() -1; ++i){
             ret += instr.at(i);
         }
     } else if(UtilityAlgorithms::endsWith(instr, ed)){
+        stem = true;
         for(int i = 0; i < instr.length() -2; ++i){
             ret += instr.at(i);
         }
     } else if(UtilityAlgorithms::endsWith(instr, ing)){
+        stem = true;
         for(int i = 0; i < instr.length() -3; ++i){
             ret += instr.at(i);
         }
     }
 
-    cout << "Verb stem: " << instr << " - " << ret << " " << getTag(ret) << " " << getTag(ret + "e") << endl;
+    if(!stem) return instr;
+
+    cout << ret <<  " -- verb stem: " << instr << " - " << ret << " " << getTag(ret) << " " << getTag(ret + "e") << endl;
+
 
     if(getTag(ret) != "???")
         return ret;

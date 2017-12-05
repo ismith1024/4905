@@ -16,6 +16,7 @@
 #include "languageprocessor.h"
 #include "testfile.h"
 #include "utilityalgorithms.h"
+#include "hcluster.h"
 
 using namespace std;
 
@@ -58,7 +59,7 @@ public:
     int testNounPhrases(); // Finding noun phrases in free text
     int testVerbPhrases(); // Finding verb phrase fragments in free text
     int testClassifySupplier(); // Classifying the supplier of an identified part number
-    int testEntityDeduplication(); //Entity deduplication
+    //int testEntityDeduplication(); //Entity deduplication
     int testBuildComponents();
     void testParent();
     void testGetMIM();

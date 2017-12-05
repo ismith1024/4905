@@ -1,7 +1,7 @@
 #ifndef HCLUSTER_H
 #define HCLUSTER_H
 
-#endif // HCLUSTER_H
+
 
 #include <vector>
 #include <string>
@@ -33,3 +33,4 @@ public:
 
     void dumpComponents();
 };
+#endif // HCLUSTER_H

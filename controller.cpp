@@ -978,6 +978,9 @@ int Controller::testClassifyCollocations(){
 
 }
 
+////////////
+/// \brief Controller::testGetMIM
+///
 void Controller::testGetMIM(){
     BayesianClassifier bayes;
     vector<string> descriptions;
@@ -1076,68 +1079,66 @@ void Controller::testGetMIM(){
     cout << "done" << endl;
 }
 
-//todo: broken
+////////////
+/// \brief Controller::testNounPhrases
+/// \return
+/// Extracts noun phrases from:
+///     - The online summary description of Carleton's undergraduate Calendar
+///     - The encounter between Alice and the Caterpillar from "Alice's Adventures in Wonderland"
 int Controller::testNounPhrases(){
 
-    //temporary text to test functions
     vector<string> text = vector<string>();
     string line;
 
     cout << "Get test case" << endl;
 
-    ofstream textFile ("/home/ian/Data/Testcases/Text/text.txt");
+    ifstream textFile ("/home/ian/Data/Testcases/Text/text.txt");
      if (textFile.is_open()){
-         while ( getline (textFile,line) ) {
+         while(getline(textFile,line)) {
              text.push_back(line);
            }
-         close(textFile);
+         textFile.close();
      } else {
         cout << "Unable to open file";
         return -1;
      }
 
+     cout << "--- TEXT FROM FILE ---" << endl;
+     for(auto& e1: text) cout << e1 << endl;
 
+     vector<string> words;
 
-    //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
-    //if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
-    //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
+     for(auto& e2: text){
+        QStringList pieces = QString::fromStdString(e2).toLower().split(' ');
+        for(auto& word: pieces) {
+            if(word.length() > 0){
+                bool eol = (word[word.length()-1] == '.');
+                tok.removeStopCharacters(word);
+                string s = word.toStdString();
+                tok.removeStopCharacters(s);
+                words.push_back(s);
+                if(eol) words.push_back(".");
+            }
+        }
+     }
 
     ////tag the text .................................................
-    cout << "Tagging words" << endl;
+    cout << "Tagging words" << endl;    
 
     processor.getXML();
     processor.countTags();
-    vector<pair<string,string>> tagResults = vector<pair<string,string>>();
-    processor.tag(text, tagResults);
 
-    /////////////////////////// SQL ERROR AFTER HERE  ----> /////////////////////////////////
-    ////TODO: run the text through the technical dictionary ..........
-    ///     This will idenify numbers, etc. that weare interested in.
-    ///     Needs to run after the tagging from corpus -- will include special tags
-    //processor.openTechDictionary(repo);
-    //processor.applyTechDictionary(tagResults);
-    //////classify the unidentified alphanumeric strings ..............
-    //classifyAlpha("hi");
-    ///////////////////////////// <---- SQL ERROR BEFORE HERE
+    vector<pair<string,string>> tags;// = vector<pair<string,string>>();
+    processor.tag(words, tags);
 
+    for(auto& e1: tags){
+        cout << e1.first << "," << e1.second << endl;
+    }
 
     ////Parse the noun and verb phrases ......................
     vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
 
-    //this collection will hold the words we are analyzing
-    vector<string> dwgText = vector<string>();
-
-    //function that retrieves the test case
-    //getTestCase2(dwgText, tok);
-
-    ////////// Code that can be used to open training text for testing instead
-    //repo.getAllDwgTextFromDB(dwgText);
-    //repo.getAllDescriptionsFromDB(dwgText);
-
-    ////// Extracts noun and verb phrases from the free text in dwgText
-
-    processor.tag(dwgText, tagResults);
-    processor.getNounPhrases(tagResults, nPhrases);
+    processor.getNounPhrases(tags, nPhrases);
 
     for(auto& entry: nPhrases){
         cout << "NOUN PHRASE : " << endl;
@@ -1151,57 +1152,69 @@ int Controller::testNounPhrases(){
 
 }
 
-//todo: broken
+/////////////////
+/// \brief Controller::testVerbPhrases
+/// \return
+/// Extracts unwrapped verb phrases from:
+///     - The online summary description of Carleton's undergraduate Calendar
+///     - The encounter between Alice and the Caterpillar from "Alice's Adventures in Wonderland"
+/// Note that noun phrases embedded in the verb phrase are treated sepatately :
+/// This application does not want the full parse tree.
 int Controller::testVerbPhrases(){
-    //temporary text to test functions
     vector<string> text = vector<string>();
+    string line;
 
-    //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
-    //if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
-    //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
+    cout << "Get test case" << endl;
 
+    ifstream textFile ("/home/ian/Data/Testcases/Text/text.txt");
+     if (textFile.is_open()){
+         while(getline(textFile,line)) {
+             text.push_back(line);
+           }
+         textFile.close();
+     } else {
+        cout << "Unable to open file";
+        return -1;
+     }
+
+     cout << "--- TEXT FROM FILE ---" << endl;
+     for(auto& e1: text) cout << e1 << endl;
+
+     vector<string> words;
+
+     for(auto& e2: text){
+        QStringList pieces = QString::fromStdString(e2).toLower().split(' ');
+        for(auto& word: pieces) {
+            if(word.length() > 0){
+                bool eol = (word[word.length()-1] == '.');
+                tok.removeStopCharacters(word);
+                string s = word.toStdString();
+                tok.removeStopCharacters(s);
+                words.push_back(s);
+                if(eol) words.push_back(".");
+            }
+        }
+     }
 
     ////tag the text .................................................
     cout << "Tagging words" << endl;
 
     processor.getXML();
     processor.countTags();
-    vector<pair<string,string>> tagResults = vector<pair<string,string>>();
-    processor.tag(text, tagResults);
 
-    /////////////////////////// SQL ERROR AFTER HERE  ----> /////////////////////////////////
-    ////TODO: run the text through the technical dictionary ..........
-    ///     This will idenify numbers, etc. that weare interested in.
-    ///     Needs to run after the tagging from corpus -- will include special tags
-    //processor.openTechDictionary(repo);
-    //processor.applyTechDictionary(tagResults);
-    //////classify the unidentified alphanumeric strings ..............
-    //classifyAlpha("hi");
-    ///////////////////////////// <---- SQL ERROR BEFORE HERE
+    vector<pair<string,string>> tags;// = vector<pair<string,string>>();
+    processor.tag(words, tags);
 
+    for(auto& e1: tags){
+        cout << e1.first << "," << e1.second << endl;
+    }
 
     ////Parse the noun and verb phrases ......................
-     vector<vector<pair<string, string>>*> vPhrases = vector<vector<pair<string, string>>*>();
+    vector<vector<pair<string, string>>*> nPhrases = vector<vector<pair<string, string>>*>();
 
-    //this collection will hold the words we are analyzing
-    vector<string> dwgText = vector<string>();
+    processor.getVerbPhrases(tags, nPhrases);
 
-    //function htat retrieves the test case
-    //getTestCase2(dwgText, tok);
-
-    ////////// Code that can be used to open training text for testing instead
-    //repo.getAllDwgTextFromDB(dwgText);
-    //repo.getAllDescriptionsFromDB(dwgText);
-
-    /////////// Legacy code that was used to obtain untagged words from the training set
-    //obtainUntaggedWords(tagResults);
-
-    ////// Extracts noun and verb phrases from the free text in dwgText
-
-    processor.tag(dwgText, tagResults);
-    processor.getVerbPhrases(tagResults, vPhrases);
-
-    for(auto& entry: vPhrases){
+    for(auto& entry: nPhrases){
         cout << "VERB PHRASE : " << endl;
         for(auto& e2: (*entry)){
             cout << e2.first << endl;
@@ -1210,7 +1223,6 @@ int Controller::testVerbPhrases(){
     }
 
     return 0;
-
 }
 
 
@@ -1332,7 +1344,7 @@ int Controller::testClassifySupplier(){
     return 0;
 }
 
-int Controller::testEntityDeduplication(){return 0;} //Entity deduplication
+//int Controller::testEntityDeduplication(){return 0;} //Entity deduplication
 
 void Controller::testParent(){
     map<string, float> res = map<string, float>();
@@ -1563,16 +1575,125 @@ void Controller::crossValidateSupp(BayesianClassifier& bayes, vector<Component*>
 /// \brief Controller::runOneOf
 /// Set this handler to whatever one-of function needs to be run for test or data cleaning
 void Controller::runOneOf(){
-    vector<pair<string,string>> terms = vector<pair<string,string>>();
+    int INCLUSION_CRITERION = 2;
+    int MAX_VARIANCE = 4;
+    int MIN_SS = 3;
+    float INCLUSION_RATIO = 0.33333;
 
-    repo.getTechKeywords(terms);
+    vector<Component*> collection;
+    vector<HCluster*> clusters;
+    repo.getComponents(collection);
 
-    for(auto& entry: terms){
-        cout << entry.first << " : " << entry.second << endl;
+    int i = 0;
+    for(Component* c: collection){
+        ++i;
+        //if(i == 100) break;
+        bool added = false;
+        if(c->mfr.compare("ANY SUPPLIER") == 0) continue;
+
+        for(HCluster* clust: clusters){
+            if(clust->checkForAdd(c, MAX_VARIANCE, INCLUSION_CRITERION)){
+                clust->add(c);
+                added = true;
+                //cout << "Found cluster for " << c->mfr << " : " << c->mpn << endl;
+            }
+            if(added) break;
+        }
+
+        if(!added){
+            HCluster* newClust = new HCluster();
+            newClust->add(c);
+            clusters.push_back(newClust);
+            //cout << "Create new cluster " << c->mfr << " : " << c->mpn << endl;
+        }
     }
 
-    //repo.replaceParents();
+    float totalComps = 0.0;
+    int minorityComps = 0;
+    int singletonComps = 0;
+    int majoritycomps = 0;
+
+    float classCount = 0.0;
+
+    for(HCluster* clus: clusters){
+
+        int sz = clus->numCategories();
+        classCount += sz;
+        cout << "Cluster -- size: " << clus->numEntries() << "   Number of categories: " << sz << endl;
+        /*if(sz >= 10){
+            cout << "Large category:" << endl;
+            clus->dumpComponents();
+        }*/
+
+        totalComps += clus->data->size();
+
+        if(clus->data->size() == 1){
+            singletonComps++;
+        } else{
+            map<string, int> counts;
+
+            for(Component* comp: *(clus->data)){
+                counts[comp->type]++;
+            }
+
+            int max = 0;
+            for(auto& item: counts){
+                if(item.second > max) max = item.second;
+            }
+
+            minorityComps += clus->data->size() - max;
+            majoritycomps += max;
+        }
+
+
+    }
+
+    cout << "---------------------" << endl << "Opened " << collection.size() << " components." << endl;
+    cout << "Max dist for inclusion: " << INCLUSION_CRITERION << "    Max Diameter for exclusion: " << MAX_VARIANCE << endl;
+    cout << "Found " << clusters.size() << " clusters." << endl;
+    cout << "Average classes per cluster: " << classCount / clusters.size() << endl;
+    cout << "Average Components per cluster" << totalComps / clusters.size() << endl;
+
+    cout << "Total components: " << totalComps << endl << "Singleton components: " << singletonComps << endl << "Minority Components: " << minorityComps << endl << "Majority components: " << majoritycomps << endl;
+    cout << "---------------------" << endl << endl;
+    //cout<< "TEST" << endl << "593D476X9020D2TE3" << " " << "BLM18PG181SH1D" << endl;
+    //cout << UtilityAlgorithms::levDist("593D476X9020D2TE3", "BLM18PG181SH1D");
 }
+
+
+    /* Code for testing out the strign distance
+     * string s1 = "Kittens"; << endl
+    string s2 = "Mittens";
+    string s3 = "Mitts";
+
+    int test = UtilityAlgorithms::longestCommonSS(s1, s2);
+
+    cout << "LCSS -- " << s1 << ", " << s2 << " " << test << endl;
+
+    test = UtilityAlgorithms::levDist(s1, s2);
+
+    cout << "Levenshtein -- " << s1 << ", " << s2 << " " << test << endl;
+
+    test = UtilityAlgorithms::longestCommonSS(s2, s3);
+
+    cout << "LCSS -- " << s2 << ", " << s3 << " " << test << endl;
+
+    test = UtilityAlgorithms::levDist(s2, s3);
+
+    cout << "Levenshtein -- " << s2 << ", " << s3 << " " << test << endl;
+}
+
+
+    //vector<pair<string,string>> terms = vector<pair<string,string>>();
+
+    //repo.getTechKeywords(terms);
+
+    //for(auto& entry: terms){
+    //    cout << entry.first << " : " << entry.second << endl;
+    //}
+
+    //repo.replaceParents();
+//}
 
 /*
     //determine the topic
