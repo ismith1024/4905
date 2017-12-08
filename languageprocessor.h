@@ -43,6 +43,7 @@ public:
     //int getTestCase(vector<string>&);
     int openTechDictionary(Repository&);
     int applyTechDictionary(vector<pair<string,string>>&);
+    void applySupplierNames(vector<pair<string,string>>&, map<string, int>&);
 
     string toupper(string&);
 
@@ -61,6 +62,7 @@ public:
     bool isDeterminer(pair<string,string>&);
 
     void dumpUnknownWords(vector<pair<string, string>>&, string);
+
 
     void findCollocationMetrics(vector<string>&, map<string, int>&, map<pair<string,string>, int>& , Tokenizer&);
     void mimForCollocations(map<string, int>&, map<pair<string,string>, int>&, vector<pair<string, string>>&);

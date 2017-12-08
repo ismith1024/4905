@@ -29,8 +29,9 @@ void MainWindow::on_pushButton_10_clicked(){
 }
 
 void MainWindow::on_pushButton_2_clicked(){
-    cout << "Testing topic extraction" << endl;
-    control.testTopicExtraction();
+    int tcNum = ui->tcBox->cleanText().toInt();
+    cout << "Testing Augmented Vocabulary" << endl;
+    control.testAugmentedVocabulary(tcNum);
 }
 
 void MainWindow::on_pushButton_3_clicked(){

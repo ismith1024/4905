@@ -28,6 +28,22 @@ vector<pair<string,string>>& LanguageProcessor::getDict(){
 }
 
 
+void LanguageProcessor::applySupplierNames(vector<pair<string,string>>& tags, map<string, int>& sns){
+    //Get the supplier aliases
+    //map<string, int> supplierNumbers = map<string, int>();
+    //repo.getSupplierNumbers(supplierNumbers);
+
+    for(auto& i: tags){
+        //cout << "Check Supplier: " << i.first << endl;
+        if(UtilityAlgorithms::mapContainsKey(sns, i.first)){
+            int n = sns[i.first];
+            //cout << "Tag supplier " << i.first;
+            i.second = "NNP subtype=supp" + to_string(n);
+        }
+    }
+}
+
+
 //////
 /// \brief LanguageProcessor::getVerbStem
 /// \param instr

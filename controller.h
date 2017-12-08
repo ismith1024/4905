@@ -52,7 +52,7 @@ public:
     //void rungui(int, char*);
 
     ////Unit Testing
-    int testTopicExtraction();
+    int testAugmentedVocabulary(int);
     int testClassifyMatType();
     int testFindCollocations(); // Finding quasi-word collocations
     int testClassifyCollocations(); //Classifying a quasi-word collocation

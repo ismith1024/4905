@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>90</y>
+      <y>240</y>
       <width>171</width>
       <height>25</height>
      </rect>
@@ -37,7 +37,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Test Topic Extractor</string>
+     <string>Test Augmented Vocabulary</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_3">
@@ -173,7 +173,7 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>420</x>
       <y>10</y>
       <width>111</width>
       <height>17</height>
@@ -196,14 +196,14 @@
      <number>1</number>
     </property>
     <property name="maximum">
-     <number>5</number>
+     <number>10</number>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_6">
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>60</y>
+      <y>210</y>
       <width>111</width>
       <height>25</height>
      </rect>
@@ -229,7 +229,7 @@
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>180</y>
+      <y>270</y>
       <width>171</width>
       <height>25</height>
      </rect>
@@ -249,6 +249,22 @@
     </property>
     <property name="text">
      <string>Test Extract Components</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="tcBox">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>30</y>
+      <width>45</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>10</number>
     </property>
    </widget>
   </widget>

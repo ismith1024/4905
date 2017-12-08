@@ -94,6 +94,8 @@ void Controller::runTestCase(int tcNum){
     //Open the corpus
     processor.getXML();
     processor.countTags();
+    map<string, int> supplierNumbers = map<string, int>();
+    repo.getSupplierNumbers(supplierNumbers);
 
     //Train collocation classifier
     vector<pair<string,string>> colls = vector<pair<string,string>>();
@@ -101,9 +103,6 @@ void Controller::runTestCase(int tcNum){
     repo.getComponentsIncludingGenerics(components);
     getCollocationsFromDBDescriptions(colls);
 
-    //Get the supplier aliases
-    map<string, int> supplierNumbers = map<string, int>();
-    repo.getSupplierNumbers(supplierNumbers);
 
     ///////////// Open test case file
     vector<string>::iterator it;
@@ -129,6 +128,8 @@ void Controller::runTestCase(int tcNum){
         QStringList pieces = theLine.split('~');
 
         testFile->filename = pieces.at(0).toStdString();
+        testFile->title = pieces.at(1).toStdString();
+        pieces.pop_front();
         pieces.pop_front();
 
         for(auto& entry: pieces){
@@ -168,13 +169,14 @@ void Controller::runTestCase(int tcNum){
                 //    void tag(vector<string>&, vector<pair<string, string>>&);
                 processor.tag(words, *phrase);
                 processor.applyTechDictionary(*phrase);
+                processor.applySupplierNames(*phrase, supplierNumbers);
 
-                for(auto& i: *phrase){
+                /*for(auto& i: *phrase){
                         if(UtilityAlgorithms::mapContainsKey(supplierNumbers, i.first)){
                         int n = supplierNumbers[i.first];
                         i.second = "NNP subtype=supp" + to_string(n);
                     }
-                }
+                }*/
 
                 cout << "Tagging phrase: ";
                 for(auto& i: words) cout << i.toStdString() << " ";
@@ -202,9 +204,10 @@ void Controller::runTestCase(int tcNum){
 
         //tag the words
         if(entry->words.size() != 0) processor.tag(entry->words, entry->tags);
-        processor.applyTechDictionary(entry->tags);
+        processor.applyTechDictionary(entry->tags);        
+        processor.applySupplierNames(entry->tags, supplierNumbers);
 
-        for(auto& i: entry->tags){
+/*        for(auto& i: entry->tags){
             cout << "Check Supplier: " << i.first << endl;
             if(UtilityAlgorithms::mapContainsKey(supplierNumbers, i.first)){
                 int n = supplierNumbers[i.first];
@@ -212,7 +215,7 @@ void Controller::runTestCase(int tcNum){
                 i.second = "NNP subtype=supp" + to_string(n);
             }
         }
-
+*/
 
         for(auto& i: entry->tags){
             cout << "(" << i.first << ", " << i.second << ") ";
@@ -480,214 +483,6 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
 
 
 ///////////////
-/// \brief Controller::buildComponentsFromPhrase
-/// \return
-/// Takes a phrase and builds Component objects from it
-/*
-int Controller::buildComponentsFromPhrase_(BayesianClassifier& bayes, vector<pair<string, string>>& tags, vector<pair<string,string>>& colls, vector<Component*>& compsIn, vector<Component*>& compsOut){
-
-    vector<Component*> ret = vector<Component*>();
-
-    Component* c;
-    string currentSupp = "";
-
-    string phrase = "";
-    for(auto& entry: tags) phrase += " " + entry.first;
-    cout << "Checking phrase: " + phrase;
-
-    //check for collocation
-    vector<pair<string,string>> keywords = vector<pair<string,string>>();
-    repo.getTechKeywords(keywords);
-
-    float MIN_BAYES_CONF = 0.001;
-
-    for(auto& entry: tags){
-        //check for a supplier
-        //cout << "Check for supplier" << endl;
-        string s = "NNP subtype=supp";
-        if(UtilityAlgorithms::containsSubst(entry.second, s)){
-            currentSupp = entry.first;
-            /*Component* c = new Component();
-            c->mfr = entry.first;
-            for(auto& str: tags){
-                c->description += " " + str.first;
-            }
-            //classify based on description
-            map<string, float>* results = bayes.classifyType(c->description, compsIn);
-            pair<string, float> choice = UtilityAlgorithms::argmax(results);
-            //cout << "Identified: " << choice.first << ".." << choice.second << endl;
-            delete results;
-            c->type = choice.first;
-            ret.push_back(c);* /
-        }
-    }
-    for(auto& entry: tags){
-        //check for a part number
-        //cout << "check for mpn" << endl;
-        if(UtilityAlgorithms::isAlphanumeric(entry.first)){
-            string cleanStr = entry.first;
-            tok.removeStopCharacters(cleanStr);
-            map<string, float>* results = bayes.classifyType(cleanStr, compsIn);
-            pair<string, float> choice = UtilityAlgorithms::argmax(results);
-            delete results;
-
-            if(choice.second > MIN_BAYES_CONF){
-                c = new Component();
-                c->mpn = entry.first;
-                c->type = choice.first;
-                string cleanMpn = entry.first;
-                tok.removeStopCharacters(cleanMpn);
-                //cout << "Old mpn: " << entry.first << " Clean: " << cleanMpn << endl;
-                if(currentSupp == ""){
-                    map<string, float>* res2 = bayes.classifySupplier(cleanMpn, compsIn);
-                    pair<string, float> mfr = UtilityAlgorithms::argmax(res2);
-
-                    cout << endl << "Found mfr: " << mfr.first << endl;
-
-                    c->mfr = mfr.first;
-                    for(auto& str: tags){
-                        c->description += " " + str.first;
-                    }
-
-                    delete res2;
-                } else {
-                    c->mfr = currentSupp;
-                    currentSupp = "";
-                }
-                //cout << *c << endl;
-                ret.push_back(c);
-
-            }
-        }
-    }
-    //check collocations
-
-    //get the collocations from repository
-    vector<pair<string,string>> foundColls = vector<pair<string,string>>();
-    string first = "";
-    string second = "";
-
-    //cout << "Check colls" << endl;
-
-    for(auto& e2: colls){
-        first = "";
-        second = "";
-        for(auto& e3: tags){
-            if(e3.first == e2.first && e3.first != "") first = e3.first;
-            if(e3.first == e2.second && e3.second != "") second = e3.first;
-        }
-        if(first != "" && second != "") {
-            foundColls.push_back(make_pair(first,second));
-            //cout << "Collocation: <" << first << "," << second << ">" << endl;
-        }
-    }
-
-    //identify the collocations
-    if(foundColls.size() > 0){
-        for(auto& entry: foundColls){
-            //cout << "Collocation: <" << entry.first << "," << entry.second << ">";
-
-            map<string, float>* results = bayes.classifyCollocation(entry, compsIn);
-
-            if(results!= 0){
-                Component* c2 = new Component();
-                pair<string, float> c1 = UtilityAlgorithms::argmax(results);
-
-                string choice = c1.first;
-                //cout << " -- classified as: " << choice << endl;
-
-                delete results;
-                c2->type = choice;
-                if(currentSupp == "")
-                    c2->mfr = "GENERIC";
-                else
-                    c2->mfr = currentSupp;
-                for(auto& str: tags){
-                    c2->description += " " + str.first;
-                }
-                c2->mpn = c2->description;
-                ret.push_back(c2);
-            }
-        }
-    }
-    //else, check technical keywords
-
-    /*else* /{
-        //cout << "Check keywords" << endl;
-        for(auto& e2: keywords){
-
-            for(auto& entry: tags){
-                if(e2.first == entry.first){
-                    c = new Component();
-                    c->type = e2.second;
-                    if(currentSupp == "")
-                        c->mfr = "GENERIC";
-                    else
-                        c->mfr = currentSupp;
-                    for(auto& str: tags){
-                        c->description += " " + str.first;
-                    }
-                    c->mpn = c->description;
-                    ret.push_back(c);
-                }
-            }
-        }
-    }
-
-    for(auto& entry: ret){
-        cout << "push: " << *entry << endl;
-        compsOut.push_back(entry);
-    }
-
-    cout << " ...complete" << endl;
-
-}
-
-
-////////////// TODO : DOES NOT WORK PROPERLY
-void Controller::consolidateCollection(vector<Component*>& comps){
-    //vector<Component*> cleanCollection = vector<Component*>();
-    //vector<Component*> scrap = vector<Component*>();
-
-    vector<Component*>::iterator it1, it2;
-
-    for(it1 = comps.begin(); it1 < comps.end()-1; ++it1){
-        for(it2 = it1+1; it2 < comps.end(); ++it2){
-
-            if(**it1 == **it2){
-                delete *it2;
-                it2 = comps.erase(it2);
-            } else {
-                //remove a generic with the same type as an identified component
-                if((*it1)->mfr == "GENERIC" && (*it1)->type == (*it2)->type){
-                    if((*it2)->description  == "") (*it2)->description = (*it1)->description;
-                    delete *it2;
-                    it2 = comps.erase(it2);
-                } else if((*it2)->mfr == "GENERIC" && (*it2)->type == (*it1)->type){
-                    if((*it1)->description  == "") (*it1)->description = (*it2)->description;
-                    delete *it1;
-                    it1 = comps.erase(it1);
-                } else if((*it2)->mfr == (*it1)->mfr && (*it2)->mpn == (*it1)->mpn){
-                    delete *it2;
-                    it2 = comps.erase(it2);
-                } /*else if(                                                        ){
-
-                }* /
-
-
-                //end if components are similar
-
-
-            } // end if components are equal
-
-        } // end for it2
-    } // end for it1
-
-
-}
-*/
-
-///////////////
 /// \brief Controller::cleanTestCase
 /// \param tcNum
 /// Compiles the reuslts of the more * | cat to the format expected by runTestCase()
@@ -766,43 +561,95 @@ int Controller::testBuildComponents(){
     return 0;
 }
 
-//TODO: broken
-int Controller::testTopicExtraction(){
-    /////obtain the text ..............................................
-    ////tokenize the text .............................................
-    //This collection is intended for use by fully implemented application
-    vector<vector<string>*> testingSet = vector<vector<string>*>();
+///////////////
+/// \brief Controller::testAugmentedVocabulary
+/// \return
+/// Opens a test case, tags every word, then applies augmented vocabulary and prints
+/// There is no grammar parsing.
+int Controller::testAugmentedVocabulary(int tcNum){
+    cout << "TEXTING AUGMENTED VOCABULARY" << endl;
 
-    //temporary text to test functions
+    string dir = "/home/ian/Data/Testcases/";
+    dir += to_string(tcNum) + "/testcase.txt";
+
+    vector<TestFile*> files = vector<TestFile*>();
     vector<string> text = vector<string>();
 
-    cout << "Get test case" << endl;
+    vector<Component*> results = vector<Component*>();
+    //BayesianClassifier bayes = BayesianClassifier();
 
-    //if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
-    //if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
-    //if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
-
-    ////tag the text .................................................
-    cout << "Tagging words" << endl;
-
+    //Open the corpus
     processor.getXML();
     processor.countTags();
-    vector<pair<string,string>> tagResults = vector<pair<string,string>>();
-    processor.tag(text, tagResults);
 
-    ////topic analysis ..............................................
+    //Get the supplier aliases
+    map<string, int> supplierNumbers = map<string, int>();
+    repo.getSupplierNumbers(supplierNumbers);
 
-    cout << "TOPIC ANLYSIS..." << endl;
-    cout << "Print topic words" << endl;
-    //top.printTopicWords();
-    enum enums::TOPIC topic = top.findTopic(text, repo);
-    cout << "Topic: " << topic << endl;
+    ///////////// Open test case file
+    vector<string>::iterator it;
 
-    /*
-    for(auto& entry: testingSet){
-        currentTopic = top.findTopic(*entry);
-        //do some stuff
-    }*/
+    ifstream thefile(dir);
+    string line = "";
+    if (!thefile.is_open()){
+        cout << "Cannot open " << dir << endl;
+        return -1;
+    }
+
+    //else do the work
+    //This part fills in the filename, <words collection>
+    while ( getline (thefile,line) ) {
+
+        TestFile* testFile = new TestFile();
+
+        text = vector<string>();
+        QString theLine = QString::fromStdString(line);
+
+        //cout << "Read line: " << line << endl;
+
+        QStringList pieces = theLine.split('~');
+
+        testFile->filename = pieces.at(0).toStdString();
+        testFile->title = pieces.at(1).toStdString();
+        pieces.pop_front();
+        pieces.pop_front();
+
+        for(auto& entry: pieces){
+            if(line.size() > 0 && entry != " ")
+            testFile->lines.push_back(entry.toLower().toStdString());
+        }
+
+        files.push_back(testFile);
+
+    }
+    thefile.close();
+
+    for(auto& e1: files){
+        QStringList words;
+        for(auto& e2: e1->lines){
+            QStringList pieces = QString::fromStdString(e2).split(' ');
+            for(auto& e3: pieces){
+                tok.removeStopCharacters(e3);
+                //string s = e3.toStdString();
+                words.push_back(e3);
+            }
+        }
+        processor.tag(words, e1->tags);
+        processor.applyTechDictionary(e1->tags);
+        processor.applySupplierNames(e1->tags, supplierNumbers);
+    }
+
+    for(auto& e1: files){
+        cout << "Augmented vocabulary result for file: " << e1->filename << " - " << e1->title << endl << "............" << endl;
+        for(auto& e2: e1->tags){
+            cout << e2.first << " - " << e2.second << endl;
+        }
+        cout << endl;
+    }
+
+    for(auto& e1: files){
+        delete e1;
+    }
 
 }
 
@@ -1848,3 +1695,247 @@ void Controller::runOneOf(){
 
     }
 */
+
+///////////////
+/// \brief Controller::buildComponentsFromPhrase
+/// \return
+/// Takes a phrase and builds Component objects from it
+/*
+int Controller::buildComponentsFromPhrase_(BayesianClassifier& bayes, vector<pair<string, string>>& tags, vector<pair<string,string>>& colls, vector<Component*>& compsIn, vector<Component*>& compsOut){
+
+    vector<Component*> ret = vector<Component*>();
+
+    Component* c;
+    string currentSupp = "";
+
+    string phrase = "";
+    for(auto& entry: tags) phrase += " " + entry.first;
+    cout << "Checking phrase: " + phrase;
+
+    //check for collocation
+    vector<pair<string,string>> keywords = vector<pair<string,string>>();
+    repo.getTechKeywords(keywords);
+
+    float MIN_BAYES_CONF = 0.001;
+
+    for(auto& entry: tags){
+        //check for a supplier
+        //cout << "Check for supplier" << endl;
+        string s = "NNP subtype=supp";
+        if(UtilityAlgorithms::containsSubst(entry.second, s)){
+            currentSupp = entry.first;
+            /*Component* c = new Component();
+            c->mfr = entry.first;
+            for(auto& str: tags){
+                c->description += " " + str.first;
+            }
+            //classify based on description
+            map<string, float>* results = bayes.classifyType(c->description, compsIn);
+            pair<string, float> choice = UtilityAlgorithms::argmax(results);
+            //cout << "Identified: " << choice.first << ".." << choice.second << endl;
+            delete results;
+            c->type = choice.first;
+            ret.push_back(c);* /
+        }
+    }
+    for(auto& entry: tags){
+        //check for a part number
+        //cout << "check for mpn" << endl;
+        if(UtilityAlgorithms::isAlphanumeric(entry.first)){
+            string cleanStr = entry.first;
+            tok.removeStopCharacters(cleanStr);
+            map<string, float>* results = bayes.classifyType(cleanStr, compsIn);
+            pair<string, float> choice = UtilityAlgorithms::argmax(results);
+            delete results;
+
+            if(choice.second > MIN_BAYES_CONF){
+                c = new Component();
+                c->mpn = entry.first;
+                c->type = choice.first;
+                string cleanMpn = entry.first;
+                tok.removeStopCharacters(cleanMpn);
+                //cout << "Old mpn: " << entry.first << " Clean: " << cleanMpn << endl;
+                if(currentSupp == ""){
+                    map<string, float>* res2 = bayes.classifySupplier(cleanMpn, compsIn);
+                    pair<string, float> mfr = UtilityAlgorithms::argmax(res2);
+
+                    cout << endl << "Found mfr: " << mfr.first << endl;
+
+                    c->mfr = mfr.first;
+                    for(auto& str: tags){
+                        c->description += " " + str.first;
+                    }
+
+                    delete res2;
+                } else {
+                    c->mfr = currentSupp;
+                    currentSupp = "";
+                }
+                //cout << *c << endl;
+                ret.push_back(c);
+
+            }
+        }
+    }
+    //check collocations
+
+    //get the collocations from repository
+    vector<pair<string,string>> foundColls = vector<pair<string,string>>();
+    string first = "";
+    string second = "";
+
+    //cout << "Check colls" << endl;
+
+    for(auto& e2: colls){
+        first = "";
+        second = "";
+        for(auto& e3: tags){
+            if(e3.first == e2.first && e3.first != "") first = e3.first;
+            if(e3.first == e2.second && e3.second != "") second = e3.first;
+        }
+        if(first != "" && second != "") {
+            foundColls.push_back(make_pair(first,second));
+            //cout << "Collocation: <" << first << "," << second << ">" << endl;
+        }
+    }
+
+    //identify the collocations
+    if(foundColls.size() > 0){
+        for(auto& entry: foundColls){
+            //cout << "Collocation: <" << entry.first << "," << entry.second << ">";
+
+            map<string, float>* results = bayes.classifyCollocation(entry, compsIn);
+
+            if(results!= 0){
+                Component* c2 = new Component();
+                pair<string, float> c1 = UtilityAlgorithms::argmax(results);
+
+                string choice = c1.first;
+                //cout << " -- classified as: " << choice << endl;
+
+                delete results;
+                c2->type = choice;
+                if(currentSupp == "")
+                    c2->mfr = "GENERIC";
+                else
+                    c2->mfr = currentSupp;
+                for(auto& str: tags){
+                    c2->description += " " + str.first;
+                }
+                c2->mpn = c2->description;
+                ret.push_back(c2);
+            }
+        }
+    }
+    //else, check technical keywords
+
+    /*else* /{
+        //cout << "Check keywords" << endl;
+        for(auto& e2: keywords){
+
+            for(auto& entry: tags){
+                if(e2.first == entry.first){
+                    c = new Component();
+                    c->type = e2.second;
+                    if(currentSupp == "")
+                        c->mfr = "GENERIC";
+                    else
+                        c->mfr = currentSupp;
+                    for(auto& str: tags){
+                        c->description += " " + str.first;
+                    }
+                    c->mpn = c->description;
+                    ret.push_back(c);
+                }
+            }
+        }
+    }
+
+    for(auto& entry: ret){
+        cout << "push: " << *entry << endl;
+        compsOut.push_back(entry);
+    }
+
+    cout << " ...complete" << endl;
+
+}
+
+
+////////////// TODO : DOES NOT WORK PROPERLY
+void Controller::consolidateCollection(vector<Component*>& comps){
+    //vector<Component*> cleanCollection = vector<Component*>();
+    //vector<Component*> scrap = vector<Component*>();
+
+    vector<Component*>::iterator it1, it2;
+
+    for(it1 = comps.begin(); it1 < comps.end()-1; ++it1){
+        for(it2 = it1+1; it2 < comps.end(); ++it2){
+
+            if(**it1 == **it2){
+                delete *it2;
+                it2 = comps.erase(it2);
+            } else {
+                //remove a generic with the same type as an identified component
+                if((*it1)->mfr == "GENERIC" && (*it1)->type == (*it2)->type){
+                    if((*it2)->description  == "") (*it2)->description = (*it1)->description;
+                    delete *it2;
+                    it2 = comps.erase(it2);
+                } else if((*it2)->mfr == "GENERIC" && (*it2)->type == (*it1)->type){
+                    if((*it1)->description  == "") (*it1)->description = (*it2)->description;
+                    delete *it1;
+                    it1 = comps.erase(it1);
+                } else if((*it2)->mfr == (*it1)->mfr && (*it2)->mpn == (*it1)->mpn){
+                    delete *it2;
+                    it2 = comps.erase(it2);
+                } /*else if(                                                        ){
+
+                }* /
+
+
+                //end if components are similar
+
+
+            } // end if components are equal
+
+        } // end for it2
+    } // end for it1
+
+
+}
+*/
+/////Scrap code from topic analysis
+/////obtain the text ..............................................
+////tokenize the text .............................................
+//This collection is intended for use by fully implemented application
+//vector<vector<string>*> testingSet = vector<vector<string>*>();
+
+//temporary text to test functions
+//vector<string> text = vector<string>();
+
+//cout << "Get test case" << endl;
+
+//if(getTextFromFile(text, tok) != 0) exit(-1);        // <--- USE THIS TO GET TEST CASE 1
+//if(getTestCase2(text, tok) != 0) exit(-1);             // <--- USE THIS TO GET TEST CASE 2
+//if(getTestCase3(text, tok) != 0) exit(-1);           // <--- USE THIS TO GET TEST CASE 3
+
+////tag the text .................................................
+//cout << "Tagging words" << endl;
+
+//processor.getXML();
+//processor.countTags();
+//vector<pair<string,string>> tagResults = vector<pair<string,string>>();
+//processor.tag(text, tagResults);
+
+////topic analysis ..............................................
+
+//cout << "TOPIC ANLYSIS..." << endl;
+//cout << "Print topic words" << endl;
+//top.printTopicWords();
+//enum enums::TOPIC topic = top.findTopic(text, repo);
+//cout << "Topic: " << topic << endl;
+
+/*
+for(auto& entry: testingSet){
+    currentTopic = top.findTopic(*entry);
+    //do some stuff
+}*/

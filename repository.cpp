@@ -121,7 +121,6 @@ void Repository::getComponents(vector<Component*>& coll){
 /// Maps the technical dictionary of strings to material-article type
 int Repository::getTechDictionary(map<string,string>* techdict){
     QSqlQuery query;
-    //database.open();
 
     if (!query.exec("SELECT * FROM materialDictionary;")){
          qDebug() << "getTechDictionary SQL error: "<< query.lastError().text() << endl;
@@ -138,7 +137,8 @@ int Repository::getTechDictionary(map<string,string>* techdict){
         techdict->operator[](st1) = st2; //push_back(make_pair(st1, st2));
     }
 
-    //database.close();
+
+
     return 0;
 }
 
@@ -417,7 +417,11 @@ int Repository::getContractsComponentsDescriptionsFromDB(vector<string>& coll){
     return 0;
 }
 
-
+/////////
+/// \brief Repository::getTechKeywords
+/// \param words
+/// \return
+/// finds the technical keywords in the database
 int Repository::getTechKeywords(vector<pair<string,string>>& words){
     QSqlQuery query;
 

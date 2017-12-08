@@ -5,6 +5,7 @@ class TestFile{
 public:
     string filename;
     string text;
+    string title;
     vector<string> lines;
     vector<vector<pair<string,string>>*> nounPhrases;
     vector<vector<pair<string,string>>*> verbPhrases;
@@ -16,7 +17,7 @@ public:
     TestFile* parent;
 
     friend std::ostream& operator<< (std::ostream& os, const TestFile& tf){
-        os << endl << "TESTFILE: " << tf.filename << endl << "...................." << endl;
+        os << endl << "TESTFILE: " << tf.filename << endl << tf.title << endl << "...................." << endl;
         os << "  text: " << endl << tf.text << endl;
         os << "  lines: " << endl;
         for(auto& entry: tf.lines) os << "    " << entry << endl;
