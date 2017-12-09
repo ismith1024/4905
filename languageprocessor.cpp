@@ -44,6 +44,8 @@ void LanguageProcessor::applySupplierNames(vector<pair<string,string>>& tags, ma
 }
 
 
+
+
 //////
 /// \brief LanguageProcessor::getVerbStem
 /// \param instr
@@ -118,7 +120,12 @@ string LanguageProcessor::getTag(string s){
     //string st = toupper(s);
 
     map<string, int> vals = tagCounts->operator[](s); //st
-    if(vals.size() == 0) return "???";
+
+    if(vals.size() == 0){
+        if(UtilityAlgorithms::isAlphanumeric(s))
+            return "NN subtype=MPN";
+        else return "???";
+    }
 
     auto largest = std::max_element(vals.begin(), vals.end(),
         [](const pair<string, int>& p1, const pair<string, int>& p2) {
@@ -229,7 +236,7 @@ int LanguageProcessor::openTechDictionary(Repository& repo){
     return -1;
 }
 
-int LanguageProcessor::applyTechDictionary(vector<pair<string,string>>& coll){
+int LanguageProcessor::applyTechDictionary(vector<pair<string,string>>& coll, map<string,string>& defns){
     for(auto& st: coll){
         //cout << "Look for " << st.first << " in technical dictionary" << endl;
 
@@ -239,6 +246,10 @@ int LanguageProcessor::applyTechDictionary(vector<pair<string,string>>& coll){
             //cout << "found ... " << techdict->operator[](st.first) << endl;
             st = make_pair(st.first, ("NN SUBTYPE=ID:" + techdict->operator[](st.first)));
          }
+
+        if(defns[st.first] != ""){
+            st.second = defns[st.first];
+        }
     }
 
     return 0;

@@ -39,6 +39,7 @@ public:
     int getSupplierNames(vector<string>&);
 
     int getSupplierNumbers(map<string, int>&);
+    int getMaterialTypes(map<string, string>&);
 
     void getWordsFromMaterialDictionary();
     void getParentTypes(map<string, float>&, string);

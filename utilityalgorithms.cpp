@@ -64,12 +64,16 @@ bool UtilityAlgorithms::isAlphanumeric(string& str){
     bool letter = false;
     bool number = false;
     for(auto& c: str){
-        if(c >= 65 && c <= 90) letter = true;
-        if(c >= 97 && c <= 122) letter = true;
-        if(c >= 48 && c <= 57) number = true;
+        if(c >= 'a' && c <= 'z') letter = true;
+        if(c >= 'A' && c <= 'Z') letter = true;
+        if(c >= '0' && c <= '9') number = true;
     }
 
-    return((letter && number) ||(number && str.length() >= 5));
+    bool ret = (letter && number) || (number && str.length() >= 5);
+
+    //std::cout << str << "is alphanumeric: " << ret << endl;
+
+    return ret;
 }
 
 

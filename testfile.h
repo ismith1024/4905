@@ -1,6 +1,12 @@
 #ifndef TESTFILE_H
 #define TESTFILE_H
 
+#include<vector>
+#include<map>
+#include"component.h"
+#include"enums.h"
+using namespace std;
+
 class TestFile{
 public:
     string filename;
@@ -12,6 +18,9 @@ public:
     map<pair<string, string>, string> collocations;
     vector<string> words;
     vector<pair<string, string>> tags;
+    vector<Component*> comps;
+
+    string toString();
 
     enum enums::TOPIC topic;
     TestFile* parent;

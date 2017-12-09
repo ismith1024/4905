@@ -41,6 +41,7 @@ bool Component::operator==(Component& c){
 
 void Component::setParent(Component* par){
     parent = par;
+    par->children.push_back(this);
 }
 
 

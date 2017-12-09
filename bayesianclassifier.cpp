@@ -478,61 +478,65 @@ map<string, float>* BayesianClassifier::classifySupplier(string& comp, vector<Co
 /// \param repo
 /// \return
 /// puts the Compoents into a tree
-int BayesianClassifier::createParents(vector<Component*>& comps, string& parentDrawing, Repository& repo){
+int BayesianClassifier::createParents(vector<Component*>& comps, string& parentDrawing, string& parentTitle, Repository& repo){
 
-    map<pair<string,string>,int> counts = map<pair<string,string>,int>();
+    map<pair<string,string>,int> counts; // = map<pair<string,string>,int>();
     repo.getParentPairs(counts);
 
-    for(auto& entry: counts) cout << entry.first.first << " " << entry.first.second << " " << entry.second << endl;
+    for(auto& entry: counts) cout <<"Source: " << entry.first.first << " Parent: " << entry.first.second << " " << entry.second << endl;
 
     //parent component for the file
     Component* c = new Component();
+    //c->title = TODO
     c->mfr = "GENERIC";
     c->mpn = parentDrawing;
     c->type = "Subassembly";
-    c->description = parentDrawing + " top-level assembly";
+    c->description = parentTitle; //parentDrawing + " top-level assembly";
+    c->parent = NULL;
     comps.push_back(c);
 
-    for(auto& e1: comps){
-        map<string, int> parents;
+     for(auto& e1: comps){
+        e1->parent = NULL;
+        vector<pair<string, int>> parentTypes;
+        //count the number of time each parent type occurs
         for(auto& e2: counts){
             if(e2.first.first == e1->type){
-                parents[e2.first.second]++;
+                parentTypes.push_back(make_pair(e2.first.second, e2.second));
             }
         }
-        vector<pair<string, int>> sortedPars;
 
-        map<string, int>::iterator it;
-        for(it = parents.begin(); it!= parents.end(); ++it) sortedPars.push_back(*it);
-
-        //sort ascending
-        sort(sortedPars.begin(), sortedPars.end(),
+        //sort them
+        sort(parentTypes.begin(), parentTypes.end(),
              [=](pair<string, int>& a, pair<string, int>& b){
-                    return a.second < b.second;
+                    return a.second > b.second;
         });
 
+        cout << "Candidate parents for " << *e1 << endl;
+        for(auto& e3: parentTypes){
+            cout << e3.first << " -- " << e3.second << endl;
+        }
 
-        while(e1->parent == NULL && sortedPars.size() > 0){
-            for(auto& e2: comps){
-                if(e2 != e1){
-                    if(e2->type == sortedPars.back().first){
-                        cout << *e1 << "Parent type: " << sortedPars.back().first << endl;
-                        e1->parent = e2;
-                        goto outOfLoop;
+
+        //find the most likely parent
+        vector<pair<string,int>>::iterator it;
+        //iterate over parent types but only while e1's parent is not assigned
+        for(it = parentTypes.begin(); it != parentTypes.end() && e1->parent == NULL; ++it){
+            //disallow wastebasket taxa
+            if(it->first != "" && it->first != "subassembly" && it->first != "complex article"){
+                for(auto& e3: comps){
+                    if(e3 != e1 && e3->type != e1->type){
+                        if(e3->type == it->first){
+                            e1->setParent(e3);
+                        }
                     }
                 }
             }
-            sortedPars.pop_back();
-        }//end while parent not found
-
-        //if parent still not found
-        outOfLoop:
-        if(e1->parent == NULL){
-            cout << *e1;
-            cout << " - Parent was null" << endl;
-            e1->parent = c;
         }
-    }//end for all components
+
+        if(e1->parent == NULL && e1 != c) e1->setParent(c);
+
+    }// end e1
+
     return 0;
 }
 

@@ -41,7 +41,8 @@ SOURCES += \
     topicanalyzer.cpp \
     sqlrecord.cpp \
     bayesianclassifier.cpp \
-    scrapcode.cpp
+    scrapcode.cpp \
+    testfile.cpp
 
 HEADERS += \
         mainwindow.h \

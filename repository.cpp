@@ -47,7 +47,7 @@ void Repository::getComponentsIncludingGenerics(vector<Component*>& coll){
         string mfr = query.value(0).toString().toStdString();
         string mpn = query.value(1).toString().toStdString();
         string desc = query.value(2).toString().toStdString();
-        string type = query.value(3).toString().toStdString();
+        string type = query.value(3).toString().toLower().toStdString();
 
         newComp = new Component(mfr, mpn, desc, type);
 
@@ -73,7 +73,7 @@ void Repository::getParentTypes(map<string, float>& values, string material){
     //cout << qs.toStdString();
 
     while(query.next()){
-        string s = query.value(1).toString().toStdString();
+        string s = query.value(1).toString().toLower().toStdString();
         values[s]++;
         //cout << query.value(0).toString().toStdString() << " : " << query.value(1).toString().toStdString() << endl;
     }
@@ -105,7 +105,7 @@ void Repository::getComponents(vector<Component*>& coll){
         string mfr = query.value(0).toString().toStdString();
         string mpn = query.value(1).toString().toStdString();
         string desc = query.value(2).toString().toStdString();
-        string type = query.value(3).toString().toStdString();
+        string type = query.value(3).toString().toLower().toStdString();
 
         newComp = new Component(mfr, mpn, desc, type);
         newComp->supplierNumber = aliases[newComp->mfr];
@@ -387,8 +387,8 @@ int Repository::getParentPairs(map<pair<string,string>,int>& coll){
     }
 
     while(query.next()){
-        string s1 = query.value(0).toString().toStdString();
-        string s2 = query.value(1).toString().toStdString();
+        string s1 = query.value(0).toString().toLower().toStdString();
+        string s2 = query.value(1).toString().toLower().toStdString();
 
         coll[make_pair(s1,s2)]++;
     }
@@ -442,7 +442,7 @@ int Repository::getTechKeywords(vector<pair<string,string>>& words){
             QString s = entry.toLower().trimmed();
             tok->removeStopCharacters(s);
             string s1 = s.toStdString();
-            string s2 = query.value(1).toString().toStdString();
+            string s2 = query.value(1).toString().toLower().toStdString();
             counts[s1]++;
             relationCounts[make_pair(s1,s2)]++;
         }
@@ -451,8 +451,8 @@ int Repository::getTechKeywords(vector<pair<string,string>>& words){
     for(auto& entry: relationCounts){
         if(    (entry.second / counts[entry.first.first]) >= MIN_CONF
                 && counts[entry.first.first] > MIN_SUPP
-                && entry.first.second != "Complex article"
-                && entry.first.second != "Not identified" ){
+                && entry.first.second != "complex article"
+                && entry.first.second != "not identified" ){
             words.push_back(make_pair(entry.first.first, entry.first.second));
         }
     }
@@ -481,6 +481,89 @@ int Repository::getSupplierNames(vector<string>& coll){
 
     return 0;
 }
+
+//////////////
+/// \brief Repository::getMaterialTypes
+/// \return
+/// Gets the material tags to apply to words
+int Repository::getMaterialTypes(map<string, string>& collection){
+
+    QSqlQuery query, query2;
+
+    if (!query.exec("SELECT * FROM techwords;")){
+         qDebug() << "getMaterialTypes SQL error: "<< query.lastError().text() << endl;
+         return -1;
+    }
+
+    while(query.next()){
+        string s1 = query.value(0).toString().toLower().toStdString();
+        string s2 = query.value(1).toString().toLower().toStdString();
+        collection[s1] = s2;
+    }
+
+    if (!query2.exec("SELECT * FROM materialDictionary;")){
+         qDebug() << "getMaterialTypes dictionary SQL error: "<< query2.lastError().text() << endl;
+         return -1;
+    }
+
+    while(query2.next()){
+        string s1 = query2.value(0).toString().toLower().toStdString();
+        string s2 = query2.value(1).toString().toLower().toStdString();
+
+        string cu = "Copper, known alloy";
+        string mag = "Magnetic material";
+        string sk = "Steel, known alloy";
+        string ss = "Steel, stainless";
+        string ni = "Nickel alloy, known";
+        string ot = "Metal, other";
+        string al ="Aluminum, known alloy";
+        string zn = "Zinc plate, clear or blue";
+
+        if(s2 == "Alloy Steel"){
+            collection[s1] = sk;
+        }
+        else if(s2 =="Stainless Steel"){
+            collection[s1] = ss;
+        }
+        else if(s2 =="Tool Steel"){
+            collection[s1] = sk;
+        }
+        else if(s2 =="Nickel Alloy"){
+            collection[s1] = ni;
+        }
+        else if(s2 =="BeCu"){
+            collection[s1] = cu;
+        }
+        else if(s2 =="Bronze"){
+            collection[s1] = cu;
+        }
+        else if(s2 =="Brass"){
+            collection[s1] = cu;
+        }
+        else if(s2 =="Magnetic Material"){
+            collection[s1] = mag;
+        }
+        else if(s2 =="Titanium"){
+            collection[s1] = ot;
+        }
+        else if(s2 =="Aluminum"){
+            collection[s1] = al;
+        }
+        else if(s2 =="Cast Iron"){
+            collection[s1] = sk;
+        }
+        else if(s2 =="Unalloyed Copper"){
+            collection[s1] = cu;
+        }
+        else if(s2 =="Zinc plate, clear or blue"){
+            collection[s1] = zn;
+        }
+
+    }
+
+    return 0;
+}
+
 
 /////////
 /// \brief Repository::getWordsFromMaterialDictionary

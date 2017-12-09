@@ -42,7 +42,7 @@ public:
     void countTags();
     //int getTestCase(vector<string>&);
     int openTechDictionary(Repository&);
-    int applyTechDictionary(vector<pair<string,string>>&);
+    int applyTechDictionary(vector<pair<string,string>>&, map<string,string>&);
     void applySupplierNames(vector<pair<string,string>>&, map<string, int>&);
 
     string toupper(string&);

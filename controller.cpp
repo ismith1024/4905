@@ -94,15 +94,16 @@ void Controller::runTestCase(int tcNum){
     //Open the corpus
     processor.getXML();
     processor.countTags();
-    map<string, int> supplierNumbers = map<string, int>();
+    map<string, int> supplierNumbers;
+    map<string, string> techDictionary;
     repo.getSupplierNumbers(supplierNumbers);
+    repo.getMaterialTypes(techDictionary);
 
     //Train collocation classifier
     vector<pair<string,string>> colls = vector<pair<string,string>>();
     vector<Component*> components = vector<Component*>();
     repo.getComponentsIncludingGenerics(components);
     getCollocationsFromDBDescriptions(colls);
-
 
     ///////////// Open test case file
     vector<string>::iterator it;
@@ -142,6 +143,25 @@ void Controller::runTestCase(int tcNum){
     }
     thefile.close();
 
+    //join the files
+    for(auto& e1: files){
+        for(auto& e2: files){
+            for(auto& e3: e2->lines){
+                if(e3 == e1->filename){
+                    e1->parent = e2;
+                    //cout << "Parented file " << e1->filename << " to " << e2->filename << endl;
+                }
+            }
+            for(auto& e3: e1->lines){
+                if(e3 == e2->filename){
+                    e2->parent = e1;
+                    //cout << "Parented file " << e2->filename << " to " << e1->filename << endl;
+                }
+            }
+
+        }
+    }
+
     for(auto& entry: files){
         cout << endl << "FILE: " << entry->filename << endl << ".............." << endl;
         for(auto& e2: entry->lines) cout << e2 << endl;
@@ -166,17 +186,10 @@ void Controller::runTestCase(int tcNum){
                     string st = e4.toLower().toStdString();
                     allWords.push_back(st);
                 }
-                //    void tag(vector<string>&, vector<pair<string, string>>&);
-                processor.tag(words, *phrase);
-                processor.applyTechDictionary(*phrase);
-                processor.applySupplierNames(*phrase, supplierNumbers);
 
-                /*for(auto& i: *phrase){
-                        if(UtilityAlgorithms::mapContainsKey(supplierNumbers, i.first)){
-                        int n = supplierNumbers[i.first];
-                        i.second = "NNP subtype=supp" + to_string(n);
-                    }
-                }*/
+                processor.tag(words, *phrase);
+                processor.applyTechDictionary(*phrase, techDictionary);
+                processor.applySupplierNames(*phrase, supplierNumbers);
 
                 cout << "Tagging phrase: ";
                 for(auto& i: words) cout << i.toStdString() << " ";
@@ -204,18 +217,8 @@ void Controller::runTestCase(int tcNum){
 
         //tag the words
         if(entry->words.size() != 0) processor.tag(entry->words, entry->tags);
-        processor.applyTechDictionary(entry->tags);        
+        processor.applyTechDictionary(entry->tags, techDictionary);
         processor.applySupplierNames(entry->tags, supplierNumbers);
-
-/*        for(auto& i: entry->tags){
-            cout << "Check Supplier: " << i.first << endl;
-            if(UtilityAlgorithms::mapContainsKey(supplierNumbers, i.first)){
-                int n = supplierNumbers[i.first];
-                cout << "Tag supplier " << i.first;
-                i.second = "NNP subtype=supp" + to_string(n);
-            }
-        }
-*/
 
         for(auto& i: entry->tags){
             cout << "(" << i.first << ", " << i.second << ") ";
@@ -278,38 +281,74 @@ void Controller::runTestCase(int tcNum){
     ////Create components.......................
     cout << "=====GENERATE COMPONENTS=====" << endl;
     for(auto& entry: files){
-        cout << "Identify components from " << entry->filename << endl;
+        cout << "Identify components from " << entry->filename << entry->title << endl;
         cout << entry->nounPhrases.size() << " noun phrases" << endl;
 
         for(auto& e3: entry->nounPhrases){
-            buildComponentsFromPhrase(bayes, *e3, colls, components, finalResults);
+            buildComponentsFromPhrase(bayes, *e3, colls, components, finalResults, entry->comps);
 
         }
         for(auto& e2: entry->verbPhrases){
-            buildComponentsFromPhrase(bayes, *e2, colls, components, finalResults);
+            buildComponentsFromPhrase(bayes, *e2, colls, components, finalResults, entry->comps);
         }
 
-        bayes.createParents(finalResults, entry->filename, repo);
+
+
+        bayes.createParents(finalResults, entry->filename, entry->title, repo);
 
     }
 
-    cout << "FINAL RESULTS: " << endl;
-    for(auto& entry: finalResults) cout << *entry << endl;
+    //join files
+    vector<TestFile*>::iterator it1, it2;
 
+    cout << "Join parents" << endl;
+    for(it1 = files.begin(); it1!= files.end() -1; ++it1){
+        for(it2 = it1 +1; it2 != files.end(); ++it2){
+            //cout << "checking " << (*it2)->filename << " and " << (*it1)->filename << endl;
+            //if((*it2)->parent == NULL) cout << "NULL" <<  (*it1)->filename << endl;
+            //else cout << (*it2)->parent->filename <<  (*it1)->filename << endl;
+
+            if(*it1 == (*it2)->parent){
+                cout << "Parent of " << (*it2)->filename << " is " << (*it1)->filename << endl;
+                (*it2)->parent = *it1;
+            }
+        }
+    }
+
+
+    cout << "FINAL RESULTS: " << endl;
+    //for(auto& entry: finalResults) {
+    //    if(entry->parent == NULL){
+    //        cout << *entry << endl;
+    //    }
+    //}
+
+    for(auto& e1: files){
+        int i = 1;
+        for(auto& e2: e1->comps){
+            e2->title = e1->filename + "-" + to_string(i);
+            i++;
+        }
+    }
+
+    for(auto& e1: files){
+        string s = e1->toString();
+        cout << s;
+    }
 
     //shutdown
     for(auto& entry: files) delete entry;
-
+    for(auto& entry: components) delete entry;
 }
 
 ///////////////
 /// \brief Controller::buildComponentsFromPhrase
 /// \return
 /// Takes a phrase and builds Component objects from it
-int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair<string, string>>& tags, vector<pair<string,string>>& colls, vector<Component*>& compsIn, vector<Component*>& compsOut){
+int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair<string, string>>& tags, vector<pair<string,string>>& colls, vector<Component*>& compsIn, vector<Component*>& compsOut, vector<Component*>& dwgColl){
 
     //to hold the components we are going to send back
-    vector<Component*> ret = vector<Component*>();
+    //vector<Component*> ret = vector<Component*>();
 
     //the full text of the phrase
     string phrase = "";
@@ -332,15 +371,17 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
     //look for a supplier in the text
     for(auto& entry: tags){
         string s = "NNP subtype=supp";
+
         if(UtilityAlgorithms::containsSubst(entry.second, s)){
             mfr = entry.first;
         }
+
     }
 
     //look for a part number in the text"
 
     for(auto& entry: tags){
-        if(UtilityAlgorithms::isAlphanumeric(entry.first)){
+        if(UtilityAlgorithms::isAlphanumeric(entry.first) && (mpn == "" || entry.first.size() > mpn.size())){
             string cleanStr = entry.first;
             mpn = entry.first;
             tok.removeStopCharacters(cleanStr);
@@ -348,23 +389,37 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
             pair<string, float> choice = UtilityAlgorithms::argmax(results);
             delete results;
 
+            cout << "Checking candidate MPN: " << mpn;
+
             if(choice.second > MIN_BAYES_CONF){
+                cout << " -- identified by MPN classifier as :" << choice.first;
                 types.push_back(choice.first);
-            }
+            } else cout << " -- NO MATCH " << endl;
+        }
+
+        string s2 = "subtype=mat_";
+        if(UtilityAlgorithms::containsSubst(entry.second, s2)){
+            std::size_t pos = entry.second.find(s2);
+            string s3 = entry.second.substr(pos);
+            string s4 = s3.substr(12, s3.length());
+            cout << "Found material type from tag: " << s4;
+            types.push_back(s4);
+            mpn = entry.first;
         }
 
         if(mfr == ""){
-            string cleanStr = entry.first;
-            tok.removeStopCharacters(cleanStr);
-            //map<string, float>* results = bayes.classifySupplier(cleanStr, compsIn);
-            //pair<string, float> choice = UtilityAlgorithms::argmax(results);
-            //delete results;
+            //mfr = "GENERIC";
+            //string cleanStr = entry.first;
+            //tok.removeStopCharacters(cleanStr);
+            map<string, float>* results = bayes.classifySupplier(mpn, compsIn);
+            pair<string, float> choice = UtilityAlgorithms::argmax(results);
+            delete results;
 
-            //if(choice.second > MIN_BAYES_CONF){
-            //    mfr = choice.first;
-            //} else {
-                mfr = "GENERIC";
-            //}
+            if(choice.second > MIN_BAYES_CONF){
+                mfr = choice.first;
+            } else {
+            mfr = "GENERIC";
+            }
 
         }
     }
@@ -433,7 +488,7 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
         }
     } else if(typePhrases.size() != 0) {
 
-        //cout << "no tpephrases" << endl;
+        //cout << "no typephrases" << endl;
 
         map<string, int> typeCounts = map<string, int>();
         for(auto& entry: collTypes){
@@ -474,8 +529,9 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
             c->description = des; //typePhrases[entry];
             if(mpn == "") c->mpn = des; //typePhrases[entry];
             else c->mpn = mpn;
-            cout << "Got: " << *c << endl;
+            cout << "Created component: " << *c << endl;
             compsOut.push_back(c);
+            dwgColl.push_back(c);
         }
     }
 
@@ -584,7 +640,9 @@ int Controller::testAugmentedVocabulary(int tcNum){
 
     //Get the supplier aliases
     map<string, int> supplierNumbers = map<string, int>();
+    map<string,string> techdictionary;
     repo.getSupplierNumbers(supplierNumbers);
+    repo.getMaterialTypes(techdictionary);
 
     ///////////// Open test case file
     vector<string>::iterator it;
@@ -627,15 +685,17 @@ int Controller::testAugmentedVocabulary(int tcNum){
     for(auto& e1: files){
         QStringList words;
         for(auto& e2: e1->lines){
-            QStringList pieces = QString::fromStdString(e2).split(' ');
+            QStringList pieces = QString::fromStdString(e2).split('\t');
             for(auto& e3: pieces){
-                tok.removeStopCharacters(e3);
-                //string s = e3.toStdString();
-                words.push_back(e3);
+                QStringList pieces2 = e3.split(' ');
+                for(auto& e4: pieces2){
+                    tok.removeStopCharacters(e4);
+                    words.push_back(e4);
+                }
             }
         }
         processor.tag(words, e1->tags);
-        processor.applyTechDictionary(e1->tags);
+        processor.applyTechDictionary(e1->tags, techdictionary);
         processor.applySupplierNames(e1->tags, supplierNumbers);
     }
 
@@ -1196,24 +1256,70 @@ int Controller::testClassifySupplier(){
 void Controller::testParent(){
     map<string, float> res = map<string, float>();
     cout << "Test parents" << endl;
-    vector<Component*> comps = vector<Component*>();
+    //vector<Component*> comps;// = vector<Component*>();
+    vector<Component*> testComps;
+    BayesianClassifier bayes;
 
-    repo.getFunctionalTestComponents(comps);
+    Component* c1 = new Component();
+    c1->parent = NULL;
+    c1->type = "pwb substrate - laminate, other";
+    c1->description = c1->mpn = "PWB substrate";
+    c1->mfr = "mfr1";
+    testComps.push_back(c1);
 
-    vector<Component*>::iterator it;
-    for(it = comps.begin(); it <= comps.begin() + 10; ++it){
-        auto res = map<string, float>();
-        repo.getParentTypes(res, (*it)->type);
-        cout << endl << *(*it) << endl;
-        for(auto& entry: res){
-            cout << entry.first << " : " << entry.second << endl;
-        }
+    Component* c2 = new Component();
+    c2->parent = NULL;
+    c2->type = "resistor, chip-type";
+    c2->description = c2->mpn = "Resistor";
+    c2->mfr = "mfr2";
+    testComps.push_back(c2);
 
+    Component* c3 = new Component();
+    c3->parent = NULL;
+    c3->type = "ic or bga";
+    c3->description = c3->mpn = "IC";
+    c3->mfr = "mfr3";
+    testComps.push_back(c3);
+
+    Component* c4 = new Component();
+    c4->parent = NULL;
+    c4->type = "steel, known alloy";
+    c4->description = c4->mpn = "Steel 1020";
+    c4->mfr = "Generic";
+    testComps.push_back(c4);
+
+    Component* c5 = new Component();
+    c5->parent = NULL;
+    c5->type = "zinc plate, clear or blue";
+    c5->description = c5->mpn = "Blue zinc";
+    c5->mfr = "Generic";
+    testComps.push_back(c5);
+
+    string s1 = "FN00001.txt";
+    string s2 = "Product XYZ";
+
+    bayes.createParents(testComps, s1, s2, repo);
+
+    for(auto& e1:testComps){
+        if(e1->parent == NULL) cout << *e1 << endl;
     }
 
+    //repo.getFunctionalTestComponents(comps);
 
-    //string t = "Subassembly";
-    //repo.getParentTypes(res, t);
+    //vector<Component*>::iterator it;
+    //for(it = comps.begin(); it <= comps.begin() + 10; ++it){
+        //testComps.push_back(*it);
+        //auto res = map<string, float>();
+        //repo.getParentTypes(res, (*it)->type);
+        //cout << endl << *(*it) << endl;
+        //for(auto& entry: res){
+        //    cout << entry.first << " : " << entry.second << endl;
+        //}
+
+    //}
+
+
+
 }
 
 

@@ -57,7 +57,7 @@ public:
     BayesianClassifier();
     ~BayesianClassifier();
 
-    int createParents(vector<Component*>&, string&, Repository&);
+    int createParents(vector<Component*>&, string&, string&, Repository&);
 
 };
 
