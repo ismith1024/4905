@@ -27,6 +27,7 @@ public:
     static bool mapContainsKey(map<string, string>&, string&);
     static bool mapContainsKey(map<string, float>&, string&);
     static bool isAlphanumeric(string&);
+    static bool isAncestor(Component*, Component*);
 
 };
 

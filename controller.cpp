@@ -10,6 +10,7 @@
 #include "unordered_set"
 #include "topicanalyzer.h"
 #include<string>
+#include <unordered_set>
 
 /******************************************************
  * Description of overall control flow:
@@ -357,7 +358,8 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
 
     string mfr = "";
     string mpn = "";
-    vector<string> types = vector<string>();
+    unordered_set<string> types;// = vector<string>();
+    vector<string>sureTypes;
 
     //to keep the material types we found from the collocations
     map<pair<string,string>,string> collTypes = map<pair<string,string>,string>();
@@ -367,6 +369,7 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
     repo.getTechKeywords(keywords);
 
     float MIN_BAYES_CONF = 0.001;
+    bool force = false;
 
     //look for a supplier in the text
     for(auto& entry: tags){
@@ -374,13 +377,16 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
 
         if(UtilityAlgorithms::containsSubst(entry.second, s)){
             mfr = entry.first;
+            force = true;
         }
 
     }
 
     //look for a part number in the text"
+    string surePhrase = "";
 
     for(auto& entry: tags){
+
         if(UtilityAlgorithms::isAlphanumeric(entry.first) && (mpn == "" || entry.first.size() > mpn.size())){
             string cleanStr = entry.first;
             mpn = entry.first;
@@ -391,9 +397,9 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
 
             cout << "Checking candidate MPN: " << mpn;
 
-            if(choice.second > MIN_BAYES_CONF){
+            if(choice.second > MIN_BAYES_CONF || force){
                 cout << " -- identified by MPN classifier as :" << choice.first;
-                types.push_back(choice.first);
+                types.emplace(choice.first);
             } else cout << " -- NO MATCH " << endl;
         }
 
@@ -402,10 +408,11 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
             std::size_t pos = entry.second.find(s2);
             string s3 = entry.second.substr(pos);
             string s4 = s3.substr(12, s3.length());
-            cout << "Found material type from tag: " << s4;
-            types.push_back(s4);
+            //cout << "Found material type from tag: " << s4;
+            sureTypes.push_back(s4);
+            surePhrase = entry.first;
             mpn = entry.first;
-        }
+         }
 
         if(mfr == ""){
             //mfr = "GENERIC";
@@ -418,7 +425,7 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
             if(choice.second > MIN_BAYES_CONF){
                 mfr = choice.first;
             } else {
-            mfr = "GENERIC";
+                mfr = "GENERIC";
             }
 
         }
@@ -478,11 +485,11 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
             for(auto& e2: collTypes){
                 if(entry.first == e2.first.first &&(typePhrases[e2.second].size() == 0 || typePhrases[e2.second].back() != entry.first)){ //the tag is in teh phrase and was not already just pushed
                     typePhrases[e2.second].push_back(entry.first);
-                    types.push_back(e2.second);
+                    types.emplace(e2.second);
                 }
                 if(entry.first == e2.first.second && (typePhrases[e2.second].size() == 0 || typePhrases[e2.second].back() != entry.first)){
                     typePhrases[e2.second].push_back(entry.first);
-                    types.push_back(e2.second);
+                    types.emplace(e2.second);
                 }
             }
         }
@@ -500,10 +507,35 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
                 return p1.second < p2.second; });
 
         types.empty();
-        types.push_back(newType->first);
+        types.emplace(newType->first);
         for(auto& i: tags){
             typePhrases[newType->first].push_back(i.first);
         }
+    }
+
+    for(auto& entry: sureTypes){
+        Component* c = new Component;
+        c->mfr = mfr;
+        c->mpn = entry;
+        c->type = entry;
+        string des;
+        c->description = des = surePhrase;
+
+        bool duplicate = false;
+        for(auto& e2: compsOut){
+            if(e2->mfr == mfr && e2->mpn == mpn && e2->description == des){
+                duplicate = true;
+            }
+        }
+
+        if(duplicate) {
+            delete c;
+        } else{
+            compsOut.push_back(c);
+            dwgColl.push_back(c);
+            cout << "Sure compoenent: " << *c << endl;
+        }
+
     }
 
     for(auto& entry: types){
@@ -524,14 +556,36 @@ int Controller::buildComponentsFromPhrase(BayesianClassifier& bayes, vector<pair
 
             Component* c = new Component();
             c->mfr = mfr;
-            c->type = entry;
+
 
             c->description = des; //typePhrases[entry];
-            if(mpn == "") c->mpn = des; //typePhrases[entry];
-            else c->mpn = mpn;
+            if(mpn == "") {
+                c->mpn = des; //typePhrases[entry];
+                //c->type =
+            }
+            else {
+                c->mpn = mpn;
+            }
+
+            if(c->description == "") c->description = c->mfr + " : " + c->mpn;
+
+            string s = ".txt";
+            if(UtilityAlgorithms::containsSubst(c->mpn, s))
+                    c->type = "subassembly";
+                    else c->type = entry;
+
             cout << "Created component: " << *c << endl;
-            compsOut.push_back(c);
-            dwgColl.push_back(c);
+
+            bool hasDuplicate = false;
+            for(auto& e2: dwgColl){
+                if(e2->mfr == c->mfr && e2->mpn == c->mpn && e2->type == c->type) hasDuplicate = true;
+            }
+            if(hasDuplicate) {
+                delete c;
+            } else{
+                compsOut.push_back(c);
+                dwgColl.push_back(c);
+            }
         }
     }
 

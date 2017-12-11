@@ -93,6 +93,13 @@ bool UtilityAlgorithms::endsWith(string& str, string& endStr){
     return true;
 }
 
+
+bool UtilityAlgorithms::isAncestor(Component* c1, Component* c2){
+    if(c1->parent == NULL) return false;
+    if(c1->parent == c2) return true;
+    return(isAncestor(c1->parent, c2));
+}
+
 bool UtilityAlgorithms::mapContainsKey(map<string, int>& m, string& s){
 
     map<string, int>::iterator it = m.find(s);

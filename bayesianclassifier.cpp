@@ -522,11 +522,15 @@ int BayesianClassifier::createParents(vector<Component*>& comps, string& parentD
         //iterate over parent types but only while e1's parent is not assigned
         for(it = parentTypes.begin(); it != parentTypes.end() && e1->parent == NULL; ++it){
             //disallow wastebasket taxa
-            if(it->first != "" && it->first != "subassembly" && it->first != "complex article"){
+            if(it->first != "" && it->first != "subassembly" && it->first != "complex article" && it->first != "chemical substance, known"){
                 for(auto& e3: comps){
                     if(e3 != e1 && e3->type != e1->type){
                         if(e3->type == it->first){
-                            e1->setParent(e3);
+                            if(!UtilityAlgorithms::isAncestor(e1, e3) || e1->parent == NULL || e1->parent->parent == NULL || e1->parent->parent->parent == NULL || e1->parent->parent->parent->parent == NULL){
+                                e1->setParent(e3);
+                            } else{
+                                e1->setParent(c);
+                            }
                         }
                     }
                 }

@@ -596,7 +596,10 @@ bool LanguageProcessor::isAdjective(pair<string,string>& word){
 
     if(word.second == "JJ" ||       //    Adjective: beautiful, large, inspectable
            word.second == "JJR" ||      //   Adjective, comparative: larger, quicker
-           word.second == "JJS"         //   Adjective, superlative: largest, quickes
+           word.second == "JJS" ||        //   Adjective, superlative: largest, quickes
+            word.second == "jj" ||       //    Adjective: beautiful, large, inspectable
+            word.second == "jjr" ||      //   Adjective, comparative: larger, quicker
+            word.second == "jjs"        //   Adjective, superlative: largest, quickes
            ) return true;
 
     return false;
@@ -627,7 +630,16 @@ bool LanguageProcessor::isVerb(pair<string,string>& word){
         word.second == "VBG" || //   Verb, gerund/present participle: eating, jumping, believing
         word.second == "VBN" || //   Verb, past participle: eaten, jumped, believed
         word.second == "VBP" || //   Verb, non-3rd ps. sing. present: eat, jump, believe, am (as in 'I am'), are
-        word.second == "VBZ"    //   Verb, 3rd ps. sing. present: eats, jumps, believes, is, has
+        word.second == "VBZ" ||   //   Verb, 3rd ps. sing. present: eats, jumps, believes, is, has
+        word.second == "to" || // "To" is in here for now for infinitives
+        word.second == "md" || //    Modal: should, can, need, must, will, would
+        word.second == "vb" || //    Verb, base form: eat, jump, believe, be, have
+        word.second == "vbd" || //   Verb, past tense: ate, jumped, believed
+        word.second == "vbg" || //   Verb, gerund/present participle: eating, jumping, believing
+        word.second == "vbn" || //   Verb, past participle: eaten, jumped, believed
+        word.second == "vbp" || //   Verb, non-3rd ps. sing. present: eat, jump, believe, am (as in 'I am'), are
+        word.second == "vbz"    //   Verb, 3rd ps. sing. present: eats, jumps, believes, is, has
+
 
         ) return true;
 
@@ -658,7 +670,11 @@ bool LanguageProcessor::isAdverb(pair<string,string>& word){
     if (word.second == "RB" || //    Adverb and negation: easily, sunnily, suddenly, specifically, not
         word.second == "RBR" || //   Adverb, comparative: better, faster, quicker
         word.second == "RBS" || //   Adverb, superlative: best, fastest, quickest
-        word.second == "WRB" //   wh-adverb: however, how, wherever, where, when, why
+        word.second == "WRB" ||//   wh-adverb: however, how, wherever, where, when, why
+        word.second == "rb" || //    Adverb and negation: easily, sunnily, suddenly, specifically, not
+        word.second == "rbr" || //   Adverb, comparative: better, faster, quicker
+        word.second == "rbs" || //   Adverb, superlative: best, fastest, quickest
+        word.second == "wrb" //   wh-adverb: however, how, wherever, where, when, why
         ) return true;
 
     return false;

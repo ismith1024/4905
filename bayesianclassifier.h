@@ -11,6 +11,7 @@
 #include"QStringList"
 #include"repository.h"
 #include"algorithm"
+#include"utilityalgorithms.h"
 
 using namespace std;
 
