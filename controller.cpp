@@ -86,29 +86,32 @@ void Controller::runTestCase(int tcNum){
     string dir = "/home/ian/Data/Testcases/";
     dir += to_string(tcNum) + "/testcase.txt";
 
-    vector<TestFile*> files = vector<TestFile*>();
-    vector<string> text = vector<string>();
+    cout << "Start test case : " << tcNum << endl << dir << endl << endl;
 
-    vector<Component*> results = vector<Component*>();
-    BayesianClassifier bayes = BayesianClassifier();
+    vector<TestFile*> files;// = vector<TestFile*>();
+    vector<string> text;// = vector<string>();
+
+    vector<Component*> results;// = vector<Component*>();
+    BayesianClassifier bayes;// = BayesianClassifier();
 
     //Open the corpus
-    processor.getXML();
-    processor.countTags();
+    processor.getXML(); //c
+    processor.countTags(); //c
     map<string, int> supplierNumbers;
     map<string, string> techDictionary;
-    repo.getSupplierNumbers(supplierNumbers);
-    repo.getMaterialTypes(techDictionary);
+    repo.getSupplierNumbers(supplierNumbers);//c
+    repo.getMaterialTypes(techDictionary); //c
 
     //Train collocation classifier
-    vector<pair<string,string>> colls = vector<pair<string,string>>();
-    vector<Component*> components = vector<Component*>();
-    repo.getComponentsIncludingGenerics(components);
-    getCollocationsFromDBDescriptions(colls);
+    vector<pair<string,string>> colls; // = vector<pair<string,string>>();
+    vector<Component*> components; // = vector<Component*>();
+    repo.getComponentsIncludingGenerics(components); //c
+    getCollocationsFromDBDescriptions(colls); //c
 
     ///////////// Open test case file
     vector<string>::iterator it;
 
+    cout << "Open file..." << endl;
     ifstream thefile(dir);
     string line = "";
     if (!thefile.is_open()){
@@ -125,7 +128,7 @@ void Controller::runTestCase(int tcNum){
         text = vector<string>();
         QString theLine = QString::fromStdString(line);
 
-        //cout << "Read line: " << line << endl;
+        cout << "Read line: " << line << endl;
 
         QStringList pieces = theLine.split('~');
 
@@ -137,6 +140,7 @@ void Controller::runTestCase(int tcNum){
         for(auto& entry: pieces){
             if(line.size() > 0)
             testFile->lines.push_back(entry.toStdString());
+            cout << "Found: " << entry.toStdString() << endl;
         }
 
         files.push_back(testFile);
@@ -144,19 +148,21 @@ void Controller::runTestCase(int tcNum){
     }
     thefile.close();
 
+    cout << "Join the files: " << endl;
+
     //join the files
     for(auto& e1: files){
         for(auto& e2: files){
             for(auto& e3: e2->lines){
                 if(e3 == e1->filename){
                     e1->parent = e2;
-                    //cout << "Parented file " << e1->filename << " to " << e2->filename << endl;
+                    cout << "Parented file " << e1->filename << " to " << e2->filename << endl;
                 }
             }
             for(auto& e3: e1->lines){
                 if(e3 == e2->filename){
                     e2->parent = e1;
-                    //cout << "Parented file " << e2->filename << " to " << e1->filename << endl;
+                    cout << "Parented file " << e2->filename << " to " << e1->filename << endl;
                 }
             }
 
@@ -609,6 +615,8 @@ void Controller::cleanTestCase(int tcNum){
 /// Used during development to find the word collocations from the training set
 void Controller::getCollocationsFromDBDescriptions(vector<pair<string, string>>& coll){
 
+    cout << "Controller::getCollocationsFromDBDescriptions" << endl;
+
     vector<string> allDescriptions = vector<string>();
     map<string, int> singles = map<string, int>();
     map<pair<string,string>, int> pairs = map<pair<string,string>, int>();
@@ -617,7 +625,8 @@ void Controller::getCollocationsFromDBDescriptions(vector<pair<string, string>>&
     //repo.getAllDescriptionsFromDB(allDescriptions);
     repo.getContractsComponentsDescriptionsFromDB(allDescriptions);
 
-    //for(auto& entry: allDescriptions) cout << entry << endl;
+    cout << "Found component Descriptions:" << endl;
+    for(auto& entry: allDescriptions) cout << entry << endl;
 
     processor.findCollocationMetrics(allDescriptions, singles, pairs, tok);
 
@@ -628,7 +637,7 @@ void Controller::getCollocationsFromDBDescriptions(vector<pair<string, string>>&
 
     cout << "Getting Collocations From DB ............" << endl;
     for(auto& entry: collocations){
-        //cout << "<" << entry.first << "," << entry.second << ">" << endl;
+        cout << "<" << entry.first << "," << entry.second << ">" << endl;
         if(entry.first != entry.second){
             coll.push_back(entry);
         }

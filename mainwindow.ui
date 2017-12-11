@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>619</width>
-    <height>392</height>
+    <height>391</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -236,19 +236,6 @@
     </property>
     <property name="text">
      <string>Execute One-of Function</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_9">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>300</y>
-      <width>171</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Test Extract Components</string>
     </property>
    </widget>
    <widget class="QSpinBox" name="tcBox">

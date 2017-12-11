@@ -168,6 +168,8 @@ int LanguageProcessor::getXML(){
     ifstream xml2("/home/ian/Data/techwords.xml");
     string line = "";
 
+    cout << "LanguageProcessor :: Open Brown Corpus " << endl;
+
     //this gets the Brown Corpus
     if (xmlfile.is_open() && xml2.is_open()) {
         while ( getline (xmlfile,line) ) {
@@ -191,6 +193,7 @@ int LanguageProcessor::getXML(){
           }
         }
 
+        cout << "LanguageProcessor :: Open the technical dictionary" << endl;
         //this gets the augmented vocabulary
         while ( getline (xml2,line) ) {
           QString qs = QString::fromStdString(line);
@@ -206,7 +209,7 @@ int LanguageProcessor::getXML(){
                       //s1 = tolower(s1);
                       string s2 = pieces2.at(1).toStdString();
                       //count++;
-                      //cout << s2 << " : " << s1 << endl;
+                      cout << s2 << " : " << s1 << endl;
                       dict->push_back(make_pair(s2, s1));
                   }
               }

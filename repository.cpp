@@ -34,6 +34,10 @@ void Repository::getComponentsIncludingGenerics(vector<Component*>& coll){
     QSqlQuery query;
     //database.open();
 
+    cout << "Repository::getComponentsIncludingGenerics" << endl;
+    cout << "Retrieving TREEFROG database..." << endl;
+    cout << "Execute \"SELECT * FROM comps UNION ALL SELECT * FROM generics WHERE TYPE IS NOT NULL;\"" << endl;
+
     if (!query.exec("SELECT * FROM comps UNION ALL SELECT * FROM generics WHERE TYPE IS NOT NULL;")){
          qDebug() << "getComponents SQL error: "<< query.lastError().text() << endl;
          exit(-1);
@@ -50,6 +54,8 @@ void Repository::getComponentsIncludingGenerics(vector<Component*>& coll){
         string type = query.value(3).toString().toLower().toStdString();
 
         newComp = new Component(mfr, mpn, desc, type);
+
+        cout << "Component| MFR: " << mfr << " | MPN: " << mpn << " | Description: " << desc << " | Type: " <<type << " |" << endl;
 
         coll.push_back(newComp);
     }
@@ -217,10 +223,14 @@ int Repository::getSupplierNumbers(map<string, int>& numbers){
          return -1;
     }
 
+    cout << "Repository :: Get Supplier Numbers" << endl << "Executing \"SELECT * FROM suppliers;\"" << endl;
+
+
     while(query.next()){
         string s1 = query.value(0).toString().toLower().toStdString();
         int s2 = query.value(1).toInt();
         numbers[s1] = s2;
+        cout << s1 << " : " << s2 << endl;
     }
 
     return 0;
@@ -490,6 +500,9 @@ int Repository::getMaterialTypes(map<string, string>& collection){
 
     QSqlQuery query, query2;
 
+    cout << "Repository::GetMaterialTypes" << endl;
+    cout << "Execute \"SELECT * FROM techwords;\"" << endl;
+
     if (!query.exec("SELECT * FROM techwords;")){
          qDebug() << "getMaterialTypes SQL error: "<< query.lastError().text() << endl;
          return -1;
@@ -499,6 +512,7 @@ int Repository::getMaterialTypes(map<string, string>& collection){
         string s1 = query.value(0).toString().toLower().toStdString();
         string s2 = query.value(1).toString().toLower().toStdString();
         collection[s1] = s2;
+        cout << s1 << " : " << s2 << endl;
     }
 
     if (!query2.exec("SELECT * FROM materialDictionary;")){
