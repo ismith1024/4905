@@ -524,13 +524,14 @@ int BayesianClassifier::createParents(vector<Component*>& comps, string& parentD
             //disallow wastebasket taxa
             if(it->first != "" && it->first != "subassembly" && it->first != "complex article" && it->first != "chemical substance, known"){
                 for(auto& e3: comps){
-                    if(e3 != e1 && e3->type != e1->type){
+                    if(e3 != e1 && e3->type != e1->type && e3->parent != e1 && e1->parent != e3){
                         if(e3->type == it->first){
-                            if(!UtilityAlgorithms::isAncestor(e1, e3) || e1->parent == NULL || e1->parent->parent == NULL || e1->parent->parent->parent == NULL || e1->parent->parent->parent->parent == NULL){
+                            //if(!UtilityAlgorithms::isAncestor(e1, e3)){
+                              if(e3->parent != NULL && e3->parent != e1)
                                 e1->setParent(e3);
-                            } else{
+                            else
                                 e1->setParent(c);
-                            }
+                            //}
                         }
                     }
                 }

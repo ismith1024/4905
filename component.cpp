@@ -40,8 +40,12 @@ bool Component::operator==(Component& c){
     string type;*/
 
 void Component::setParent(Component* par){
-    parent = par;
-    par->children.push_back(this);
+    if ( std::find(children.begin(), children.end(), par) != children.end() )
+       return;
+    else{
+        parent = par;
+        par->children.push_back(this);
+    }
 }
 
 

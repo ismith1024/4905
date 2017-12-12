@@ -24,7 +24,7 @@ public:
 
     friend std::ostream& operator<< (std::ostream& os, const Component& obj){
         os << "MFR: " << obj.mfr << " .. MPN: " << obj.mpn << " .. Type: " << obj.type << " .. DESC: " << obj.description << ((!obj.parent) ? " .. Parent: ROOT" : (" .. Parent: " + obj.parent->description)) << endl;
-        for(auto& e1: obj.children) os << *e1 << endl;
+        //for(auto& e1: obj.children) os << *e1 << endl;
         return os;
     }
 
